@@ -3,4 +3,9 @@
     <string name="versionName">version 0.0.1</string>
     <string name="newTrip">New Mock</string>
     <string name="mockArchive">Mock Archive</string>
+    <string name="requestLocationPermissionRelational">We should have (Location Permissions) for working correctly!</string>
+    <string name="iAccept">I Accept!</string>
+    <string name="locationIsOff">Your location provider is OFF!</string>
+    <string name="turnOn">Turn On</string>
+    <string name="unknownProblem">There was a Problem on Running Application</string>
 </resources>
