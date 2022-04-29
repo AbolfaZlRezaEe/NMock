@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NMock">
         <activity
-            android:name=".view.home.MainActivity"
+            android:name=".view.home.HomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
