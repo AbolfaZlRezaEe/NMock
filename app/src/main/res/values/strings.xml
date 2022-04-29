@@ -8,4 +8,6 @@
     <string name="locationIsOff">Your location provider is OFF!</string>
     <string name="turnOn">Turn On</string>
     <string name="unknownProblem">There was a Problem on Running Application</string>
+    <string name="applyOrigin">Apply Origin Location</string>
+    <string name="chooseOriginLocation">Please choose Origin Location</string>
 </resources>

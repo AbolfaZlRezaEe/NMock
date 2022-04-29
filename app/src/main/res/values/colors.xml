@@ -10,5 +10,8 @@
 
     <!-- Custom Colors -->
     <color name="primary10">#BCEFFF</color>
+    <color name="blue30">#15A1C3</color>
+    <color name="gray50">#BFBFBF</color>
+    <color name="gray30">#DDDDDD</color>
 
 </resources>
