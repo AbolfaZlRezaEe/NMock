@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.model.model.locationInfo
+package me.abolfazl.nmock.model.models.locationInfo
 
 data class LocationInfoDataclass(
     val city: String,

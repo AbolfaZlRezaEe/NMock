@@ -6,9 +6,9 @@ data class StepModel(
     @SerializedName("bearing_after")
     val bearing_after: Int,
     @SerializedName("distance")
-    val distance: DistanceX,
+    val distance: DistanceModel,
     @SerializedName("duration")
-    val duration: DurationX,
+    val duration: DurationModel,
     @SerializedName("exit")
     val exit: Int,
     @SerializedName("instruction")
