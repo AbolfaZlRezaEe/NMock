@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class RoutingInfoModel(
     @SerializedName("routes")
-    val routes: List<Route>
+    val routeModels: List<RouteModel>
 )
