@@ -8,4 +8,12 @@ object Constant {
     const val TYPE_AUTOMATIC_CREATE = "AUTOMATIC_CREATION"
 
     const val DATABASE_NAME = "nmock_db"
+
+    const val HEADER_API_KEY = "Api-Key"
+    const val HEADER_VALUE_API_KEY = "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
+
+    // Location
+    const val LOCATION_REQUEST = 1005
+    const val LOCATION_INTERVAL: Long = 1000
+    const val LOCATION_FASTEST_INTERVAL: Long = 500
 }

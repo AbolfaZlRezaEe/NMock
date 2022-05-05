@@ -3,22 +3,30 @@ package me.abolfazl.nmock.model.apiService.models.locationInfo
 import com.google.gson.annotations.SerializedName
 
 data class LocationInfoModel(
-    @SerializedName("addresses")
-    val addresses: List<Addresses>,
     @SerializedName("city")
     val city: String,
     @SerializedName("formatted_address")
-    val formatted_address: String,
+    val formattedAddress: String,
     @SerializedName("municipality_zone")
-    val municipality_zone: String,
+    val municipalityZone: String,
     @SerializedName("neighbourhood")
     val neighbourhood: String,
     @SerializedName("route_name")
-    val route_name: String,
+    val routeName: String,
     @SerializedName("route_type")
-    val route_type: String,
+    val routeType: String,
     @SerializedName("state")
     val state: String,
     @SerializedName("status")
-    val status: String
+    val status: String,
+    @SerializedName("in_traffic_zone")
+    val inTrafficZone: Boolean,
+    @SerializedName("in_odd_even_zone")
+    val inOddEvenZone: Boolean,
+    @SerializedName("place")
+    val place: String?,
+    @SerializedName("district")
+    val district: String,
+    @SerializedName("village")
+    val village: String?
 )

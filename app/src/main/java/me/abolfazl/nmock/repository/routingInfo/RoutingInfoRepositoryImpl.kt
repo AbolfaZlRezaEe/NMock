@@ -37,6 +37,7 @@ class RoutingInfoRepositoryImpl @Inject constructor(
         if (response.isSuccessful) {
             response.body()?.let {
                 emit(Success(toRoutingInfoDataclass(it)))
+                return@flow
             }
             emit(Failure(NMockException(type = EXCEPTION_UNKNOWN)))
         } else {
@@ -70,7 +71,7 @@ class RoutingInfoRepositoryImpl @Inject constructor(
     private fun toRoutingDataclassList(
         routeModel: List<RouteModel>
     ): List<RouteDataclass> {
-        val result = MutableList<RouteDataclass>()
+        val result = ArrayList<RouteDataclass>()
         routeModel.forEach {
             result.add(RouteDataclass(toLegDataclassList(it.legModels)))
         }

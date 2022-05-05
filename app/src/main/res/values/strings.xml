@@ -10,4 +10,10 @@
     <string name="unknownProblem">There was a Problem on Running Application</string>
     <string name="applyOrigin">Apply Origin Location</string>
     <string name="chooseOriginLocation">Please choose Origin Location</string>
+    <string name="chooseDestinationLocation">Please choose Destination Location</string>
+    <string name="withoutLocationInformation">Please choose someWhere for origin...</string>
+    <string name="pleaseTurnOnLocation">For using this app, you must turning on the location!</string>
+    <string name="locationPermissionRational">This app must have location permission!</string>
+    <string name="save">save</string>
+    <string name="youCanSaveNow">You can save your Trip now!</string>
 </resources>

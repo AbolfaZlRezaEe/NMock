@@ -23,6 +23,7 @@ class LocationInfoRepositoryImpl @Inject constructor(
         if (response.isSuccessful) {
             response.body()?.let { result ->
                 emit(Success(toLocationInfoDataclass(result)))
+                return@flow
             }
             emit(Failure(NMockException(type = EXCEPTION_UNKNOWN)))
         } else {
@@ -33,10 +34,7 @@ class LocationInfoRepositoryImpl @Inject constructor(
     private fun toLocationInfoDataclass(
         locationInfoModel: LocationInfoModel
     ): LocationInfoDataclass = LocationInfoDataclass(
-        city = locationInfoModel.city,
-        fullAddress = locationInfoModel.formatted_address,
-        state = locationInfoModel.state,
-        httpStatus = locationInfoModel.status
+        fullAddress = locationInfoModel.formattedAddress,
     )
 
 }

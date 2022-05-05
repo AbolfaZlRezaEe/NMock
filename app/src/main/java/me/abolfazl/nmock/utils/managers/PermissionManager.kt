@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.utils
+package me.abolfazl.nmock.utils.managers
 
 import android.Manifest
 import android.content.Context
@@ -10,7 +10,7 @@ import androidx.core.app.ActivityCompat
 
 object PermissionManager {
 
-    fun checkingPermissions(@NonNull context: Context): Boolean {
+    fun permissionsIsGranted(@NonNull context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             (checkPermissionIsGranted(Manifest.permission.ACCESS_COARSE_LOCATION, context)
                     && checkPermissionIsGranted(Manifest.permission.ACCESS_FINE_LOCATION, context)
