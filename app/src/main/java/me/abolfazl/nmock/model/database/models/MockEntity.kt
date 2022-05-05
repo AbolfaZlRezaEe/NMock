@@ -3,6 +3,7 @@ package me.abolfazl.nmock.model.database.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import me.abolfazl.nmock.model.database.MockType
 import me.abolfazl.nmock.utils.Constant
 
 @Entity(tableName = "mock_table")
@@ -11,6 +12,7 @@ data class MockEntity(
     @ColumnInfo(name = "id")
     val id: Long? = null,
     @ColumnInfo(name = "mock_type")
+    @MockType
     val mockType: String = Constant.TYPE_CUSTOM_CREATE,
     @ColumnInfo(name = "mock_name")
     val mockName: String,
