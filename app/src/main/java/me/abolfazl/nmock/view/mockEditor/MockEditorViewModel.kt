@@ -121,6 +121,23 @@ class MockEditorViewModel @Inject constructor(
         }
     }
 
+    fun clearTripInformation(
+        clearOrigin: Boolean
+    ) {
+        if (clearOrigin) {
+            _mockEditorState.value = _mockEditorState.value.copy(
+                destinationAddress = null,
+                originAddress = null,
+                lineVector = null
+            )
+        } else {
+            _mockEditorState.value = _mockEditorState.value.copy(
+                destinationAddress = null,
+                lineVector = null
+            )
+        }
+    }
+
     private fun getLocationFormattedForServer(
         location: LatLng
     ): String {

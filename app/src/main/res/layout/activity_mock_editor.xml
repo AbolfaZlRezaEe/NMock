@@ -153,15 +153,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:fontFamily="@font/roboto_bold"
             android:gravity="center"
-            tools:visibility="visible"
             android:text="@string/save"
             android:visibility="gone"
             app:icon="@drawable/ic_save_24"
+            app:layout_constraintBottom_toTopOf="@+id/undoExtendedFab"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/undoExtendedFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/undo"
+            android:fontFamily="@font/roboto_bold"
+            app:icon="@drawable/ic_undo_24"
+            android:visibility="gone"
+            tools:visibility="visible"
             app:layout_constraintBottom_toTopOf="@+id/materialCardView2"
             app:layout_constraintStart_toStartOf="parent" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -7,18 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockEditorBinding
@@ -32,7 +28,6 @@ import me.abolfazl.nmock.view.save.SaveMockCallback
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
-import timber.log.Timber
 
 @AndroidEntryPoint
 class MockEditorActivity : AppCompatActivity() {
@@ -70,6 +65,8 @@ class MockEditorActivity : AppCompatActivity() {
         binding.closeFloatingActionButton.setOnClickListener { this.finish() }
 
         binding.saveExtendedFab.setOnClickListener(this::onSaveClicked)
+
+        binding.undoExtendedFab.setOnClickListener(this::onUndoClicked)
     }
 
     private fun initObservers() {
@@ -82,6 +79,10 @@ class MockEditorActivity : AppCompatActivity() {
                         binding.originTextView.text = locationInformationFormat(originAddress, true)
                         binding.titleTextView.text =
                             resources.getText(R.string.chooseDestinationLocation)
+                        binding.undoExtendedFab.show()
+                        binding.undoExtendedFab.postDelayed({
+                            binding.undoExtendedFab.shrink()
+                        }, 3000)
                     }
 
                     state.destinationAddress?.let { destinationAddress ->
@@ -118,6 +119,8 @@ class MockEditorActivity : AppCompatActivity() {
                 ).show()
                 if (message == SUCCESS_TYPE_MOCK_INSERTION) {
                     mockSaverDialog?.dismiss()
+                    resetUiStateToDefault()
+                    viewModel.clearTripInformation(true)
                     // todo: showing dialog for going to play activity...
                 }
             }
@@ -277,6 +280,33 @@ class MockEditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun onUndoClicked(view: View) {
+        val destinationMarker =
+            getMarkerFromLayer(markerLayer, MarkerManager.ELEMENT_ID_DESTINATION_MARKER)
+        if (destinationMarker != null) {
+            binding.mapview.removeMarker(destinationMarker)
+            markerLayer.remove(destinationMarker)
+            polylineLayer.forEach { polyline ->
+                binding.mapview.removePolyline(polyline)
+            }
+            polylineLayer.clear()
+            binding.saveExtendedFab.hide()
+            viewModel.clearTripInformation(false)
+            binding.titleTextView.text = getString(R.string.chooseDestinationLocation)
+            binding.destinationTextView.visibility = View.GONE
+        } else {
+            val originMarker =
+                getMarkerFromLayer(markerLayer, MarkerManager.ELEMENT_ID_ORIGIN_MARKER)
+            originMarker?.let { marker ->
+                binding.mapview.removeMarker(marker)
+                markerLayer.remove(marker)
+                binding.undoExtendedFab.hide()
+            }
+            binding.titleTextView.text = getString(R.string.chooseOriginLocation)
+            binding.originTextView.text = getString(R.string.withoutLocationInformation)
+        }
+    }
+
     private fun getMarkerFromLayer(
         layer: ArrayList<Marker>,
         id: String
@@ -312,6 +342,22 @@ class MockEditorActivity : AppCompatActivity() {
     ) {
         binding.mapview.moveCamera(location, 0F)
         binding.mapview.setZoom(zoom, 0.15F)
+    }
+
+    private fun resetUiStateToDefault() {
+        binding.titleTextView.text = getString(R.string.chooseOriginLocation)
+        binding.originTextView.text = getString(R.string.withoutLocationInformation)
+        binding.destinationTextView.visibility = View.GONE
+        binding.saveExtendedFab.hide()
+        binding.undoExtendedFab.hide()
+        markerLayer.forEach { marker ->
+            binding.mapview.removeMarker(marker)
+        }
+        markerLayer.clear()
+        polylineLayer.forEach { polyline ->
+            binding.mapview.removePolyline(polyline)
+        }
+        polylineLayer.clear()
     }
 
     override fun onResume() {

@@ -67,7 +67,6 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun initListeners() {
         binding.closeAppCompatImageView.setOnClickListener { mockCallback?.onClose() }
-        binding.cancelMaterialButton.setOnClickListener { mockCallback?.onClose() }
         binding.saveMaterialButton.setOnClickListener(this::onSaveButtonClick)
         binding.speedTextInputEditText.doOnTextChanged { text, _, _, _ ->
             if (text?.length!! > 3) {

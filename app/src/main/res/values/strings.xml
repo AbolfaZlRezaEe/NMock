@@ -26,4 +26,5 @@
     <string name="speed">Speed</string>
     <string name="speedError">You must have a speed for your Mock!</string>
     <string name="unValidSpeed">You can only use speeds between 0 to 999 kilometers!</string>
+    <string name="undo">undo</string>
 </resources>
