@@ -41,7 +41,7 @@ class MockRepositoryImpl @Inject constructor(
                         latitude = latLng.latitude,
                         longitude = latLng.longitude,
                         // for now...
-                        speed = Constant.DEFAULT_MOCK_SPEED,
+                        speed = mockDataClass.speed.toFloat(),
                         time = System.currentTimeMillis(),
                         elapsedRealTime = SystemClock.elapsedRealtimeNanos(),
                         bearing = 0F,

@@ -3,6 +3,7 @@ package me.abolfazl.nmock.view.mockEditor
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -14,6 +15,7 @@ import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepository
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.response.SUCCESS_TYPE_MOCK_INSERTION
+import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_FORCE_CLOSE
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
 import me.abolfazl.nmock.utils.response.ifSuccessful
@@ -36,18 +38,30 @@ class MockEditorViewModel @Inject constructor(
     private val _oneTimeEmitter = MutableSharedFlow<String>()
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Timber.e("Exception thrown in MockEditorViewModel: " + throwable.message)
+        viewModelScope.launch {
+            _oneTimeEmitter.emit("$EXCEPTION_FORCE_CLOSE thrown. please check the logcat!")
+        }
+    }
+
     fun getLocationInformation(
         location: LatLng,
         isOrigin: Boolean
-    ) = viewModelScope.launch {
+    ) = viewModelScope.launch(exceptionHandler) {
         locationInfoRepository.getLocationInformation(
             location.latitude,
             location.longitude
         ).collect { response ->
             response.ifSuccessful { result ->
-                _mockEditorState.value = MockEditorState.build(_mockEditorState.value) {
-                    if (isOrigin) originAddress = result.fullAddress
-                    else destinationAddress = result.fullAddress
+                if (isOrigin) {
+                    _mockEditorState.value = _mockEditorState.value.copy(
+                        originAddress = result.fullAddress
+                    )
+                } else {
+                    _mockEditorState.value = _mockEditorState.value.copy(
+                        destinationAddress = result.fullAddress
+                    )
                 }
             }
             response.ifNotSuccessful { exception ->
@@ -61,15 +75,15 @@ class MockEditorViewModel @Inject constructor(
     fun getRouteInformation(
         originLocation: LatLng,
         destinationLocation: LatLng
-    ) = viewModelScope.launch {
+    ) = viewModelScope.launch(exceptionHandler) {
         routingInfoRepository.getRoutingInformation(
             origin = getLocationFormattedForServer(originLocation),
             destination = getLocationFormattedForServer(destinationLocation)
         ).collect { response ->
             response.ifSuccessful { result ->
-                _mockEditorState.value = MockEditorState.build(_mockEditorState.value) {
+                _mockEditorState.value = _mockEditorState.value.copy(
                     lineVector = result.routeModels[0].getRouteLineVector()
-                }
+                )
             }
             response.ifNotSuccessful { exception ->
                 // for now...
@@ -81,8 +95,9 @@ class MockEditorViewModel @Inject constructor(
 
     fun saveMockInformation(
         mockName: String,
-        mockDescription: String
-    ) = viewModelScope.launch {
+        mockDescription: String,
+        speed: Int
+    ) = viewModelScope.launch(exceptionHandler) {
         val lineVector = mockEditorState.value.lineVector
         if (lineVector == null) {
             _oneTimeEmitter.emit(EXCEPTION_INSERTION_ERROR)
@@ -93,6 +108,7 @@ class MockEditorViewModel @Inject constructor(
                 mockName = mockName,
                 mockDescription = mockDescription,
                 mockType = Constant.TYPE_CUSTOM_CREATE,
+                speed = speed,
                 lineVector = lineVector
             )
         ).collect { response ->

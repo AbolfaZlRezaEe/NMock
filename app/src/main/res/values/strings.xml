@@ -22,4 +22,8 @@
     <string name="cancel">Cancel</string>
     <string name="mockDescriptionHelper">You can leave it empty...</string>
     <string name="youMustHaveANameForIt">You must have a Name for it!</string>
+    <string name="speedHelper">You can change it later...</string>
+    <string name="speed">Speed</string>
+    <string name="speedError">You must have a speed for your Mock!</string>
+    <string name="unValidSpeed">You can only use speeds between 0 to 999 kilometers!</string>
 </resources>

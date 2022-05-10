@@ -6,7 +6,6 @@ object Constant {
     // Mock types
     const val TYPE_CUSTOM_CREATE = "CUSTOM_CREATION"
     const val TYPE_AUTOMATIC_CREATE = "AUTOMATIC_CREATION"
-    const val DEFAULT_MOCK_SPEED = 30F
 
     // Mock Provider
     const val PROVIDER_GPS = "GPS_PROVIDER"

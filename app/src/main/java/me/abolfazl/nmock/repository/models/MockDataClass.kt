@@ -9,5 +9,6 @@ data class MockDataClass(
     val mockDescription: String,
     @MockType
     val mockType: String,
-    val lineVector:ArrayList<List<LatLng>>
+    val speed: Int,
+    val lineVector: ArrayList<List<LatLng>>
 )

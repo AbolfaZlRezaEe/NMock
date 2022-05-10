@@ -113,7 +113,7 @@ class MockEditorActivity : AppCompatActivity() {
                 showLoadingProgressbar(false)
                 Snackbar.make(
                     findViewById(R.id.mockEditorRootView),
-                    message,
+                    "Message: $message",
                     Snackbar.LENGTH_SHORT
                 ).show()
                 if (message == SUCCESS_TYPE_MOCK_INSERTION) {
@@ -211,7 +211,7 @@ class MockEditorActivity : AppCompatActivity() {
                             focusOnUserLocation(latLngLocation)
                         }
                     } else {
-                        oldMarker.latLng = LatLng(location.latitude, location.longitude)
+                        oldMarker.latLng = latLngLocation
                         focusOnUserLocation(latLngLocation)
                     }
                 }
@@ -251,9 +251,7 @@ class MockEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun onSaveClicked(
-        view: View
-    ) {
+    private fun onSaveClicked(view: View) {
         mockSaverDialog?.dismiss()
         mockSaverDialog = SaveMockBottomSheetDialogFragment.newInstance()
         mockSaverDialog?.let {
@@ -265,11 +263,13 @@ class MockEditorActivity : AppCompatActivity() {
 
                 override fun onSave(
                     mockName: String,
-                    mockDescription: String?
+                    mockDescription: String?,
+                    speed: Int
                 ) {
                     viewModel.saveMockInformation(
                         mockName = mockName,
-                        mockDescription = mockDescription ?: "No Description"
+                        mockDescription = mockDescription ?: "No Description",
+                        speed = speed
                     )
                 }
             })

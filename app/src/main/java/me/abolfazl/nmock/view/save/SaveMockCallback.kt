@@ -6,6 +6,7 @@ interface SaveMockCallback {
 
     fun onSave(
         mockName: String,
-        mockDescription: String?
+        mockDescription: String?,
+        speed: Int
     )
 }

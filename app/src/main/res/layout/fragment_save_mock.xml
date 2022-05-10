@@ -102,6 +102,29 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/speedTextInputLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="@string/speed"
+                    android:textColorHint="@color/gray50"
+                    app:boxStrokeColor="@color/colorPrimary"
+                    app:endIconMode="clear_text"
+                    app:helperText="@string/speedHelper"
+                    app:helperTextEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/speedTextInputEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:fontFamily="@font/roboto_medium"
+                        tools:text="123" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
             </LinearLayout>
 
             <LinearLayout
@@ -142,10 +165,10 @@
                     <ProgressBar
                         android:id="@+id/loadingProgressbar"
                         android:layout_width="40dp"
-                        android:visibility="gone"
                         android:layout_height="40dp"
                         android:layout_gravity="center"
-                        android:indeterminateTint="@color/white" />
+                        android:indeterminateTint="@color/white"
+                        android:visibility="gone" />
                 </FrameLayout>
 
             </LinearLayout>
