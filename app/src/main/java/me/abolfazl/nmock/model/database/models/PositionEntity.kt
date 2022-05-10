@@ -4,6 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import me.abolfazl.nmock.model.database.MockProvider
+import me.abolfazl.nmock.model.database.MockType
 
 @Entity(
     tableName = "position_table",
@@ -35,5 +37,6 @@ data class PositionEntity(
     @ColumnInfo(name = "accuracy")
     val accuracy: Float,
     @ColumnInfo(name = "provider")
+    @MockProvider
     val provider: String,
 )

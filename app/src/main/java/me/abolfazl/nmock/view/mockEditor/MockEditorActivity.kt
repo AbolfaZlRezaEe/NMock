@@ -10,12 +10,15 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockEditorBinding
@@ -23,9 +26,13 @@ import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.managers.LineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
 import me.abolfazl.nmock.utils.managers.PermissionManager
+import me.abolfazl.nmock.utils.response.SUCCESS_TYPE_MOCK_INSERTION
+import me.abolfazl.nmock.view.save.SaveMockBottomSheetDialogFragment
+import me.abolfazl.nmock.view.save.SaveMockCallback
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MockEditorActivity : AppCompatActivity() {
@@ -40,6 +47,8 @@ class MockEditorActivity : AppCompatActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
     private var locationRequest: LocationRequest? = null
+
+    private var mockSaverDialog: SaveMockBottomSheetDialogFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,46 +68,59 @@ class MockEditorActivity : AppCompatActivity() {
         binding.currentLocationFloatingActionButton.setOnClickListener(this::onCurrentLocationClicked)
 
         binding.closeFloatingActionButton.setOnClickListener { this.finish() }
+
+        binding.saveExtendedFab.setOnClickListener(this::onSaveClicked)
     }
 
-    private fun initObservers() = lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.mockEditorState.collect { state ->
+    private fun initObservers() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.mockEditorState.collect { state ->
 
-                state.originAddress?.let { originAddress ->
-                    showLoadingProgressbar(false)
-                    binding.originTextView.text = locationInformationFormat(originAddress, true)
-                    binding.titleTextView.text =
-                        resources.getText(R.string.chooseDestinationLocation)
-                }
-
-                state.destinationAddress?.let { destinationAddress ->
-                    showLoadingProgressbar(false)
-                    binding.destinationTextView.visibility = View.VISIBLE
-                    binding.destinationTextView.text =
-                        locationInformationFormat(destinationAddress, false)
-                }
-
-                state.lineVector?.let { vectors ->
-                    showLoadingProgressbar(false)
-                    val lineStyle = LineManager.createLineStyle()
-                    vectors.forEach { lineVector ->
-                        val polyLine = LineManager.createLineFromVectors(lineStyle, lineVector)
-                        binding.mapview.addPolyline(polyLine)
-                        polylineLayer.add(polyLine)
+                    state.originAddress?.let { originAddress ->
+                        showLoadingProgressbar(false)
+                        binding.originTextView.text = locationInformationFormat(originAddress, true)
+                        binding.titleTextView.text =
+                            resources.getText(R.string.chooseDestinationLocation)
                     }
-                    binding.titleTextView.text = getString(R.string.youCanSaveNow)
-                    binding.saveExtendedFab.show()
-                    binding.saveExtendedFab.postDelayed({
-                        binding.saveExtendedFab.shrink()
-                    }, 5000)
+
+                    state.destinationAddress?.let { destinationAddress ->
+                        showLoadingProgressbar(false)
+                        binding.destinationTextView.visibility = View.VISIBLE
+                        binding.destinationTextView.text =
+                            locationInformationFormat(destinationAddress, false)
+                    }
+
+                    state.lineVector?.let { vectors ->
+                        showLoadingProgressbar(false)
+                        val lineStyle = LineManager.createLineStyle()
+                        vectors.forEach { lineVector ->
+                            val polyLine = LineManager.createLineFromVectors(lineStyle, lineVector)
+                            binding.mapview.addPolyline(polyLine)
+                            polylineLayer.add(polyLine)
+                        }
+                        binding.titleTextView.text = getString(R.string.youCanSaveNow)
+                        binding.saveExtendedFab.show()
+                        binding.saveExtendedFab.postDelayed({
+                            binding.saveExtendedFab.shrink()
+                        }, 5000)
+                    }
                 }
             }
         }
-
-        viewModel.errorEmitter.collect { errorMessage ->
-            showLoadingProgressbar(false)
-            Toast.makeText(this@MockEditorActivity, errorMessage, Toast.LENGTH_SHORT).show()
+        lifecycleScope.launchWhenStarted {
+            viewModel.oneTimeEmitter.collect { message ->
+                showLoadingProgressbar(false)
+                Snackbar.make(
+                    findViewById(R.id.mockEditorRootView),
+                    message,
+                    Snackbar.LENGTH_SHORT
+                ).show()
+                if (message == SUCCESS_TYPE_MOCK_INSERTION) {
+                    mockSaverDialog?.dismiss()
+                    // todo: showing dialog for going to play activity...
+                }
+            }
         }
     }
 
@@ -226,6 +248,32 @@ class MockEditorActivity : AppCompatActivity() {
                     Constant.LOCATION_REQUEST
                 )
             }
+        }
+    }
+
+    private fun onSaveClicked(
+        view: View
+    ) {
+        mockSaverDialog?.dismiss()
+        mockSaverDialog = SaveMockBottomSheetDialogFragment.newInstance()
+        mockSaverDialog?.let {
+            it.setMockCallback(object : SaveMockCallback {
+                override fun onClose() {
+                    it.dismiss()
+                    mockSaverDialog = null
+                }
+
+                override fun onSave(
+                    mockName: String,
+                    mockDescription: String?
+                ) {
+                    viewModel.saveMockInformation(
+                        mockName = mockName,
+                        mockDescription = mockDescription ?: "No Description"
+                    )
+                }
+            })
+            supportFragmentManager.beginTransaction().add(it, it.javaClass.name).commit()
         }
     }
 

@@ -2,7 +2,7 @@ package me.abolfazl.nmock.view.mockEditor
 
 import org.neshan.common.model.LatLng
 
-class MockEditorState(
+data class MockEditorState(
     val originAddress: String? = null,
     val destinationAddress: String? = null,
     val lineVector: ArrayList<List<LatLng>>? = null

@@ -156,6 +156,7 @@
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/roboto_bold"
             android:gravity="center"
+            tools:visibility="visible"
             android:text="@string/save"
             android:visibility="gone"
             app:icon="@drawable/ic_save_24"

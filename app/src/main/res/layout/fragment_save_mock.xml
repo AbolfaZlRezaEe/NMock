@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@+id/titleTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/roboto_bold"
+                android:gravity="start"
+                android:lines="1"
+                android:maxLines="1"
+                android:text="@string/addingNewMock"
+                android:textColor="@color/black"
+                android:textSize="21sp"
+                app:layout_constraintBottom_toBottomOf="@+id/closeAppCompatImageView"
+                app:layout_constraintEnd_toStartOf="@+id/closeAppCompatImageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/closeAppCompatImageView" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/closeAppCompatImageView"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/background_round_grey_border"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_round_close_24"
+                app:tint="@color/gray70" />
+
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@+id/titleTextView">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/mockNameTextInputLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/mockName"
+                    android:textColorHint="@color/gray50"
+                    app:boxStrokeColor="@color/colorPrimary"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/mockNameTextInputEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/roboto_medium"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        tools:text="My First Mock" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/mockDescriptionTextInputLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="@string/mockDescription"
+                    android:textColorHint="@color/gray50"
+                    app:boxStrokeColor="@color/colorPrimary"
+                    app:endIconMode="clear_text"
+                    app:helperText="@string/mockDescriptionHelper"
+                    app:helperTextEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/mockDescriptionTextInputEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_medium"
+                        tools:text="My First Mock Description" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cancelMaterialButton"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="53dp"
+                    android:layout_weight="0.50"
+                    android:fontFamily="@font/roboto_medium"
+                    android:text="@string/cancel"
+                    app:cornerRadius="15dp" />
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="53dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/saveMaterialButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="53dp"
+                        android:fontFamily="@font/roboto_medium"
+                        android:text="@string/save"
+                        android:textColor="@color/white"
+                        app:backgroundTint="@color/colorPrimary"
+                        app:cornerRadius="15dp" />
+
+                    <ProgressBar
+                        android:id="@+id/loadingProgressbar"
+                        android:layout_width="40dp"
+                        android:visibility="gone"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:indeterminateTint="@color/white" />
+                </FrameLayout>
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

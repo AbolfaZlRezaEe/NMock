@@ -17,7 +17,7 @@ data class MockEntity(
     @ColumnInfo(name = "mock_name")
     val mockName: String,
     @ColumnInfo(name = "description")
-    val description: String? = null,
+    val description: String,
     @ColumnInfo(name = "created_at")
     val createdAt: String,
     @ColumnInfo(name = "updated_at")

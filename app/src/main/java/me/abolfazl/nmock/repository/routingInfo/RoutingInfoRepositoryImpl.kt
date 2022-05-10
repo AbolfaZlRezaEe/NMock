@@ -21,8 +21,6 @@ import me.abolfazl.nmock.utils.response.exceptions.NMockException
 import javax.inject.Inject
 
 class RoutingInfoRepositoryImpl @Inject constructor(
-    private val mockDao: MockDao,
-    private val positionDao: PositionDao,
     private val apiService: RoutingApiService
 ) : RoutingInfoRepository {
 
@@ -43,23 +41,6 @@ class RoutingInfoRepositoryImpl @Inject constructor(
         } else {
             emit(Failure(NMockException(type = ExceptionMapper.map(response.code()))))
         }
-    }
-
-    override suspend fun addMock(
-        mockType: String,
-        mockName: String,
-        mockDescription: String?,
-        routingInfoDataclass: RoutingInfoDataclass
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteMock(mockEntity: MockEntity) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun updateMock(mockEntity: MockEntity) {
-        TODO("Not yet implemented")
     }
 
     private fun toRoutingInfoDataclass(

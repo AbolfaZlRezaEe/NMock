@@ -3,6 +3,7 @@
     <!-- basic Colors -->
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
+    <color name="transparent">#00FFFFFF</color>
 
     <!-- Theme Colors -->
     <color name="colorPrimary">#045F7A</color>

@@ -13,19 +13,4 @@ interface RoutingInfoRepository {
         origin: String,
         destination: String
     ): Flow<Response<RoutingInfoDataclass, NMockException>>
-
-    suspend fun addMock(
-        @MockType mockType: String,
-        mockName:String,
-        mockDescription:String? = null,
-        routingInfoDataclass: RoutingInfoDataclass
-    )
-
-    suspend fun deleteMock(
-        mockEntity: MockEntity
-    )
-
-    suspend fun updateMock(
-        mockEntity: MockEntity
-    )
 }

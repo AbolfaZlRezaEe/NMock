@@ -14,6 +14,12 @@
     <string name="withoutLocationInformation">Please choose someWhere for origin...</string>
     <string name="pleaseTurnOnLocation">For using this app, you must turning on the location!</string>
     <string name="locationPermissionRational">This app must have location permission!</string>
-    <string name="save">save</string>
+    <string name="save">Save</string>
     <string name="youCanSaveNow">You can save your Trip now!</string>
+    <string name="addingNewMock">Adding new Mock</string>
+    <string name="mockName">Mock name</string>
+    <string name="mockDescription">Mock description</string>
+    <string name="cancel">Cancel</string>
+    <string name="mockDescriptionHelper">You can leave it empty...</string>
+    <string name="youMustHaveANameForIt">You must have a Name for it!</string>
 </resources>
