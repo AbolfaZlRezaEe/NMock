@@ -106,15 +106,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <ProgressBar
-                        android:id="@+id/locationLoadingProgressbar"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center"
-                        android:indeterminateTint="@color/white"
-                        android:visibility="gone"
-                        tools:visibility="visible" />
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -131,9 +122,8 @@
                             android:ellipsize="end"
                             android:fontFamily="@font/roboto_medium"
                             android:maxLines="2"
-                            android:text="@string/withoutLocationInformation"
-                            android:textColor="@color/colorOnPrimary"
-                            tools:text="From: اصفهان" />
+                            android:text="@string/withoutOriginInformation"
+                            android:textColor="@color/colorOnPrimary" />
 
                         <TextView
                             android:id="@+id/destinationTextView"
@@ -143,9 +133,9 @@
                             android:layout_weight="1"
                             android:fontFamily="@font/roboto_medium"
                             android:maxLines="2"
+                            android:text="@string/withoutDestinationInformation"
                             android:textColor="@color/colorOnPrimary"
                             android:visibility="gone"
-                            tools:text="To: اصفهان"
                             tools:visibility="visible" />
 
                     </LinearLayout>

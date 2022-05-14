@@ -12,6 +12,8 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.carto.core.ScreenBounds
+import com.carto.core.ScreenPos
 import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,8 +29,11 @@ import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.save.SaveMockBottomSheetDialogFragment
 import me.abolfazl.nmock.view.save.SaveMockCallback
 import org.neshan.common.model.LatLng
+import org.neshan.common.model.LatLngBounds
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
+import kotlin.math.max
+import kotlin.math.min
 
 @AndroidEntryPoint
 class MockEditorActivity : AppCompatActivity() {
@@ -92,10 +97,12 @@ class MockEditorActivity : AppCompatActivity() {
                     showLoadingProgressbar(false)
 
                     state.originAddress?.let { originAddress ->
-                        showLoadingProgressbar(false)
                         binding.originTextView.text = locationInformationFormat(originAddress, true)
                         binding.titleTextView.text =
                             resources.getText(R.string.chooseDestinationLocation)
+                        binding.destinationTextView.visibility = View.VISIBLE
+                        binding.destinationTextView.text =
+                            getString(R.string.withoutDestinationInformation)
                         binding.undoExtendedFab.show()
                         binding.undoExtendedFab.postDelayed({
                             binding.undoExtendedFab.shrink()
@@ -103,16 +110,24 @@ class MockEditorActivity : AppCompatActivity() {
                     }
 
                     state.destinationAddress?.let { destinationAddress ->
-                        showLoadingProgressbar(false)
                         binding.destinationTextView.visibility = View.VISIBLE
                         binding.destinationTextView.text =
                             locationInformationFormat(destinationAddress, false)
                     }
 
                     state.lineVector?.let { vectors ->
-                        showLoadingProgressbar(false)
                         drawLine(vectors)
                         binding.titleTextView.text = getString(R.string.youCanSaveNow)
+                        moveCameraToTripLine(
+                            origin = getMarkerFromLayer(
+                                markerLayer,
+                                MarkerManager.ELEMENT_ID_ORIGIN_MARKER
+                            )?.latLng!!,
+                            destination = getMarkerFromLayer(
+                                markerLayer,
+                                MarkerManager.ELEMENT_ID_DESTINATION_MARKER
+                            )?.latLng!!
+                        )
                         binding.saveExtendedFab.show()
                         binding.saveExtendedFab.postDelayed({
                             binding.saveExtendedFab.shrink()
@@ -126,7 +141,6 @@ class MockEditorActivity : AppCompatActivity() {
                         that we want on Map.
                      */
                     state.mockInformation?.let { mockInformation ->
-                        showLoadingProgressbar(false)
                         binding.titleTextView.text = getString(R.string.youCanEditYourTrip)
                         binding.destinationTextView.visibility = View.VISIBLE
                         binding.saveExtendedFab.visibility = View.VISIBLE
@@ -155,6 +169,10 @@ class MockEditorActivity : AppCompatActivity() {
                             binding.mapview.addMarker(destinationMarker)
                         }
                         drawLine(mockInformation.lineVector!!)
+                        moveCameraToTripLine(
+                            origin = mockInformation.originLocation,
+                            destination = mockInformation.destinationLocation
+                        )
                     }
                 }
             }
@@ -175,7 +193,7 @@ class MockEditorActivity : AppCompatActivity() {
                     val dialog = NMockDialog.newInstance(
                         title = getString(R.string.playingMockDialogTitle),
                         actionButtonText = getString(R.string.yes),
-                        secondaryButtonText = getString(R.string.cancel)
+                        secondaryButtonText = getString(R.string.no)
                     )
                     dialog.isCancelable = true
                     dialog.setDialogListener(
@@ -219,6 +237,15 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onMapLongClicked(latLng: LatLng) {
+        if (markerLayer.size == 3) {
+            // we have origin and destination
+            Snackbar.make(
+                findViewById(R.id.mockEditorRootView),
+                getString(R.string.originDestinationProblem),
+                Snackbar.LENGTH_SHORT
+            ).show()
+            return
+        }
         val originIsNull = getMarkerFromLayer(
             layer = markerLayer,
             id = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
@@ -379,8 +406,9 @@ class MockEditorActivity : AppCompatActivity() {
                 markerLayer.remove(marker)
                 binding.undoExtendedFab.hide()
             }
+            binding.destinationTextView.visibility = View.GONE
             binding.titleTextView.text = getString(R.string.chooseOriginLocation)
-            binding.originTextView.text = getString(R.string.withoutLocationInformation)
+            binding.originTextView.text = getString(R.string.withoutOriginInformation)
         }
     }
 
@@ -396,6 +424,7 @@ class MockEditorActivity : AppCompatActivity() {
                 viewModel.deleteMock()
                 resetUiStateToDefault()
                 dialog.dismiss()
+                this.finish()
             },
             onSecondaryButtonClicked = {
                 dialog.dismiss()
@@ -429,8 +458,6 @@ class MockEditorActivity : AppCompatActivity() {
     ) {
         runOnUiThread {
             binding.titleTextView.visibility = if (!visibility) View.VISIBLE else View.GONE
-            binding.locationLoadingProgressbar.visibility =
-                if (visibility) View.VISIBLE else View.GONE
             binding.loadingProgressbar.visibility = if (visibility) View.VISIBLE else View.GONE
         }
     }
@@ -445,7 +472,7 @@ class MockEditorActivity : AppCompatActivity() {
 
     private fun resetUiStateToDefault() {
         binding.titleTextView.text = getString(R.string.chooseOriginLocation)
-        binding.originTextView.text = getString(R.string.withoutLocationInformation)
+        binding.originTextView.text = getString(R.string.withoutOriginInformation)
         binding.destinationTextView.visibility = View.GONE
         binding.saveExtendedFab.hide()
         binding.undoExtendedFab.hide()
@@ -457,6 +484,24 @@ class MockEditorActivity : AppCompatActivity() {
             binding.mapview.removePolyline(polyline)
         }
         polylineLayer.clear()
+    }
+
+    private fun moveCameraToTripLine(
+        origin: LatLng,
+        destination: LatLng,
+    ) {
+        val minX = min(origin.latitude, destination.latitude)
+        val maxX = max(origin.latitude, destination.latitude)
+        val minY = min(origin.longitude, destination.longitude)
+        val maxY = max(origin.longitude, destination.longitude)
+
+        val latLngBounds = LatLngBounds(LatLng(minX, minY), LatLng(maxX, maxY))
+        val screenBounds = ScreenBounds(
+            ScreenPos(binding.root.x, binding.root.y),
+            ScreenPos(binding.mapview.width.toFloat(), binding.mapview.height.toFloat())
+        )
+
+        binding.mapview.moveToCameraBounds(latLngBounds, screenBounds, true, 0.5f)
     }
 
     private fun drawLine(
