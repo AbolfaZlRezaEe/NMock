@@ -30,15 +30,19 @@ class MockArchiveActivity : AppCompatActivity() {
         binding = ActivityMockArchiveBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initListeners()
-
         initState()
+
+        initListeners()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        binding.loadingState.visibility = View.VISIBLE
+        binding.contentRecyclerView.visibility = View.GONE
+        viewModel.getMocks()
     }
 
     private fun initListeners() {
-        binding.loadingState.visibility = View.VISIBLE
-        viewModel.getMocks()
-
         binding.backImageView.setOnClickListener { this.finish() }
 
         binding.deleteAllImageView.setOnClickListener(this::onDeleteAllClicked)
@@ -48,29 +52,32 @@ class MockArchiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun initState() = lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.mockArchiveState.collect { state ->
-                state.mockList?.let { mockList ->
-                    binding.contentRecyclerView.visibility =
-                        if (mockList.isEmpty()) View.GONE else View.VISIBLE
-                    binding.emptyStateTextView.visibility =
-                        if (mockList.isEmpty()) View.VISIBLE else View.GONE
-                    binding.deleteAllImageView.visibility =
-                        if (mockList.size >= 2) View.VISIBLE else View.GONE
-                    binding.loadingState.visibility = View.GONE
-                    initItems(mockList)
+    private fun initState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.mockArchiveState.collect { state ->
+                    state.mockList?.let { mockList ->
+                        binding.contentRecyclerView.visibility =
+                            if (mockList.isEmpty()) View.GONE else View.VISIBLE
+                        binding.emptyStateTextView.visibility =
+                            if (mockList.isEmpty()) View.VISIBLE else View.GONE
+                        binding.deleteAllImageView.visibility =
+                            if (mockList.size >= 2) View.VISIBLE else View.GONE
+                        binding.loadingState.visibility = View.GONE
+                        initItems(mockList)
+                    }
                 }
             }
         }
-
-        viewModel.oneTimeEmitter.collect { message ->
-            binding.loadingState.visibility = View.GONE
-            Snackbar.make(
-                findViewById(R.id.mockArchiveRootView),
-                "Message: $message",
-                Snackbar.LENGTH_SHORT
-            ).show()
+        lifecycleScope.launchWhenStarted {
+            viewModel.oneTimeEmitter.collect { message ->
+                binding.loadingState.visibility = View.GONE
+                Snackbar.make(
+                    findViewById(R.id.mockArchiveRootView),
+                    "Message: $message",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 

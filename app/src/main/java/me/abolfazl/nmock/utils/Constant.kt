@@ -21,7 +21,4 @@ object Constant {
     const val LOCATION_INTERVAL: Long = 1000
     const val LOCATION_FASTEST_INTERVAL: Long = 500
 
-    // Save dialog
-    const val KEY_SAVE_MOCK_NAME = "KEY_MOCK_NAME_S"
-    const val KEY_SAVE_MOCK_DESCRIPTION = "KEY_MOCK_DESCRIPTION_S"
 }

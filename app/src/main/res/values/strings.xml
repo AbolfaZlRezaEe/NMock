@@ -31,5 +31,8 @@
     <string name="loading">Just a moment...</string>
     <string name="nothingToShowHere">Nothing to show here...</string>
     <string name="deleteAllDialogTitle">Are you sure that you want to delete all of Mocks?</string>
+    <string name="deleteDialogTitle">Are you sure that you want to delete Mock?</string>
     <string name="yes">Yes!</string>
+    <string name="youCanEditYourTrip">You can edit your trip...</string>
+    <string name="playingMockDialogTitle">Would you like to play this Trip right now?</string>
 </resources>

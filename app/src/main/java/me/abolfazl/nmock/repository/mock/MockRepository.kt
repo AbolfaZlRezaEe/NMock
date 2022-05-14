@@ -8,16 +8,12 @@ import me.abolfazl.nmock.utils.response.exceptions.NMockException
 
 interface MockRepository {
 
-    fun addMock(
+    fun saveMock(
         mockDataClass: MockDataClass
     ): Flow<Response<Boolean, NMockException>>
 
     suspend fun deleteMock(
-        mockEntity: MockEntity
-    )
-
-    suspend fun updateMock(
-        mockEntity: MockEntity
+        mockDataClass: MockDataClass
     )
 
     suspend fun deleteAllMocks()

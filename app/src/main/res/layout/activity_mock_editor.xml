@@ -30,6 +30,28 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <ImageView
+                android:id="@+id/backImageView"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical|start"
+                android:layout_marginStart="16dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_back_24"
+                app:tint="@color/gray90" />
+
+            <ImageView
+                android:id="@+id/deleteMockImageView"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="16dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_delete_24"
+                android:visibility="gone"
+                app:tint="@color/colorPrimary"
+                tools:visibility="visible" />
+
             <TextView
                 android:id="@+id/titleTextView"
                 android:layout_width="wrap_content"
@@ -70,64 +92,61 @@
                 android:paddingTop="16dp"
                 android:paddingBottom="16dp">
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/closeFloatingActionButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:src="@drawable/ic_arrow_left_24dp"
-                    app:fabCustomSize="50dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/materialCardView"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginEnd="16dp"
                     android:backgroundTint="@color/colorPrimary"
                     app:cardCornerRadius="15dp"
                     app:cardElevation="0dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/closeFloatingActionButton"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
+
+                    <ProgressBar
+                        android:id="@+id/locationLoadingProgressbar"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:indeterminateTint="@color/white"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
                         android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
                         <TextView
                             android:id="@+id/originTextView"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
                             android:ellipsize="end"
                             android:fontFamily="@font/roboto_medium"
-                            android:lines="1"
-                            android:maxLines="1"
+                            android:maxLines="2"
                             android:text="@string/withoutLocationInformation"
-                            android:textColor="@color/colorOnPrimary" />
+                            android:textColor="@color/colorOnPrimary"
+                            tools:text="From: اصفهان" />
 
                         <TextView
                             android:id="@+id/destinationTextView"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
                             android:layout_weight="1"
                             android:fontFamily="@font/roboto_medium"
-                            android:lines="1"
-                            android:maxLines="1"
-                            android:text="To: اصفهان"
+                            android:maxLines="2"
                             android:textColor="@color/colorOnPrimary"
                             android:visibility="gone"
-                            tools:visibility="gone" />
+                            tools:text="To: اصفهان"
+                            tools:visibility="visible" />
 
                     </LinearLayout>
 
@@ -169,13 +188,13 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginBottom="16dp"
-            android:text="@string/undo"
             android:fontFamily="@font/roboto_bold"
-            app:icon="@drawable/ic_undo_24"
+            android:text="@string/undo"
             android:visibility="gone"
-            tools:visibility="visible"
+            app:icon="@drawable/ic_undo_24"
             app:layout_constraintBottom_toTopOf="@+id/materialCardView2"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

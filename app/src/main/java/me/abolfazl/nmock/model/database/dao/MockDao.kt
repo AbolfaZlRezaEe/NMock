@@ -25,6 +25,6 @@ interface MockDao {
     @Update
     suspend fun updateMockInformation(mockEntity: MockEntity)
 
-    @Delete
-    suspend fun deleteMockEntity(mockEntity: MockEntity)
+    @Query("DELETE FROM mock_table WHERE id=:mockId")
+    suspend fun deleteMockEntity(mockId: Long)
 }

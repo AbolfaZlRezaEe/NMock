@@ -96,6 +96,8 @@ class MockEditorViewModel @Inject constructor(
     fun saveMockInformation(
         mockName: String,
         mockDescription: String,
+        originLocation: LatLng,
+        destinationLocation: LatLng,
         speed: Int
     ) = viewModelScope.launch(exceptionHandler) {
         val lineVector = mockEditorState.value.lineVector
@@ -103,11 +105,15 @@ class MockEditorViewModel @Inject constructor(
             _oneTimeEmitter.emit(EXCEPTION_INSERTION_ERROR)
             return@launch
         }
-        mockRepository.addMock(
+        mockRepository.saveMock(
             MockDataClass(
                 mockName = mockName,
                 mockDescription = mockDescription,
                 mockType = Constant.TYPE_CUSTOM_CREATE,
+                originLocation = originLocation,
+                destinationLocation = destinationLocation,
+                originAddress = _mockEditorState.value.originAddress ?: "Unknown",
+                destinationAddress = _mockEditorState.value.destinationAddress ?: "Unknown",
                 speed = speed,
                 lineVector = lineVector,
                 bearing = 0f,
@@ -155,6 +161,13 @@ class MockEditorViewModel @Inject constructor(
                 Timber.e(exception.type)
             }
         }
+    }
+
+    fun deleteMock() = viewModelScope.launch(exceptionHandler) {
+        mockRepository.deleteMock(_mockEditorState.value.mockInformation!!)
+        _mockEditorState.value = _mockEditorState.value.copy(
+            mockInformation = null
+        )
     }
 
     private fun getLocationFormattedForServer(

@@ -15,33 +15,25 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var _binding: FragmentSaveMockBinding? = null
     private val binding get() = _binding!!
 
-    private var mockName: String? = null
-    private var mockDescription: String? = null
     private var mockCallback: SaveMockCallback? = null
 
     companion object {
+        private const val KEY_SAVE_MOCK_NAME = "KEY_MOCK_NAME"
+        private const val KEY_SAVE_MOCK_DESCRIPTION = "KEY_MOCK_DESCRIPTION"
+        private const val KEY_SAVE_MOCK_SPEED = "KEY_MOCK_SPEED"
+
         fun newInstance(
-            mockName: String? = null,
-            mockDescription: String? = null
+            name: String? = null,
+            description: String? = null,
+            speed: String? = null
         ): SaveMockBottomSheetDialogFragment {
             return SaveMockBottomSheetDialogFragment().apply {
                 arguments = Bundle().apply {
-                    putString(Constant.KEY_SAVE_MOCK_NAME, mockName)
-                    putString(Constant.KEY_SAVE_MOCK_DESCRIPTION, mockDescription)
+                    putString(KEY_SAVE_MOCK_NAME, name)
+                    putString(KEY_SAVE_MOCK_DESCRIPTION, description)
+                    putString(KEY_SAVE_MOCK_SPEED, speed)
                 }
             }
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        getArgumentsFromBundle()
-    }
-
-    private fun getArgumentsFromBundle() {
-        arguments?.let { bundle ->
-            this.mockName = bundle.getString(Constant.KEY_SAVE_MOCK_NAME)
-            this.mockDescription = bundle.getString(Constant.KEY_SAVE_MOCK_DESCRIPTION)
         }
     }
 
@@ -62,7 +54,24 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        initViewsFromArgument()
+
         initListeners()
+    }
+
+    private fun initViewsFromArgument() {
+        arguments?.let { bundle ->
+            val name = bundle.getString(KEY_SAVE_MOCK_NAME)
+            val description = bundle.getString(KEY_SAVE_MOCK_DESCRIPTION)
+            val speed = bundle.getString(KEY_SAVE_MOCK_SPEED)
+
+            if (name == null || description == null || speed == null) return
+
+            binding.mockNameTextInputEditText.setText(name)
+            binding.mockDescriptionTextInputEditText.setText(description)
+            binding.speedTextInputEditText.setText(speed)
+        }
     }
 
     private fun initListeners() {

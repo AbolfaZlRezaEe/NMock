@@ -19,6 +19,14 @@ data class MockEntity(
     val mockName: String,
     @ColumnInfo(name = "description")
     val description: String,
+    @ColumnInfo(name = "origin_location")
+    val originLocation: String,
+    @ColumnInfo(name = "destination_location")
+    val destinationLocation: String,
+    @ColumnInfo(name = "origin_address")
+    val originAddress: String,
+    @ColumnInfo(name = "destination_address")
+    val destinationAddress: String,
     @ColumnInfo(name = "speed")
     val speed: Int,
     @ColumnInfo(name = "bearing")

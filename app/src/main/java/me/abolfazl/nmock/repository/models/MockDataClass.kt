@@ -8,6 +8,10 @@ data class MockDataClass(
     val id: Long? = null,
     val mockName: String,
     val mockDescription: String,
+    val originLocation: LatLng,
+    val destinationLocation: LatLng,
+    val originAddress: String,
+    val destinationAddress: String,
     @MockType
     val mockType: String,
     val speed: Int = 0,

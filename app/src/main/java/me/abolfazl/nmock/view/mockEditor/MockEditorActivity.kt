@@ -23,6 +23,7 @@ import me.abolfazl.nmock.utils.managers.LineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
 import me.abolfazl.nmock.utils.managers.PermissionManager
 import me.abolfazl.nmock.utils.response.SUCCESS_TYPE_MOCK_INSERTION
+import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.save.SaveMockBottomSheetDialogFragment
 import me.abolfazl.nmock.view.save.SaveMockCallback
 import org.neshan.common.model.LatLng
@@ -54,6 +55,8 @@ class MockEditorActivity : AppCompatActivity() {
         binding = ActivityMockEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        initViewFromArguments()
+
         initListeners()
 
         initObservers()
@@ -61,22 +64,32 @@ class MockEditorActivity : AppCompatActivity() {
         initLiveLocation()
     }
 
+    private fun initViewFromArguments() {
+        val mockId = intent.getLongExtra(KEY_MOCK_INFORMATION, -1)
+        if (mockId == -1L) return
+        showLoadingProgressbar(true)
+        viewModel.getMockFromId(mockId)
+    }
+
     private fun initListeners() {
         binding.mapview.setOnMapLongClickListener(this::onMapLongClicked)
 
         binding.currentLocationFloatingActionButton.setOnClickListener(this::onCurrentLocationClicked)
 
-        binding.closeFloatingActionButton.setOnClickListener { this.finish() }
+        binding.backImageView.setOnClickListener { this.finish() }
 
         binding.saveExtendedFab.setOnClickListener(this::onSaveClicked)
 
         binding.undoExtendedFab.setOnClickListener(this::onUndoClicked)
+
+        binding.deleteMockImageView.setOnClickListener(this::onDeleteClicked)
     }
 
     private fun initObservers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.mockEditorState.collect { state ->
+                    showLoadingProgressbar(false)
 
                     state.originAddress?.let { originAddress ->
                         showLoadingProgressbar(false)
@@ -98,17 +111,50 @@ class MockEditorActivity : AppCompatActivity() {
 
                     state.lineVector?.let { vectors ->
                         showLoadingProgressbar(false)
-                        val lineStyle = LineManager.createLineStyle()
-                        vectors.forEach { lineVector ->
-                            val polyLine = LineManager.createLineFromVectors(lineStyle, lineVector)
-                            binding.mapview.addPolyline(polyLine)
-                            polylineLayer.add(polyLine)
-                        }
+                        drawLine(vectors)
                         binding.titleTextView.text = getString(R.string.youCanSaveNow)
                         binding.saveExtendedFab.show()
                         binding.saveExtendedFab.postDelayed({
                             binding.saveExtendedFab.shrink()
                         }, 5000)
+                    }
+
+                    /*
+                        this section used for situation when we came into this fragment
+                        with mockId and we want to load all of information about that mock.
+                        we find the Mock with id and after, we show all the information
+                        that we want on Map.
+                     */
+                    state.mockInformation?.let { mockInformation ->
+                        showLoadingProgressbar(false)
+                        binding.titleTextView.text = getString(R.string.youCanEditYourTrip)
+                        binding.destinationTextView.visibility = View.VISIBLE
+                        binding.saveExtendedFab.visibility = View.VISIBLE
+                        binding.undoExtendedFab.visibility = View.VISIBLE
+                        binding.deleteMockImageView.visibility = View.VISIBLE
+                        binding.originTextView.text =
+                            locationInformationFormat(mockInformation.originAddress, true)
+                        binding.destinationTextView.text =
+                            locationInformationFormat(mockInformation.destinationAddress, false)
+                        val originMarker = MarkerManager.createMarker(
+                            location = mockInformation.originLocation,
+                            drawableRes = R.drawable.marker_origin,
+                            elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER,
+                            context = this@MockEditorActivity
+                        )
+                        val destinationMarker = MarkerManager.createMarker(
+                            location = mockInformation.destinationLocation,
+                            drawableRes = R.drawable.marker_destination,
+                            elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
+                            context = this@MockEditorActivity
+                        )
+                        if (originMarker != null && destinationMarker != null) {
+                            markerLayer.add(originMarker)
+                            markerLayer.add(destinationMarker)
+                            binding.mapview.addMarker(originMarker)
+                            binding.mapview.addMarker(destinationMarker)
+                        }
+                        drawLine(mockInformation.lineVector!!)
                     }
                 }
             }
@@ -125,7 +171,22 @@ class MockEditorActivity : AppCompatActivity() {
                     mockSaverDialog?.dismiss()
                     resetUiStateToDefault()
                     viewModel.clearTripInformation(true)
-                    // todo: showing dialog for going to play activity...
+
+                    val dialog = NMockDialog.newInstance(
+                        title = getString(R.string.playingMockDialogTitle),
+                        actionButtonText = getString(R.string.yes),
+                        secondaryButtonText = getString(R.string.cancel)
+                    )
+                    dialog.isCancelable = true
+                    dialog.setDialogListener(
+                        onActionButtonClicked = {
+                            // todo: start activity to mock player...
+                        },
+                        onSecondaryButtonClicked = {
+                            dialog.dismiss()
+                        }
+                    )
+                    dialog.show(supportFragmentManager.beginTransaction(), null)
                 }
             }
         }
@@ -260,7 +321,11 @@ class MockEditorActivity : AppCompatActivity() {
 
     private fun onSaveClicked(view: View) {
         mockSaverDialog?.dismiss()
-        mockSaverDialog = SaveMockBottomSheetDialogFragment.newInstance()
+        mockSaverDialog = SaveMockBottomSheetDialogFragment.newInstance(
+            name = viewModel.mockEditorState.value.mockInformation?.mockName,
+            description = viewModel.mockEditorState.value.mockInformation?.mockDescription,
+            speed = viewModel.mockEditorState.value.mockInformation?.speed?.toString()
+        )
         mockSaverDialog?.let {
             it.setMockCallback(object : SaveMockCallback {
                 override fun onClose() {
@@ -276,6 +341,14 @@ class MockEditorActivity : AppCompatActivity() {
                     viewModel.saveMockInformation(
                         mockName = mockName,
                         mockDescription = mockDescription ?: "No Description",
+                        originLocation = getMarkerFromLayer(
+                            markerLayer,
+                            MarkerManager.ELEMENT_ID_ORIGIN_MARKER
+                        )!!.latLng,
+                        destinationLocation = getMarkerFromLayer(
+                            markerLayer,
+                            MarkerManager.ELEMENT_ID_DESTINATION_MARKER
+                        )!!.latLng,
                         speed = speed
                     )
                 }
@@ -311,6 +384,26 @@ class MockEditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun onDeleteClicked(view: View) {
+        val dialog = NMockDialog.newInstance(
+            title = getString(R.string.deleteDialogTitle),
+            actionButtonText = getString(R.string.yes),
+            secondaryButtonText = getString(R.string.cancel)
+        )
+        dialog.isCancelable = false
+        dialog.setDialogListener(
+            onActionButtonClicked = {
+                viewModel.deleteMock()
+                resetUiStateToDefault()
+                dialog.dismiss()
+            },
+            onSecondaryButtonClicked = {
+                dialog.dismiss()
+            }
+        )
+        dialog.show(supportFragmentManager.beginTransaction(), null)
+    }
+
     private fun getMarkerFromLayer(
         layer: ArrayList<Marker>,
         id: String
@@ -336,6 +429,8 @@ class MockEditorActivity : AppCompatActivity() {
     ) {
         runOnUiThread {
             binding.titleTextView.visibility = if (!visibility) View.VISIBLE else View.GONE
+            binding.locationLoadingProgressbar.visibility =
+                if (visibility) View.VISIBLE else View.GONE
             binding.loadingProgressbar.visibility = if (visibility) View.VISIBLE else View.GONE
         }
     }
@@ -362,6 +457,17 @@ class MockEditorActivity : AppCompatActivity() {
             binding.mapview.removePolyline(polyline)
         }
         polylineLayer.clear()
+    }
+
+    private fun drawLine(
+        vector: ArrayList<List<LatLng>>
+    ) {
+        val lineStyle = LineManager.createLineStyle()
+        vector.forEach { lineVector ->
+            val polyLine = LineManager.createLineFromVectors(lineStyle, lineVector)
+            binding.mapview.addPolyline(polyLine)
+            polylineLayer.add(polyLine)
+        }
     }
 
     override fun onResume() {
