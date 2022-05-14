@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import me.abolfazl.nmock.databinding.FragmentHomeBinding
+import me.abolfazl.nmock.view.mockArchive.MockArchiveActivity
 import me.abolfazl.nmock.view.mockEditor.MockEditorActivity
 
 class HomeFragment : Fragment() {
@@ -31,6 +32,10 @@ class HomeFragment : Fragment() {
     private fun initializeListeners() {
         binding.newTripMaterialButtonHome.setOnClickListener {
             activity?.startActivity(Intent(activity, MockEditorActivity::class.java))
+        }
+
+        binding.mockArchiveMaterialButtonHome.setOnClickListener {
+            activity?.startActivity(Intent(activity, MockArchiveActivity::class.java))
         }
     }
 }

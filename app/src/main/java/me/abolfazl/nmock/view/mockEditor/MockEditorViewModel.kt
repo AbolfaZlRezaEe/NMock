@@ -109,7 +109,10 @@ class MockEditorViewModel @Inject constructor(
                 mockDescription = mockDescription,
                 mockType = Constant.TYPE_CUSTOM_CREATE,
                 speed = speed,
-                lineVector = lineVector
+                lineVector = lineVector,
+                bearing = 0f,
+                accuracy = 1F,
+                provider = Constant.PROVIDER_GPS
             )
         ).collect { response ->
             response.ifSuccessful {
@@ -135,6 +138,22 @@ class MockEditorViewModel @Inject constructor(
                 destinationAddress = null,
                 lineVector = null
             )
+        }
+    }
+
+    fun getMockFromId(
+        mockId: Long
+    ) = viewModelScope.launch(exceptionHandler) {
+        mockRepository.getMock(mockId).collect { response ->
+            response.ifSuccessful { mockData ->
+                _mockEditorState.value = _mockEditorState.value.copy(
+                    mockInformation = mockData
+                )
+            }
+            response.ifNotSuccessful { exception ->
+                _oneTimeEmitter.emit(exception.type)
+                Timber.e(exception.type)
+            }
         }
     }
 

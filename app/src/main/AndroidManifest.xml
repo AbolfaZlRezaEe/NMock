@@ -16,6 +16,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NMock">
         <activity
+            android:name=".MockPlayerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.mockArchive.MockArchiveActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.mockEditor.MockEditorActivity"
             android:exported="false" />
         <activity

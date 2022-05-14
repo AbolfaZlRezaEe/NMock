@@ -33,28 +33,28 @@
             android:id="@+id/newTripMaterialButtonHome"
             android:layout_width="200dp"
             android:layout_height="54dp"
-            app:cornerRadius="15dp"
             android:fontFamily="@font/roboto_medium"
-            android:text="@string/newTrip" />
+            android:text="@string/newTrip"
+            app:cornerRadius="15dp" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/mockArchiveMaterialButtonHome"
             android:layout_width="200dp"
             android:layout_height="54dp"
-            app:cornerRadius="15dp"
             android:layout_marginTop="12dp"
             android:fontFamily="@font/roboto_medium"
-            android:id="@+id/mockArchiveMaterialButtonHome"
-            android:text="@string/mockArchive"/>
+            android:text="@string/mockArchive"
+            app:cornerRadius="15dp" />
 
     </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:fontFamily="@font/roboto_light"
         android:text="@string/versionName"
         android:textColor="@color/colorPrimary"
-        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

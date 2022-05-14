@@ -3,6 +3,7 @@ package me.abolfazl.nmock.model.database.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import me.abolfazl.nmock.model.database.MockProvider
 import me.abolfazl.nmock.model.database.MockType
 import me.abolfazl.nmock.utils.Constant
 
@@ -18,6 +19,15 @@ data class MockEntity(
     val mockName: String,
     @ColumnInfo(name = "description")
     val description: String,
+    @ColumnInfo(name = "speed")
+    val speed: Int,
+    @ColumnInfo(name = "bearing")
+    val bearing: Float,
+    @ColumnInfo(name = "accuracy")
+    val accuracy: Float,
+    @ColumnInfo(name = "provider")
+    @MockProvider
+    val provider: String,
     @ColumnInfo(name = "created_at")
     val createdAt: String,
     @ColumnInfo(name = "updated_at")

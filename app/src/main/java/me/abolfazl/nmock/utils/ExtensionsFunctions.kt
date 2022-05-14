@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.lifecycle.ViewModel
+import androidx.recyclerview.widget.RecyclerView
 
 fun ViewModel.checkInternetConnection(
     context: Context
@@ -32,4 +33,18 @@ fun ViewModel.checkInternetConnection(
         }
     }
     return false
+}
+
+fun <T : RecyclerView.ViewHolder> T.setupListeners(
+    onLongClick: (position: Int) -> Unit,
+    onClick: (position: Int) -> Unit
+): T {
+    itemView.setOnLongClickListener {
+        onLongClick.invoke(adapterPosition)
+        return@setOnLongClickListener false
+    }
+    itemView.setOnClickListener {
+        onClick.invoke(adapterPosition)
+    }
+    return this
 }

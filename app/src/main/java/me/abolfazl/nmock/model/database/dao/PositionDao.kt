@@ -7,7 +7,7 @@ import me.abolfazl.nmock.model.database.models.PositionEntity
 interface PositionDao {
 
     @Query("SELECT * FROM position_table WHERE mock_id=:mockId")
-    suspend fun getMockPositionList(mockId: Long): List<PositionEntity>
+    suspend fun getMockPositionListFromId(mockId: Long): List<PositionEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMockPosition(positionEntity: PositionEntity): Long

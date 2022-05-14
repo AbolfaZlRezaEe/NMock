@@ -3,11 +3,11 @@ package me.abolfazl.nmock.view.mockEditor
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
 import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -31,6 +31,10 @@ import org.neshan.mapsdk.model.Polyline
 
 @AndroidEntryPoint
 class MockEditorActivity : AppCompatActivity() {
+
+    companion object {
+        const val KEY_MOCK_INFORMATION = "MOCK_INFORMATION"
+    }
 
     private lateinit var binding: ActivityMockEditorBinding
     private val viewModel: MockEditorViewModel by viewModels()
