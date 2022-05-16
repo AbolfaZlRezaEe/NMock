@@ -27,7 +27,6 @@ import me.abolfazl.nmock.utils.managers.PermissionManager
 import me.abolfazl.nmock.utils.response.SUCCESS_TYPE_MOCK_INSERTION
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.save.SaveMockBottomSheetDialogFragment
-import me.abolfazl.nmock.view.save.SaveMockCallback
 import org.neshan.common.model.LatLng
 import org.neshan.common.model.LatLngBounds
 import org.neshan.mapsdk.model.Marker
@@ -347,39 +346,30 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onSaveClicked(view: View) {
-        mockSaverDialog?.dismiss()
+        if (mockSaverDialog != null && !mockSaverDialog?.isDetached!!) {
+            mockSaverDialog?.dismiss()
+        }
         mockSaverDialog = SaveMockBottomSheetDialogFragment.newInstance(
             name = viewModel.mockEditorState.value.mockInformation?.mockName,
             description = viewModel.mockEditorState.value.mockInformation?.mockDescription,
             speed = viewModel.mockEditorState.value.mockInformation?.speed?.toString()
         )
         mockSaverDialog?.let {
-            it.setMockCallback(object : SaveMockCallback {
-                override fun onClose() {
-                    it.dismiss()
-                    mockSaverDialog = null
-                }
-
-                override fun onSave(
-                    mockName: String,
-                    mockDescription: String?,
-                    speed: Int
-                ) {
-                    viewModel.saveMockInformation(
-                        mockName = mockName,
-                        mockDescription = mockDescription ?: "No Description",
-                        originLocation = getMarkerFromLayer(
-                            markerLayer,
-                            MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-                        )!!.latLng,
-                        destinationLocation = getMarkerFromLayer(
-                            markerLayer,
-                            MarkerManager.ELEMENT_ID_DESTINATION_MARKER
-                        )!!.latLng,
-                        speed = speed
-                    )
-                }
-            })
+            it.onSaveClickListener { mockName, mockDescription, speed ->
+                viewModel.saveMockInformation(
+                    mockName = mockName,
+                    mockDescription = mockDescription ?: "No Description",
+                    originLocation = getMarkerFromLayer(
+                        markerLayer,
+                        MarkerManager.ELEMENT_ID_ORIGIN_MARKER
+                    )!!.latLng,
+                    destinationLocation = getMarkerFromLayer(
+                        markerLayer,
+                        MarkerManager.ELEMENT_ID_DESTINATION_MARKER
+                    )!!.latLng,
+                    speed = speed
+                )
+            }
             supportFragmentManager.beginTransaction().add(it, it.javaClass.name).commit()
         }
     }

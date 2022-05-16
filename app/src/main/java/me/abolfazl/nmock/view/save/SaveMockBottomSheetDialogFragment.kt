@@ -8,14 +8,13 @@ import androidx.core.widget.doOnTextChanged
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentSaveMockBinding
-import me.abolfazl.nmock.utils.Constant
 
 class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private var _binding: FragmentSaveMockBinding? = null
     private val binding get() = _binding!!
 
-    private var mockCallback: SaveMockCallback? = null
+    private var callback: ((mockName: String, mockDescription: String, speed: Int) -> Unit)? = null
 
     companion object {
         private const val KEY_SAVE_MOCK_NAME = "KEY_MOCK_NAME"
@@ -37,10 +36,10 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
-    fun setMockCallback(
-        mockCallback: SaveMockCallback
+    fun onSaveClickListener(
+        mockCallback: (mockName: String, mockDescription: String, speed: Int) -> Unit
     ) {
-        this.mockCallback = mockCallback
+        this.callback = mockCallback
     }
 
     override fun onCreateView(
@@ -75,7 +74,7 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private fun initListeners() {
-        binding.closeAppCompatImageView.setOnClickListener { mockCallback?.onClose() }
+        binding.closeAppCompatImageView.setOnClickListener { dismiss() }
         binding.saveMaterialButton.setOnClickListener(this::onSaveButtonClick)
         binding.speedTextInputEditText.doOnTextChanged { text, _, _, _ ->
             if (text?.length!! > 3) {
@@ -101,10 +100,10 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
         binding.saveMaterialButton.text = ""
         binding.loadingProgressbar.visibility = View.VISIBLE
 
-        mockCallback?.onSave(
-            mockName = binding.mockNameTextInputEditText.text!!.toString(),
-            mockDescription = binding.mockDescriptionTextInputEditText.text?.toString(),
-            speed = binding.speedTextInputEditText.text!!.toString().toInt()
+        callback?.invoke(
+            binding.mockNameTextInputEditText.text!!.toString(),
+            binding.mockDescriptionTextInputEditText.text?.toString()!!,
+            binding.speedTextInputEditText.text!!.toString().toInt()
         )
     }
 
