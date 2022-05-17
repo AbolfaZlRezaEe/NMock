@@ -1,7 +1,11 @@
 package me.abolfazl.nmock.view.mockPlayer
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -11,7 +15,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.carto.core.ScreenPos
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockPlayerBinding
@@ -23,6 +26,7 @@ import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ER
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.mockDetail.MockDetailBottomSheetDialogFragment
+import me.abolfazl.nmock.view.mockService.NMockService
 import me.abolfazl.nmock.view.mockSpeed.MockSpeedBottomSheetDialogFragment
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
@@ -37,6 +41,10 @@ class MockPlayerActivity : AppCompatActivity() {
     private val markerLayer = ArrayList<Marker>()
     private val polylineLayer = ArrayList<Polyline>()
 
+    private var serviceIsRunning = false
+    private var nMockBinder: NMockService.NMockBinder? = null
+    private var nMockService: NMockService? = null
+
     companion object {
         const val KEY_MOCK_ID_PLAYER = "MOCK_PLAYER_ID"
     }
@@ -45,6 +53,8 @@ class MockPlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMockPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        startService(Intent(this, NMockService::class.java))
 
         initViewsFromBundle()
 
@@ -63,11 +73,34 @@ class MockPlayerActivity : AppCompatActivity() {
         viewModel.getMockInformation(mockId)
     }
 
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(component: ComponentName?, binder: IBinder?) {
+            serviceIsRunning = true
+            nMockBinder = binder as NMockService.NMockBinder
+            nMockBinder?.setMockSpeed(viewModel.mockPlayerState.value.mockInformation?.speed!!)
+            nMockBinder?.setLineVectorForProcessing(viewModel.mockPlayerState.value.mockInformation?.lineVector!![0])
+            nMockService = nMockBinder?.getService()
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            serviceIsRunning = false
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unbindService(serviceConnection)
+        serviceIsRunning = false
+    }
+
     private fun initObservers() {
         lifecycleScope.launch {
             viewModel.mockPlayerState.collect { state ->
 
                 state.mockInformation?.let { mockInformation ->
+                    Intent(this@MockPlayerActivity, NMockService::class.java).also { intent ->
+                        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+                    }
                     showProgressbar(false)
                     binding.titleTextView.text = mockInformation.mockName
                     binding.originTextView.text =

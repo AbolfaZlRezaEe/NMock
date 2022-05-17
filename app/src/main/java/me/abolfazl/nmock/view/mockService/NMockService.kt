@@ -1,7 +1,10 @@
 package me.abolfazl.nmock.view.mockService
 
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.location.Location
@@ -9,7 +12,6 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
-import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.vividsolutions.jts.geom.Coordinate
 import com.vividsolutions.jts.geom.GeometryFactory
@@ -48,13 +50,14 @@ class NMockService : Service() {
 
     private fun startForegroundService() {
         val notification = NotificationCompat.Builder(this, Constant.NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.nmock_logo)
+            .setSmallIcon(R.drawable.nmock_logo_notifcation)
             .setContentIntent(getNMockIntent())
             .setContentTitle(getString(R.string.notificationTitle))
             .setStyle(NotificationCompat.BigTextStyle()
                 .bigText(getString(R.string.notificationDescription)))
             .setOngoing(true)
             .setAutoCancel(false)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
 
         val notificationManager =
@@ -64,7 +67,7 @@ class NMockService : Service() {
             val notificationChannel = NotificationChannel(
                 Constant.NOTIFICATION_CHANNEL_ID,
                 Constant.NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_NONE
             )
             notificationChannel.description = Constant.NOTIFICATION_CHANNEL_DESCRIPTION
             notificationManager.createNotificationChannel(notificationChannel)
