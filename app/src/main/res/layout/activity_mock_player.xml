@@ -16,7 +16,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:background="@color/gray30">
+        android:background="@color/colorPrimary">
 
         <ImageView
             android:id="@+id/backImageView"
@@ -26,7 +26,7 @@
             android:layout_marginStart="16dp"
             android:background="?selectableItemBackgroundBorderless"
             android:src="@drawable/ic_back_24"
-            app:tint="@color/gray90" />
+            app:tint="@color/colorPrimaryDark" />
 
         <TextView
             android:id="@+id/titleTextView"
@@ -36,7 +36,7 @@
             android:ellipsize="end"
             android:fontFamily="@font/roboto_bold"
             android:maxLines="1"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
             android:textSize="18sp"
             tools:text="Mock Title" />
 
@@ -45,6 +45,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
+            android:indeterminateTint="@color/colorPrimaryDark"
             android:visibility="gone"
             tools:visibility="visible" />
 
@@ -56,7 +57,7 @@
             android:layout_marginEnd="16dp"
             android:background="?selectableItemBackgroundBorderless"
             android:src="@drawable/ic_detail_24"
-            app:tint="@color/gray70" />
+            app:tint="@color/colorPrimaryDark" />
     </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -71,6 +72,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:text="@string/navigate"
+            android:textColor="@color/colorPrimaryDark"
             app:cornerRadius="15dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -82,6 +84,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:text="@string/share"
+            android:textColor="@color/colorPrimaryDark"
             app:cornerRadius="15dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -92,6 +95,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:background="@drawable/background_mock_player_fabs"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:padding="16dp"
@@ -102,27 +107,36 @@
                 android:id="@+id/playPauseFloatingActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:src="@drawable/ic_play_24"
                 app:elevation="0dp"
-                app:fabCustomSize="45dp" />
+                app:fabCustomSize="45dp"
+                app:tint="@color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/stopFloatingActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:src="@drawable/ic_stop_24"
                 app:elevation="0dp"
-                app:fabCustomSize="45dp" />
+                app:fabCustomSize="45dp"
+                app:tint="@color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/speedFloatingActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:src="@drawable/ic_speed_24"
                 app:elevation="0dp"
-                app:fabCustomSize="45dp" />
+                app:fabCustomSize="45dp"
+                app:tint="@color/white" />
 
         </LinearLayout>
 
@@ -149,7 +163,7 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/roboto_medium"
                 android:maxLines="2"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/colorPrimaryDark"
                 tools:text="Origin Information..." />
 
             <TextView
@@ -158,10 +172,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_weight="1"
+                android:ellipsize="end"
                 android:fontFamily="@font/roboto_medium"
                 android:maxLines="2"
-                android:ellipsize="end"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/colorPrimaryDark"
                 tools:text="Destination Information" />
 
         </LinearLayout>

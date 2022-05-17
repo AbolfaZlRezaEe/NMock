@@ -2,7 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/color_primary10">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,7 +13,7 @@
         <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/logo"
+            android:src="@drawable/nmock_logo"
             android:adjustViewBounds="true"
             android:layout_gravity="center_horizontal|top"/>
 
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:text="@string/app_name"
             android:fontFamily="@font/roboto_bold"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorSecondary"
             android:textSize="32sp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"/>

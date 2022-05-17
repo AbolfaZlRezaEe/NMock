@@ -11,7 +11,7 @@ object LineManager {
 
     fun createLineStyle(
         width: Float = 8F,
-        color: Color = Color(0Xff045F7A.toInt())
+        color: Color = Color(0XffA86E00.toInt())
     ): LineStyle {
         return LineStyleBuilder().apply {
             this.width = width

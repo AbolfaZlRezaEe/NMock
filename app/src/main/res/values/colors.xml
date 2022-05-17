@@ -6,19 +6,17 @@
     <color name="transparent">#00FFFFFF</color>
 
     <!-- Theme Colors -->
-    <color name="colorPrimary">#045F7A</color>
-    <color name="colorOnPrimary">@color/white</color>
+    <color name="colorPrimary">#ffd88f</color>
+    <color name="colorOnPrimary">@color/colorSecondary</color>
+
+    <color name="colorSecondary">#ff7893</color>
+    <color name="colorOnSecondary">@color/colorPrimary</color>
 
     <!-- Custom Colors -->
-    <color name="primary10">#BCEFFF</color>
-    <color name="primaryAlpha10">#004257</color>
-    <color name="blue30">#15A1C3</color>
-    <color name="blue10">#CEF5FF</color>
-    <color name="gray50">#BFBFBF</color>
-    <color name="gray70">#4E4E4E</color>
-    <color name="gray90">#222222</color>
-    <color name="gray30">#DDDDDD</color>
+    <color name="color_primary10">#fff7e8</color>
+    <color name="colorPrimary50">#FFBD41</color>
+    <color name="colorPrimaryDark">#A86E00</color>
 
-    <color name="routeColor">#00ff00</color>
+    <color name="gray90">#222222</color>
 
 </resources>

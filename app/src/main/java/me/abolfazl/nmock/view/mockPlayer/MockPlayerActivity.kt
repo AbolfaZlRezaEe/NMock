@@ -81,13 +81,13 @@ class MockPlayerActivity : AppCompatActivity() {
                     )
                     val originMarker = MarkerManager.createMarker(
                         location = mockInformation.originLocation,
-                        drawableRes = R.drawable.marker_origin,
+                        drawableRes = R.drawable.ic_origin_marker,
                         elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER,
                         context = this@MockPlayerActivity
                     )
                     val destinationMarker = MarkerManager.createMarker(
                         location = mockInformation.destinationLocation,
-                        drawableRes = R.drawable.marker_destination,
+                        drawableRes = R.drawable.ic_destination_marker,
                         elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
                         context = this@MockPlayerActivity
                     )

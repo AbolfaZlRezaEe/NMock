@@ -24,7 +24,7 @@
             android:id="@+id/frameLayout"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:background="@color/gray30"
+            android:background="@color/colorSecondary"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
@@ -39,7 +39,7 @@
                 android:layout_marginStart="16dp"
                 android:background="?selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_back_24"
-                app:tint="@color/gray90" />
+                app:tint="@color/white" />
 
             <ImageView
                 android:id="@+id/deleteMockImageView"
@@ -50,7 +50,7 @@
                 android:background="?selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_delete_24"
                 android:visibility="gone"
-                app:tint="@color/colorPrimary"
+                app:tint="@color/white"
                 tools:visibility="visible" />
 
             <TextView
@@ -60,7 +60,7 @@
                 android:layout_gravity="center"
                 android:fontFamily="@font/roboto_bold"
                 android:text="@string/chooseOriginLocation"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/white"
                 android:textSize="18sp" />
 
             <ProgressBar
@@ -68,6 +68,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_gravity="center"
+                android:indeterminateTint="@color/white"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
@@ -78,7 +79,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:backgroundTint="@color/gray30"
+            android:backgroundTint="@color/color_primary10"
             app:cardCornerRadius="15dp"
             app:cardElevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -124,7 +125,7 @@
                             android:fontFamily="@font/roboto_medium"
                             android:maxLines="2"
                             android:text="@string/withoutOriginInformation"
-                            android:textColor="@color/colorOnPrimary" />
+                            android:textColor="@color/colorPrimaryDark" />
 
                         <TextView
                             android:id="@+id/destinationTextView"
@@ -135,7 +136,7 @@
                             android:fontFamily="@font/roboto_medium"
                             android:maxLines="2"
                             android:text="@string/withoutDestinationInformation"
-                            android:textColor="@color/colorOnPrimary"
+                            android:textColor="@color/colorPrimaryDark"
                             android:visibility="gone"
                             tools:visibility="visible" />
 
@@ -154,9 +155,10 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:src="@drawable/ic_location_24dp"
-            app:backgroundTint="@color/colorPrimary"
+            app:backgroundTint="@color/colorSecondary"
             app:layout_constraintBottom_toTopOf="@+id/materialCardView2"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/white" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/saveExtendedFab"
@@ -164,11 +166,14 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/colorPrimaryDark"
             android:fontFamily="@font/roboto_bold"
             android:gravity="center"
             android:text="@string/save"
+            android:textColor="@color/color_primary10"
             android:visibility="gone"
             app:icon="@drawable/ic_save_24"
+            app:iconTint="@color/color_primary10"
             app:layout_constraintBottom_toTopOf="@+id/undoExtendedFab"
             app:layout_constraintStart_toStartOf="parent"
             tools:visibility="visible" />
@@ -179,10 +184,13 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/colorPrimaryDark"
             android:fontFamily="@font/roboto_bold"
             android:text="@string/undo"
+            android:textColor="@color/color_primary10"
             android:visibility="gone"
             app:icon="@drawable/ic_undo_24"
+            app:iconTint="@color/color_primary10"
             app:layout_constraintBottom_toTopOf="@+id/materialCardView2"
             app:layout_constraintStart_toStartOf="parent"
             tools:visibility="visible" />

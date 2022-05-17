@@ -34,11 +34,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun initializeListeners() {
-        binding.newTripMaterialButtonHome.setOnClickListener {
+        binding.createMockMaterialButton.setOnClickListener {
             activity?.startActivity(Intent(activity, MockEditorActivity::class.java))
         }
 
-        binding.mockArchiveMaterialButtonHome.setOnClickListener {
+        binding.mockListMaterialButton.setOnClickListener {
             activity?.startActivity(Intent(activity, MockArchiveActivity::class.java))
         }
     }

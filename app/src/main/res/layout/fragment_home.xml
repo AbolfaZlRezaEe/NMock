@@ -3,58 +3,98 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary10">
+    android:background="@color/color_primary10">
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
         android:fontFamily="@font/roboto_bold"
-        android:text="@string/app_name"
-        android:textColor="@color/colorPrimary"
+        android:gravity="center"
+        android:text="N M o c k"
+        android:textColor="@color/colorSecondary"
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:fontFamily="@font/roboto_light"
+        android:text="The application that you can mock your trips..."
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
-
+        app:layout_constraintBottom_toTopOf="@+id/textView4"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/newTripMaterialButtonHome"
-            android:layout_width="200dp"
-            android:layout_height="54dp"
-            android:fontFamily="@font/roboto_medium"
-            android:text="@string/newTrip"
-            app:cornerRadius="15dp" />
+            android:id="@+id/createMockMaterialButton"
+            android:layout_width="300dp"
+            android:layout_height="55dp"
+            android:text="Create Mock"
+            android:textAllCaps="false"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16sp"
+            app:cornerRadius="20dp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/mockArchiveMaterialButtonHome"
-            android:layout_width="200dp"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
-            android:fontFamily="@font/roboto_medium"
-            android:text="@string/mockArchive"
-            app:cornerRadius="15dp" />
+            android:id="@+id/mockListMaterialButton"
+            android:layout_width="300dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="8dp"
+            android:text="Mock List"
+            android:textAllCaps="false"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16sp"
+            app:cornerRadius="20dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mockTrackerMaterialButton"
+            android:layout_width="300dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="8dp"
+            android:text="Track Your Mock"
+            android:textAllCaps="false"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16sp"
+            app:cornerRadius="20dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mockImportMaterialButton"
+            android:layout_width="300dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="8dp"
+            android:text="Import Your Mock"
+            android:textAllCaps="false"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16sp"
+            app:cornerRadius="20dp" />
 
     </LinearLayout>
 
     <TextView
+        android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:fontFamily="@font/roboto_light"
+        android:fontFamily="@font/roboto_medium"
         android:text="@string/versionName"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

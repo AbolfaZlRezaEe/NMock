@@ -5,6 +5,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
+    app:cardBackgroundColor="@color/color_primary10"
     app:cardCornerRadius="20dp"
     app:cardElevation="0dp">
 
@@ -19,7 +20,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_bold"
             android:gravity="center"
-            android:textColor="@color/black"
+            android:textColor="@color/colorPrimaryDark"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -44,6 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/colorPrimaryDark"
                 app:cornerRadius="15dp"
                 tools:text="Cancel" />
 
@@ -51,9 +53,10 @@
                 android:id="@+id/actionMaterialButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginStart="16dp"
+                android:layout_weight="1"
                 android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/colorPrimaryDark"
                 app:cornerRadius="15dp"
                 tools:text="Save" />
 

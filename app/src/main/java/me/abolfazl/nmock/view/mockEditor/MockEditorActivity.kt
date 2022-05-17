@@ -61,6 +61,7 @@ class MockEditorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMockEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        window.statusBarColor = getColor(R.color.colorSecondary)
 
         initViewFromArguments()
 
@@ -190,13 +191,13 @@ class MockEditorActivity : AppCompatActivity() {
                             mockInformation.destinationAddress.changeStringTo("To:")
                         val originMarker = MarkerManager.createMarker(
                             location = mockInformation.originLocation,
-                            drawableRes = R.drawable.marker_origin,
+                            drawableRes = R.drawable.ic_origin_marker,
                             elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER,
                             context = this@MockEditorActivity
                         )
                         val destinationMarker = MarkerManager.createMarker(
                             location = mockInformation.destinationLocation,
-                            drawableRes = R.drawable.marker_destination,
+                            drawableRes = R.drawable.ic_destination_marker,
                             elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
                             context = this@MockEditorActivity
                         )
@@ -268,7 +269,15 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onMapLongClicked(latLng: LatLng) {
-        if (markerLayer.size == 3) {
+        val originMarker = MarkerManager.getMarkerFromLayer(
+            layer = markerLayer,
+            id = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
+        )
+        val destinationMarker = MarkerManager.getMarkerFromLayer(
+            layer = markerLayer,
+            id = MarkerManager.ELEMENT_ID_DESTINATION_MARKER
+        )
+        if (originMarker != null && destinationMarker != null) {
             // we have origin and destination
             showSnackBar(
                 message = getString(R.string.originDestinationProblem),
@@ -277,15 +286,12 @@ class MockEditorActivity : AppCompatActivity() {
             )
             return
         }
-        val originIsNull = MarkerManager.getMarkerFromLayer(
-            layer = markerLayer,
-            id = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-        ) == null
 
         val marker = MarkerManager.createMarker(
             location = latLng,
-            drawableRes = if (originIsNull) R.drawable.marker_origin else R.drawable.marker_destination,
-            elementId = if (originIsNull) MarkerManager.ELEMENT_ID_ORIGIN_MARKER
+            drawableRes = if (originMarker == null) R.drawable.ic_origin_marker
+            else R.drawable.ic_destination_marker,
+            elementId = if (originMarker == null) MarkerManager.ELEMENT_ID_ORIGIN_MARKER
             else MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
             context = this
         )
@@ -295,9 +301,9 @@ class MockEditorActivity : AppCompatActivity() {
         }
 
         showLoadingProgressbar(true)
-        viewModel.getLocationInformation(latLng, originIsNull)
+        viewModel.getLocationInformation(latLng, originMarker == null)
 
-        if (!originIsNull) {
+        if (originMarker != null) {
             showLoadingProgressbar(true)
             viewModel.getRouteInformation(
                 originLocation = MarkerManager.getMarkerFromLayer(
@@ -364,11 +370,11 @@ class MockEditorActivity : AppCompatActivity() {
             )
             if (shouldShowRelational) {
                 showSnackBar(
-                    message =  getString(R.string.locationPermissionRational),
-                    rootView =  findViewById(R.id.mockEditorRootView),
-                    duration =  Snackbar.LENGTH_INDEFINITE,
+                    message = getString(R.string.locationPermissionRational),
+                    rootView = findViewById(R.id.mockEditorRootView),
+                    duration = Snackbar.LENGTH_INDEFINITE,
                     actionText = getString(R.string.iAccept),
-                ){
+                ) {
                     ActivityCompat.requestPermissions(
                         this,
                         PermissionManager.getPermissionList().toTypedArray(),

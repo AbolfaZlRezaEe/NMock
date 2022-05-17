@@ -48,7 +48,7 @@ class NMockService : Service() {
 
     private fun startForegroundService() {
         val notification = NotificationCompat.Builder(this, Constant.NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.logo)
+            .setSmallIcon(R.drawable.nmock_logo)
             .setContentIntent(getNMockIntent())
             .setContentTitle(getString(R.string.notificationTitle))
             .setStyle(NotificationCompat.BigTextStyle()

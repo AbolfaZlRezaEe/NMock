@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">NMock</string>
-    <string name="versionName">version 0.0.1</string>
+    <string name="versionName">v0.0.1</string>
     <string name="newTrip">New Mock</string>
     <string name="mockArchive">Mock Archive</string>
     <string name="requestLocationPermissionRelational">We should have (Location Permissions) for working correctly!</string>
@@ -30,6 +30,7 @@
     <string name="speedError">You must have a speed for your Mock!</string>
     <string name="unValidSpeed">You can only use speeds between 0 to 999 kilometers!</string>
     <string name="undo">undo</string>
+    <string name="welcome">Welcome to</string>
     <string name="addNewMock">Add new Mock</string>
     <string name="loading">Just a moment...</string>
     <string name="nothingToShowHere">Nothing to show here...</string>
