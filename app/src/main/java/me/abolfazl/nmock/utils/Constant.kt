@@ -7,9 +7,12 @@ object Constant {
     const val TYPE_CUSTOM_CREATE = "CUSTOM_CREATION"
     const val TYPE_AUTOMATIC_CREATE = "AUTOMATIC_CREATION"
 
-    // Mock Provider
+    // Mock Provider names
     const val PROVIDER_GPS = "GPS_PROVIDER"
     const val PROVIDER_NETWORK = "NETWORK_PROVIDER"
+
+    // Mock Provider types
+    const val TYPE_GPS = "gps"
 
     const val DATABASE_NAME = "nmock_db"
 
@@ -25,8 +28,9 @@ object Constant {
     const val LOCATION_FASTEST_INTERVAL: Long = 500
 
     // Notification
-    const val NOTIFICATION_CHANNEL_NAME= "Mock_Provider"
+    const val NOTIFICATION_CHANNEL_NAME = "Mock_Provider"
     const val NOTIFICATION_CHANNEL_ID = "NMOCK_NOTIFICATION_ID"
-    const val NOTIFICATION_CHANNEL_DESCRIPTION = "This Notification used for Broadcasting Mock around the Android System!"
+    const val NOTIFICATION_CHANNEL_DESCRIPTION =
+        "This Notification used for Broadcasting Mock around the Android System!"
     const val NOTIFICATION_ID = 15435
 }

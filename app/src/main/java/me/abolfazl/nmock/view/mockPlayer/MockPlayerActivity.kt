@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.location.LocationListener
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
@@ -28,6 +29,7 @@ import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.mockDetail.MockDetailBottomSheetDialogFragment
 import me.abolfazl.nmock.view.mockService.NMockService
 import me.abolfazl.nmock.view.mockSpeed.MockSpeedBottomSheetDialogFragment
+import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
 
@@ -79,6 +81,7 @@ class MockPlayerActivity : AppCompatActivity() {
             nMockBinder = binder as NMockService.NMockBinder
             nMockBinder?.setMockSpeed(viewModel.mockPlayerState.value.mockInformation?.speed!!)
             nMockBinder?.setLineVectorForProcessing(viewModel.mockPlayerState.value.mockInformation?.lineVector!![0])
+            nMockBinder?.setLocationListener(locationListener)
             nMockService = nMockBinder?.getService()
         }
 
@@ -185,11 +188,16 @@ class MockPlayerActivity : AppCompatActivity() {
         }
 
         binding.playPauseFloatingActionButton.setOnClickListener {
-            // todo: check the state of player first!
+            nMockService?.initializeMockProvider()
+            lifecycleScope.launch{
+                nMockService?.startCreatingMockLocations()
+            }
             // todo: change the state of player in second
         }
         binding.stopFloatingActionButton.setOnClickListener {
-            // todo: stop the service and close it!
+            if (nMockBinder?.mockIsRunning()!!) {
+                nMockService?.removeMockProvider()
+            }
         }
         binding.speedFloatingActionButton.setOnClickListener {
             val speedDialog = MockSpeedBottomSheetDialogFragment.newInstance(
@@ -197,7 +205,7 @@ class MockPlayerActivity : AppCompatActivity() {
             )
             speedDialog.isCancelable = false
             speedDialog.setOnSaveClickListener { newSpeed ->
-                // todo: change the speed of player in service
+                nMockBinder?.setMockSpeed(newSpeed)
                 viewModel.changeMockSpeed(newSpeed)
                 speedDialog.dismiss()
             }
@@ -225,6 +233,27 @@ class MockPlayerActivity : AppCompatActivity() {
                     UriManager.createNavigationUri(viewModel.mockPlayerState.value.mockInformation?.destinationLocation!!)
                 )
             )
+        }
+    }
+
+    private val locationListener = LocationListener { location ->
+        var currentLocationMarker = MarkerManager.getMarkerFromLayer(
+            layer = markerLayer,
+            id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+        )
+        val latLng = LatLng(location.latitude, location.longitude)
+        if (currentLocationMarker == null) {
+            currentLocationMarker = MarkerManager.createMarker(
+                location = latLng,
+                drawableRes = R.drawable.current_mock_location_marker,
+                context = this,
+                elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
+            )
+            currentLocationMarker?.let {
+                markerLayer.add(it)
+            }
+        } else {
+            currentLocationMarker.setLatLng(latLng)
         }
     }
 

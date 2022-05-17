@@ -8,6 +8,8 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -18,26 +20,22 @@ import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.LineString
 import com.vividsolutions.jts.linearref.LengthIndexedLine
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.utils.Constant
-import me.abolfazl.nmock.utils.response.Failure
-import me.abolfazl.nmock.utils.response.Response
-import me.abolfazl.nmock.utils.response.Success
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_COORDINATORS_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_SPEED_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.NMockException
 import me.abolfazl.nmock.view.mockPlayer.MockPlayerActivity
 import org.neshan.common.model.LatLng
 import timber.log.Timber
 import kotlin.math.*
 
-class NMockService : Service() {
+class NMockService : Service(), LocationListener {
 
     private val nMockBinder = NMockBinder()
     private var lineVector: List<LatLng>? = null
     private var lengthIndexedLine: LengthIndexedLine? = null
+
+    private var locationManager: LocationManager? = null
+    private var locationListener: LocationListener? = null
+    private var mockStillRunning = false
 
     private var speed = 0
     private var index = 0.0
@@ -48,13 +46,36 @@ class NMockService : Service() {
         startForegroundService()
     }
 
+    @SuppressLint("MissingPermission")
+    fun initializeMockProvider() {
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationManager?.let { manager ->
+            manager.addTestProvider(
+                Constant.TYPE_GPS,
+                false,
+                false,
+                false,
+                false,
+                true,
+                true,
+                true,
+                3, // powerRequirement should be in range [1,3] for android 11
+                1 // accuracy should be in range [1,2] for android 11
+            )
+            manager.setTestProviderEnabled(Constant.TYPE_GPS, true)
+            manager.requestLocationUpdates(Constant.TYPE_GPS, 0L, 0F, locationListener!!)
+        }
+    }
+
     private fun startForegroundService() {
         val notification = NotificationCompat.Builder(this, Constant.NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.nmock_logo_notifcation)
             .setContentIntent(getNMockIntent())
             .setContentTitle(getString(R.string.notificationTitle))
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(getString(R.string.notificationDescription)))
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(getString(R.string.notificationDescription))
+            )
             .setOngoing(true)
             .setAutoCancel(false)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -133,47 +154,50 @@ class NMockService : Service() {
         return sqrt(distance)
     }
 
-    fun getMockLocation(): Flow<Response<Location, NMockException>> = flow {
-        if (lengthIndexedLine == null) {
-            processLineVector()
-        }
-        if (speed == 0) {
-            emit(Failure(NMockException(type = EXCEPTION_SPEED_ERROR)))
-            stopForeground(true)
-            return@flow
-        }
-        lengthIndexedLine?.let { line ->
-            val firstCoordinate: Coordinate?
-            val secondCoordinate: Coordinate?
-            if (line.isValidIndex(index)) {
-                firstCoordinate = line.extractPoint(index)
-                secondCoordinate = line.extractPoint(index + ratio)
-                index += ratio
-            } else {
-                // trip was finished and we should send a event!
-                stopSelf()
-                return@flow
+    suspend fun startCreatingMockLocations() {
+        mockStillRunning = true
+        while (mockStillRunning) {
+            if (lengthIndexedLine == null) {
+                processLineVector()
             }
-            if (firstCoordinate == null || secondCoordinate == null) {
-                emit(Failure(NMockException(type = EXCEPTION_COORDINATORS_ERROR)))
-                stopSelf()
-                return@flow
+            if (speed == 0) {
+                // todo: speed error
+                mockStillRunning = false
+                return
             }
-            val distance: Double = distanceBetweenTwoCoordinates(
-                first = LatLng(firstCoordinate.x, firstCoordinate.y),
-                second = LatLng(secondCoordinate.x, secondCoordinate.y)
-            )
-            val delay: Double = (distance / (speed / 3.6)) * 1000
-            val location = Location(Constant.PROVIDER_GPS)
-            location.speed = speed.toFloat()
-            location.bearing = 0F
-            location.latitude = firstCoordinate.x
-            location.longitude = firstCoordinate.y
-            location.accuracy = ratio.toFloat()
-            location.time = System.currentTimeMillis()
-            location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
-            emit(Success(location))
-            delay(delay.toLong())
+            lengthIndexedLine?.let { line ->
+                val firstCoordinate: Coordinate?
+                val secondCoordinate: Coordinate?
+                if (line.isValidIndex(index)) {
+                    firstCoordinate = line.extractPoint(index)
+                    secondCoordinate = line.extractPoint(index + ratio)
+                    index += ratio
+                } else {
+                    // trip was finished and we should send a event!
+                    mockStillRunning = false
+                    return
+                }
+                if (firstCoordinate == null || secondCoordinate == null) {
+                    // todo: coordination Error
+                    mockStillRunning = false
+                    return
+                }
+                val distance: Double = distanceBetweenTwoCoordinates(
+                    first = LatLng(firstCoordinate.x, firstCoordinate.y),
+                    second = LatLng(secondCoordinate.x, secondCoordinate.y)
+                )
+                val delay: Double = (distance / (speed / 3.6)) * 1000
+                val location = Location(Constant.TYPE_GPS)
+                location.speed = speed.toFloat()
+                location.bearing = 0F
+                location.latitude = firstCoordinate.x
+                location.longitude = firstCoordinate.y
+                location.accuracy = ratio.toFloat()
+                location.time = System.currentTimeMillis()
+                location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+                locationManager?.setTestProviderLocation(Constant.TYPE_GPS, location)
+                delay(delay.toLong())
+            }
         }
     }
 
@@ -187,10 +211,32 @@ class NMockService : Service() {
         fun setMockSpeed(speed: Int) {
             this@NMockService.speed = speed
         }
+
+        fun setLocationListener(locationListener: LocationListener) {
+            this@NMockService.locationListener = locationListener
+        }
+
+        fun mockIsRunning(): Boolean {
+            return mockStillRunning
+        }
+    }
+
+    fun removeMockProvider() {
+        mockStillRunning = false
+        locationManager?.setTestProviderEnabled(Constant.TYPE_GPS, false)
+        locationManager?.removeTestProvider(Constant.TYPE_GPS)
+        locationListener?.let {
+            locationManager?.removeUpdates(it)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        removeMockProvider()
         Timber.e("abolfazl, service was destroyed")
+    }
+
+    override fun onLocationChanged(p0: Location) {
+        TODO("Not yet implemented")
     }
 }
