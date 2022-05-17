@@ -26,7 +26,7 @@ class MockRepositoryImpl @Inject constructor(
 
     override fun saveMock(
         mockDataClass: MockDataClass
-    ): Flow<Response<Boolean, NMockException>> = flow {
+    ): Flow<Response<Long, NMockException>> = flow {
         // when we want to update a mock:
         mockDataClass.id?.let {
             mockDao.updateMockInformation(
@@ -35,7 +35,7 @@ class MockRepositoryImpl @Inject constructor(
                     updatedAt = getTime()
                 )
             )
-            emit(Success(true))
+            emit(Success(mockDataClass.id))
             return@flow
         }
 
@@ -60,7 +60,7 @@ class MockRepositoryImpl @Inject constructor(
                 )
             }
         }
-        emit(Success(true))
+        emit(Success(mockId))
     }
 
     override suspend fun getMocks(): Flow<Response<List<MockDataClass>, NMockException>> = flow {
@@ -128,7 +128,9 @@ class MockRepositoryImpl @Inject constructor(
             lineVector = lineVector,
             bearing = mockEntity.bearing,
             accuracy = mockEntity.accuracy,
-            provider = mockEntity.provider
+            provider = mockEntity.provider,
+            createdAt = mockEntity.createdAt,
+            updatedAt = mockEntity.updatedAt
         )
     }
 

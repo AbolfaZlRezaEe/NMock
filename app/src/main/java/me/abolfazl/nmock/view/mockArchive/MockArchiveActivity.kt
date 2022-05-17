@@ -15,8 +15,10 @@ import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockArchiveBinding
 import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.mockEditor.MockEditorActivity
+import me.abolfazl.nmock.view.mockPlayer.MockPlayerActivity
 
 @AndroidEntryPoint
 class MockArchiveActivity : AppCompatActivity() {
@@ -70,13 +72,13 @@ class MockArchiveActivity : AppCompatActivity() {
             }
         }
         lifecycleScope.launchWhenStarted {
-            viewModel.oneTimeEmitter.collect { message ->
+            viewModel.oneTimeEmitter.collect { response ->
                 binding.loadingState.visibility = View.GONE
-                Snackbar.make(
-                    findViewById(R.id.mockArchiveRootView),
-                    "Message: $message",
+                showSnackBar(
+                    message = getString(R.string.unknownException),
+                    rootView = findViewById(R.id.mockArchiveRootView),
                     Snackbar.LENGTH_SHORT
-                ).show()
+                )
             }
         }
     }
@@ -86,7 +88,13 @@ class MockArchiveActivity : AppCompatActivity() {
     ) {
         if (adapter == null) {
             adapter = MockArchiveAdapter(ArrayList(list), { onClickData ->
-                // todo: start mockplayer...
+                startActivity(
+                    Intent(
+                        this,
+                        MockPlayerActivity::class.java
+                    ).also {
+                        it.putExtra(MockPlayerActivity.KEY_MOCK_ID_PLAYER, onClickData.id)
+                    })
             }) { onLongClickData ->
                 startActivity(
                     Intent(

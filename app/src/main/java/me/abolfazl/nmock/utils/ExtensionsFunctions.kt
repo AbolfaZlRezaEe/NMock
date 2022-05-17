@@ -1,6 +1,12 @@
 package me.abolfazl.nmock.utils
 
+import android.view.View
+import androidx.annotation.NonNull
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 
 fun <T : RecyclerView.ViewHolder> T.setupListeners(
     onLongClick: (position: Int) -> Unit,
@@ -14,4 +20,41 @@ fun <T : RecyclerView.ViewHolder> T.setupListeners(
         onClick.invoke(adapterPosition)
     }
     return this
+}
+
+fun String.locationInformationFormat(isOrigin: Boolean): String {
+    val prefix = if (isOrigin) "From:" else "To:"
+    return "$prefix $this"
+}
+
+fun AppCompatActivity.showSnackBar(
+    @NonNull message: String,
+    @NonNull rootView: View,
+    @BaseTransientBottomBar.Duration duration: Int,
+    actionText: String? = null,
+    actionListener: View.OnClickListener? = null
+) {
+    val snackBar = Snackbar.make(
+        rootView, message, duration
+    )
+    if (actionText != null && actionListener != null) {
+        snackBar.setAction(actionText, actionListener)
+    }
+    snackBar.show()
+}
+
+fun Fragment.showSnackBar(
+    @NonNull message: String,
+    @NonNull rootView: View,
+    @BaseTransientBottomBar.Duration duration: Int,
+    actionText: String? = null,
+    actionListener: View.OnClickListener? = null
+) {
+    val snackBar = Snackbar.make(
+        rootView, message, duration
+    )
+    if (actionText != null && actionListener != null) {
+        snackBar.setAction(actionText, actionListener)
+    }
+    snackBar.show()
 }

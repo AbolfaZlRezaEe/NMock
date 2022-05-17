@@ -55,6 +55,8 @@ class MockDetailBottomSheetDialogFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initViewFromBundleInformation()
+
+        binding.closeAppCompatImageView.setOnClickListener { dismiss() }
     }
 
     private fun initViewFromBundleInformation() {

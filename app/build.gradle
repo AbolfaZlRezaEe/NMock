@@ -84,4 +84,7 @@ dependencies {
 
     // Nice Seekbar
     implementation 'com.github.Chrisvin:RubberPicker:v1.5'
+
+    // JTS
+    implementation 'com.vividsolutions:jts:1.13'
 }

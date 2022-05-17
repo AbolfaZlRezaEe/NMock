@@ -36,7 +36,7 @@ object MarkerManager {
         }
     }
 
-    fun createMarkerStyle(
+    private fun createMarkerStyle(
         @NonNull bitmap: Bitmap,
         markerSize: Float = 32F,
         @Nullable animationStyle: AnimationStyle? = null
@@ -55,7 +55,7 @@ object MarkerManager {
         return markerStyleBuilder.buildStyle()
     }
 
-    fun getBitmapFromResourceId(
+    private fun getBitmapFromResourceId(
         @DrawableRes resource: Int,
         @Nullable context: Context?
     ): Bitmap? {
@@ -63,5 +63,17 @@ object MarkerManager {
         return BitmapUtils.createBitmapFromAndroidBitmap(
             BitmapFactory.decodeResource(context.resources, resource)
         )
+    }
+
+    fun getMarkerFromLayer(
+        layer: ArrayList<Marker>,
+        id: String
+    ): Marker? {
+        layer.forEach { marker ->
+            val hasId = marker.hasMetadata(MarkerManager.ID_ELEMENT_META_DATA)
+            if (hasId && marker.getMetadata(MarkerManager.ID_ELEMENT_META_DATA) == id)
+                return marker
+        }
+        return null
     }
 }

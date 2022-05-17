@@ -20,4 +20,6 @@ data class MockDataClass(
     val accuracy: Float,
     @MockProvider
     val provider: String,
+    val createdAt: String? = null,
+    val updatedAt: String? = null
 )

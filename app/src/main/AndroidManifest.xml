@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NMock">
         <activity
-            android:name=".MockPlayerActivity"
+            android:name=".view.mockPlayer.MockPlayerActivity"
             android:exported="false" />
         <activity
             android:name=".view.mockArchive.MockArchiveActivity"
@@ -33,6 +33,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".view.mockService.NMockService"
+            android:foregroundServiceType="location" />
+
     </application>
+
 
 </manifest>

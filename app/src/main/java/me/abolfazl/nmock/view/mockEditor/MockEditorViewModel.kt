@@ -14,9 +14,10 @@ import me.abolfazl.nmock.repository.mock.MockRepository
 import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepository
 import me.abolfazl.nmock.utils.Constant
-import me.abolfazl.nmock.utils.response.SUCCESS_TYPE_MOCK_INSERTION
+import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_FORCE_CLOSE
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
+import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_UNKNOWN
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
 import me.abolfazl.nmock.utils.response.ifSuccessful
 import org.neshan.common.model.LatLng
@@ -35,13 +36,14 @@ class MockEditorViewModel @Inject constructor(
     val mockEditorState = _mockEditorState.asStateFlow()
 
     // for errors..
-    private val _oneTimeEmitter = MutableSharedFlow<String>()
+    // Long used for passing (mockId) to View, and String used for sending exception types:
+    private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter<String>>()
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Timber.e("Exception thrown in MockEditorViewModel: " + throwable.message)
         viewModelScope.launch {
-            _oneTimeEmitter.emit("$EXCEPTION_FORCE_CLOSE thrown. please check the logcat!")
+            _oneTimeEmitter.emit(OneTimeEmitter(exception = EXCEPTION_UNKNOWN))
         }
     }
 
@@ -65,8 +67,7 @@ class MockEditorViewModel @Inject constructor(
                 }
             }
             response.ifNotSuccessful { exception ->
-                // for now...
-                _oneTimeEmitter.emit(exception.type)
+                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
                 Timber.e(exception.type)
             }
         }
@@ -86,8 +87,7 @@ class MockEditorViewModel @Inject constructor(
                 )
             }
             response.ifNotSuccessful { exception ->
-                // for now...
-                _oneTimeEmitter.emit(exception.type)
+                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
                 Timber.e(exception.type)
             }
         }
@@ -102,7 +102,7 @@ class MockEditorViewModel @Inject constructor(
     ) = viewModelScope.launch(exceptionHandler) {
         val lineVector = mockEditorState.value.lineVector
         if (lineVector == null) {
-            _oneTimeEmitter.emit(EXCEPTION_INSERTION_ERROR)
+            _oneTimeEmitter.emit(OneTimeEmitter(exception = EXCEPTION_INSERTION_ERROR))
             return@launch
         }
         mockRepository.saveMock(
@@ -121,11 +121,13 @@ class MockEditorViewModel @Inject constructor(
                 provider = Constant.PROVIDER_GPS
             )
         ).collect { response ->
-            response.ifSuccessful {
-                _oneTimeEmitter.emit(SUCCESS_TYPE_MOCK_INSERTION)
+            response.ifSuccessful { mockId ->
+                _mockEditorState.value = _mockEditorState.value.copy(
+                    mockId = mockId
+                )
             }
             response.ifNotSuccessful { exception ->
-                _oneTimeEmitter.emit(exception.type)
+                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
             }
         }
     }
@@ -157,7 +159,7 @@ class MockEditorViewModel @Inject constructor(
                 )
             }
             response.ifNotSuccessful { exception ->
-                _oneTimeEmitter.emit(exception.type)
+                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
                 Timber.e(exception.type)
             }
         }

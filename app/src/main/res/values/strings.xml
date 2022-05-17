@@ -39,4 +39,12 @@
     <string name="youCanEditYourTrip">You can edit your trip...</string>
     <string name="playingMockDialogTitle">Would you like to play this Trip right now?</string>
     <string name="speedDialogTitle">Choose your speed...</string>
+    <string name="navigate">Navigate</string>
+    <string name="share">Share</string>
+    <string name="notificationTitle">Mock is running!</string>
+    <string name="notificationDescription">Your mock trip was started and you should get the Mock location from other apps</string>
+    <string name="unknownException">Unexpected Error occurred! Please try again...</string>
+    <string name="limitRequestsException">Our Service has a Problem, We hope to fix it as soon as possible!</string>
+    <string name="databaseInsertionException">Database has a Problem! Please try again...</string>
+    <string name="databaseGettingException">Information of your Mock had a Problem! Please add this Mock again...</string>
 </resources>

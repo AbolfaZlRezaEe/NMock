@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockArchive
+package me.abolfazl.nmock.view.mockPlayer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,41 +15,45 @@ import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_FORCE_CLOSE
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_UNKNOWN
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
 import me.abolfazl.nmock.utils.response.ifSuccessful
+import me.abolfazl.nmock.view.mockEditor.MockEditorState
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class MockArchiveViewModel @Inject constructor(
+class MockPlayerViewModel @Inject constructor(
     private val mockRepository: MockRepository
 ) : ViewModel() {
 
-    private val _mockArchiveState = MutableStateFlow(MockArchiveState())
-    val mockArchiveState = _mockArchiveState.asStateFlow()
+    // for handling states
+    private val _mockPlayerState = MutableStateFlow(MockPlayerState())
+    val mockPlayerState = _mockPlayerState.asStateFlow()
 
+    // for errors..
     private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter<String>>()
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Timber.e("Exception thrown in MockArchiveViewModel: " + throwable.message)
+        Timber.e("Exception thrown in MockPlayerViewModel: " + throwable.message)
         viewModelScope.launch {
             _oneTimeEmitter.emit(OneTimeEmitter(exception = EXCEPTION_UNKNOWN))
         }
     }
 
-    fun getMocks() = viewModelScope.launch(exceptionHandler) {
-        mockRepository.getMocks().collect { response ->
-            response.ifSuccessful { mockList ->
-                _mockArchiveState.value = _mockArchiveState.value.copy(
-                    mockList = mockList
+    fun getMockInformation(mockId: Long) = viewModelScope.launch(exceptionHandler) {
+        mockRepository.getMock(mockId).collect { response ->
+            response.ifSuccessful { mockInformation ->
+                _mockPlayerState.value = _mockPlayerState.value.copy(
+                    mockInformation = mockInformation
                 )
+            }
+            response.ifNotSuccessful { exception ->
+                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
+                Timber.e(exception.type)
             }
         }
     }
 
-    fun deleteAllMocks() = viewModelScope.launch(exceptionHandler) {
-        mockRepository.deleteAllMocks()
-        _mockArchiveState.value = _mockArchiveState.value.copy(
-            mockList = null
-        )
+    fun changeMockSpeed(mockSpeed: Int) = viewModelScope.launch(exceptionHandler) {
+
     }
 }

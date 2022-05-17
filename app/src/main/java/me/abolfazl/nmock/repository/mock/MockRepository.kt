@@ -10,7 +10,7 @@ interface MockRepository {
 
     fun saveMock(
         mockDataClass: MockDataClass
-    ): Flow<Response<Boolean, NMockException>>
+    ): Flow<Response<Long, NMockException>>
 
     suspend fun deleteMock(
         mockDataClass: MockDataClass

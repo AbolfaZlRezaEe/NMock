@@ -7,5 +7,6 @@ data class MockEditorState(
     val originAddress: String? = null,
     val destinationAddress: String? = null,
     val lineVector: ArrayList<List<LatLng>>? = null,
+    val mockId: Long? = null,
     val mockInformation: MockDataClass? = null
 )

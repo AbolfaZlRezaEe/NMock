@@ -21,4 +21,9 @@ object Constant {
     const val LOCATION_INTERVAL: Long = 1000
     const val LOCATION_FASTEST_INTERVAL: Long = 500
 
+    // Notification
+    const val NOTIFICATION_CHANNEL_NAME= "Mock_Provider"
+    const val NOTIFICATION_CHANNEL_ID = "NMOCK_NOTIFICATION_ID"
+    const val NOTIFICATION_CHANNEL_DESCRIPTION = "This Notification used for Broadcasting Mock around the Android System!"
+    const val NOTIFICATION_ID = 15435
 }
