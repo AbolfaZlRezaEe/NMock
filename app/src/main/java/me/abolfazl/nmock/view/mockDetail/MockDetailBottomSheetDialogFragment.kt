@@ -8,6 +8,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import me.abolfazl.nmock.databinding.FragmentMockDetailBinding
 import me.abolfazl.nmock.model.database.MockProvider
 import me.abolfazl.nmock.model.database.MockType
+import me.abolfazl.nmock.utils.Constant
+import me.abolfazl.nmock.utils.changeStringTo
 
 class MockDetailBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
@@ -83,8 +85,8 @@ class MockDetailBottomSheetDialogFragment : BottomSheetDialogFragment() {
             binding.descriptionTextView.text = description
             binding.providerTextView.text = provider
             binding.mockTypeTextView.text = type
-            binding.updatedAtTextView.text = updatedAt
-            binding.createAtTextView.text = createdAt
+            binding.updatedAtTextView.text = updatedAt.changeStringTo(Constant.UPDATED_AT)
+            binding.createAtTextView.text = createdAt.changeStringTo(Constant.CREATED_AT)
         }
     }
 }

@@ -4,10 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.repository.mock.MockRepository
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
@@ -54,6 +51,15 @@ class MockPlayerViewModel @Inject constructor(
     }
 
     fun changeMockSpeed(mockSpeed: Int) = viewModelScope.launch(exceptionHandler) {
-
+        val mock = _mockPlayerState.value.mockInformation!!
+        mock.speed = mockSpeed
+        _mockPlayerState.value = _mockPlayerState.value.copy(
+            mockInformation = mock
+        )
+        mockRepository.saveMock(_mockPlayerState.value.mockInformation!!).collect { response ->
+            response.ifNotSuccessful { exception ->
+                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
+            }
+        }
     }
 }

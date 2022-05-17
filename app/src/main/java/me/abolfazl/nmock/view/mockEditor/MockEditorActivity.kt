@@ -20,7 +20,6 @@ import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockEditorBinding
 import me.abolfazl.nmock.utils.Constant
-import me.abolfazl.nmock.utils.locationInformationFormat
 import me.abolfazl.nmock.utils.managers.CameraManager
 import me.abolfazl.nmock.utils.managers.LineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
@@ -29,9 +28,10 @@ import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ER
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_LIMIT_EXCEEDED
 import me.abolfazl.nmock.utils.showSnackBar
-import me.abolfazl.nmock.view.dialog.NMockDialog
+import me.abolfazl.nmock.utils.changeStringTo
+import me.abolfazl.nmock.view.mockDialog.NMockDialog
 import me.abolfazl.nmock.view.mockPlayer.MockPlayerActivity
-import me.abolfazl.nmock.view.save.SaveMockBottomSheetDialogFragment
+import me.abolfazl.nmock.view.mockSaverDialog.SaveMockBottomSheetDialogFragment
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
@@ -99,7 +99,7 @@ class MockEditorActivity : AppCompatActivity() {
                     showLoadingProgressbar(false)
 
                     state.originAddress?.let { originAddress ->
-                        binding.originTextView.text = originAddress.locationInformationFormat(true)
+                        binding.originTextView.text = originAddress.changeStringTo("From:")
                         binding.titleTextView.text =
                             resources.getText(R.string.chooseDestinationLocation)
                         binding.destinationTextView.visibility = View.VISIBLE
@@ -114,7 +114,7 @@ class MockEditorActivity : AppCompatActivity() {
                     state.destinationAddress?.let { destinationAddress ->
                         binding.destinationTextView.visibility = View.VISIBLE
                         binding.destinationTextView.text =
-                            destinationAddress.locationInformationFormat(false)
+                            destinationAddress.changeStringTo("To:")
                     }
 
                     state.lineVector?.let { vectors ->
@@ -185,9 +185,9 @@ class MockEditorActivity : AppCompatActivity() {
                         binding.undoExtendedFab.visibility = View.VISIBLE
                         binding.deleteMockImageView.visibility = View.VISIBLE
                         binding.originTextView.text =
-                            mockInformation.originAddress.locationInformationFormat(true)
+                            mockInformation.originAddress.changeStringTo("From:")
                         binding.destinationTextView.text =
-                            mockInformation.destinationAddress.locationInformationFormat(false)
+                            mockInformation.destinationAddress.changeStringTo("To:")
                         val originMarker = MarkerManager.createMarker(
                             location = mockInformation.originLocation,
                             drawableRes = R.drawable.marker_origin,

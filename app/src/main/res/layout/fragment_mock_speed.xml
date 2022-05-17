@@ -27,7 +27,7 @@
                 android:maxLines="1"
                 android:text="@string/speedDialogTitle"
                 android:textColor="@color/black"
-                android:textSize="22sp" />
+                android:textSize="18sp" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/closeAppCompatImageView"

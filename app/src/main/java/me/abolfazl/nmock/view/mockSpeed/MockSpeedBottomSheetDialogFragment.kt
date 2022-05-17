@@ -72,9 +72,11 @@ class MockSpeedBottomSheetDialogFragment : BottomSheetDialogFragment() {
         binding.speedTextInputEditText.doOnTextChanged { text, _, _, _ ->
             if (text?.length!! > 3) {
                 binding.speedTextInputLayout.error = getString(R.string.unValidSpeed)
-            } else {
+            } else if (text.isNotEmpty()) {
                 binding.speedTextInputLayout.isErrorEnabled = false
                 binding.speedSeekbar.setCurrentValue(text.toString().toInt())
+            } else {
+                binding.speedTextInputLayout.error = getString(R.string.speedError)
             }
         }
 

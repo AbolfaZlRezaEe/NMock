@@ -35,13 +35,7 @@ class HomeFragment : Fragment() {
 
     private fun initializeListeners() {
         binding.newTripMaterialButtonHome.setOnClickListener {
-//            activity?.startActivity(Intent(activity, MockPlayerActivity::class.java))
-            val result = UriManager.createShareUri(
-                origin = LatLng(6.5415641, 3.564561),
-                destination = LatLng(2.5641654, 6.5645)
-            )
-            Timber.e(result.toString())
-//            activity?.startActivity(Intent(activity, MockEditorActivity::class.java))
+            activity?.startActivity(Intent(activity, MockEditorActivity::class.java))
         }
 
         binding.mockArchiveMaterialButtonHome.setOnClickListener {

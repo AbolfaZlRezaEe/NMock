@@ -14,7 +14,7 @@ data class MockDataClass(
     val destinationAddress: String,
     @MockType
     val mockType: String,
-    val speed: Int = 0,
+    var speed: Int = 0,
     val lineVector: ArrayList<List<LatLng>>? = null,
     val bearing: Float,
     val accuracy: Float,

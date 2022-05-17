@@ -16,7 +16,7 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockArchiveBinding
 import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.showSnackBar
-import me.abolfazl.nmock.view.dialog.NMockDialog
+import me.abolfazl.nmock.view.mockDialog.NMockDialog
 import me.abolfazl.nmock.view.mockEditor.MockEditorActivity
 import me.abolfazl.nmock.view.mockPlayer.MockPlayerActivity
 

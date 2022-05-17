@@ -22,8 +22,7 @@ fun <T : RecyclerView.ViewHolder> T.setupListeners(
     return this
 }
 
-fun String.locationInformationFormat(isOrigin: Boolean): String {
-    val prefix = if (isOrigin) "From:" else "To:"
+fun String.changeStringTo(prefix: String): String {
     return "$prefix $this"
 }
 

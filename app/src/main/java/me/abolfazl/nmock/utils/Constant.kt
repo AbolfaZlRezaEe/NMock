@@ -13,6 +13,9 @@ object Constant {
 
     const val DATABASE_NAME = "nmock_db"
 
+    const val CREATED_AT = "Created at:"
+    const val UPDATED_AT = "Updated at:"
+
     const val HEADER_API_KEY = "Api-Key"
     const val HEADER_VALUE_API_KEY = "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
 

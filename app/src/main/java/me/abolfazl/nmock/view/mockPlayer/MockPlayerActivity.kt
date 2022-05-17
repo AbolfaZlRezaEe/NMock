@@ -56,7 +56,7 @@ class MockPlayerActivity : AppCompatActivity() {
     private fun initViewsFromBundle() {
         val mockId = intent.getLongExtra(KEY_MOCK_ID_PLAYER, -1)
         if (mockId == -1L) {
-            // todo: show an error to user
+            this.finish()
             return
         }
         showProgressbar(true)
@@ -147,7 +147,7 @@ class MockPlayerActivity : AppCompatActivity() {
                 createdAt = viewModel.mockPlayerState.value.mockInformation?.createdAt!!,
                 updatedAt = viewModel.mockPlayerState.value.mockInformation?.updatedAt!!
             )
-            detailDialog.isCancelable = false
+            detailDialog.isCancelable = true
             detailDialog.show(supportFragmentManager.beginTransaction(), null)
         }
 
@@ -166,20 +166,22 @@ class MockPlayerActivity : AppCompatActivity() {
             speedDialog.setOnSaveClickListener { newSpeed ->
                 // todo: change the speed of player in service
                 viewModel.changeMockSpeed(newSpeed)
+                speedDialog.dismiss()
             }
             speedDialog.show(supportFragmentManager.beginTransaction(), null)
         }
 
         binding.shareMaterialButton.setOnClickListener {
+            val uri = UriManager.createShareUri(
+                origin = viewModel.mockPlayerState.value.mockInformation?.originLocation!!,
+                destination = viewModel.mockPlayerState.value.mockInformation?.destinationLocation!!,
+                speed = viewModel.mockPlayerState.value.mockInformation?.speed!!
+            )
             startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    UriManager.createShareUri(
-                        origin = viewModel.mockPlayerState.value.mockInformation?.originLocation!!,
-                        destination = viewModel.mockPlayerState.value.mockInformation?.destinationLocation!!,
-                        speed = viewModel.mockPlayerState.value.mockInformation?.speed!!
-                    )
-                )
+                Intent(Intent.ACTION_SEND, uri).apply {
+                    putExtra(Intent.EXTRA_TEXT, uri.toString())
+                    type = "text/plain"
+                }
             )
         }
 

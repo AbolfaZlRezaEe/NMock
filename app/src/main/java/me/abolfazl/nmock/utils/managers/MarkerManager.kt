@@ -13,7 +13,7 @@ import org.neshan.mapsdk.model.Marker
 
 object MarkerManager {
 
-    const val ID_ELEMENT_META_DATA = "id"
+    private const val ID_ELEMENT_META_DATA = "id"
     const val ELEMENT_ID_ORIGIN_MARKER = "ORIGIN_MARKER"
     const val ELEMENT_ID_DESTINATION_MARKER = "DESTINATION_MARKER"
     const val ELEMENT_ID_CURRENT_LOCATION_MARKER = "CURRENT_LOCATION_MARKER"

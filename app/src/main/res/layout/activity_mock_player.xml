@@ -160,10 +160,9 @@
                 android:layout_weight="1"
                 android:fontFamily="@font/roboto_medium"
                 android:maxLines="2"
+                android:ellipsize="end"
                 android:textColor="@color/colorPrimary"
-                android:visibility="gone"
-                tools:text="DestinationInformation"
-                tools:visibility="visible" />
+                tools:text="Destination Information" />
 
         </LinearLayout>
 
