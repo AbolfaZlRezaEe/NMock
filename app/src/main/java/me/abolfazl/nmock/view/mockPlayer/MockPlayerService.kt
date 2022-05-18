@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockService
+package me.abolfazl.nmock.view.mockPlayer
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -10,31 +10,28 @@ import android.content.Intent
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Binder
-import android.os.Build
-import android.os.IBinder
-import android.os.SystemClock
+import android.os.*
 import androidx.core.app.NotificationCompat
 import com.vividsolutions.jts.geom.Coordinate
 import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.LineString
 import com.vividsolutions.jts.linearref.LengthIndexedLine
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.utils.Constant
-import me.abolfazl.nmock.view.mockPlayer.MockPlayerActivity
 import org.neshan.common.model.LatLng
 import timber.log.Timber
 import kotlin.math.*
 
-class NMockService : Service(), LocationListener {
+class MockPlayerService : Service(), LocationListener {
 
-    private val nMockBinder = NMockBinder()
+    private val nMockBinder = MockPlayerBinder()
     private var lineVector: List<LatLng>? = null
     private var lengthIndexedLine: LengthIndexedLine? = null
 
     private var locationManager: LocationManager? = null
-    private var locationListener: LocationListener? = null
     private var mockStillRunning = false
 
     private var speed = 0
@@ -50,20 +47,26 @@ class NMockService : Service(), LocationListener {
     fun initializeMockProvider() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         locationManager?.let { manager ->
-            manager.addTestProvider(
-                Constant.TYPE_GPS,
-                false,
-                false,
-                false,
-                false,
-                true,
-                true,
-                true,
-                3, // powerRequirement should be in range [1,3] for android 11
-                1 // accuracy should be in range [1,2] for android 11
-            )
-            manager.setTestProviderEnabled(Constant.TYPE_GPS, true)
-            manager.requestLocationUpdates(Constant.TYPE_GPS, 0L, 0F, locationListener!!)
+            try {
+                manager.addTestProvider(
+                    Constant.TYPE_GPS,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    true,
+                    true,
+                    3, // powerRequirement should be in range [1,3] for android 11
+                    1 // accuracy should be in range [1,2] for android 11
+                )
+                manager.setTestProviderEnabled(Constant.TYPE_GPS, true)
+                manager.requestLocationUpdates(Constant.TYPE_GPS, 0L, 0F, this)
+            } catch (exception: IllegalArgumentException) {
+                Timber.e(exception.message)
+            } catch (exception: SecurityException) {
+                Timber.e(exception.message)
+            }
         }
     }
 
@@ -109,7 +112,7 @@ class NMockService : Service(), LocationListener {
     }
 
     override fun onBind(p0: Intent?): IBinder {
-        return nMockBinder;
+        return nMockBinder
     }
 
     private fun processLineVector() {
@@ -154,8 +157,7 @@ class NMockService : Service(), LocationListener {
         return sqrt(distance)
     }
 
-    suspend fun startCreatingMockLocations() {
-        mockStillRunning = true
+    fun startCreatingMockLocations(): Flow<Location> = flow {
         while (mockStillRunning) {
             if (lengthIndexedLine == null) {
                 processLineVector()
@@ -163,7 +165,7 @@ class NMockService : Service(), LocationListener {
             if (speed == 0) {
                 // todo: speed error
                 mockStillRunning = false
-                return
+                return@flow
             }
             lengthIndexedLine?.let { line ->
                 val firstCoordinate: Coordinate?
@@ -175,12 +177,12 @@ class NMockService : Service(), LocationListener {
                 } else {
                     // trip was finished and we should send a event!
                     mockStillRunning = false
-                    return
+                    return@flow
                 }
                 if (firstCoordinate == null || secondCoordinate == null) {
                     // todo: coordination Error
                     mockStillRunning = false
-                    return
+                    return@flow
                 }
                 val distance: Double = distanceBetweenTwoCoordinates(
                     first = LatLng(firstCoordinate.x, firstCoordinate.y),
@@ -196,47 +198,65 @@ class NMockService : Service(), LocationListener {
                 location.time = System.currentTimeMillis()
                 location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
                 locationManager?.setTestProviderLocation(Constant.TYPE_GPS, location)
+                emit(location)
                 delay(delay.toLong())
             }
         }
     }
 
-    inner class NMockBinder : Binder() {
-        fun getService(): NMockService = this@NMockService
+    inner class MockPlayerBinder : Binder() {
+        fun getService(): MockPlayerService = this@MockPlayerService
+    }
 
-        fun setLineVectorForProcessing(lineVector: List<LatLng>) {
-            this@NMockService.lineVector = lineVector
-        }
+    fun setLineVectorForProcessing(lineVector: List<LatLng>) {
+        this.lineVector = lineVector
+    }
 
-        fun setMockSpeed(speed: Int) {
-            this@NMockService.speed = speed
-        }
+    fun setMockSpeed(speed: Int) {
+        this.speed = speed
+    }
 
-        fun setLocationListener(locationListener: LocationListener) {
-            this@NMockService.locationListener = locationListener
-        }
+    fun mockIsRunning(): Boolean {
+        return mockStillRunning
+    }
 
-        fun mockIsRunning(): Boolean {
-            return mockStillRunning
-        }
+    fun pauseOrPlayMock() {
+        mockStillRunning = !mockStillRunning
     }
 
     fun removeMockProvider() {
         mockStillRunning = false
         locationManager?.setTestProviderEnabled(Constant.TYPE_GPS, false)
         locationManager?.removeTestProvider(Constant.TYPE_GPS)
-        locationListener?.let {
-            locationManager?.removeUpdates(it)
-        }
+    }
+
+    fun resetResources() {
+        lineVector = null
+        speed = 0
+        mockStillRunning = false
+        ratio = 0.00006
+        index = 0.0
+    }
+
+    fun shouldReInitialize(): Boolean {
+        return lineVector == null || speed == 0
+    }
+
+    fun stopIdleService() {
+        stopForeground(true)
+        stopSelf()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         removeMockProvider()
-        Timber.e("abolfazl, service was destroyed")
     }
 
-    override fun onLocationChanged(p0: Location) {
-        TODO("Not yet implemented")
-    }
+    override fun onLocationChanged(p0: Location) {}
+
+    override fun onProviderDisabled(provider: String) {}
+
+    override fun onProviderEnabled(provider: String) {}
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
 }

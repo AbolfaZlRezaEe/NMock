@@ -4,7 +4,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.location.LocationListener
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
@@ -19,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockPlayerBinding
+import me.abolfazl.nmock.utils.isServiceStillRunning
 import me.abolfazl.nmock.utils.managers.CameraManager
 import me.abolfazl.nmock.utils.managers.LineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
@@ -27,7 +27,7 @@ import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ER
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.mockDetail.MockDetailBottomSheetDialogFragment
-import me.abolfazl.nmock.view.mockService.NMockService
+import me.abolfazl.nmock.view.mockDialog.NMockDialog
 import me.abolfazl.nmock.view.mockSpeed.MockSpeedBottomSheetDialogFragment
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
@@ -44,8 +44,7 @@ class MockPlayerActivity : AppCompatActivity() {
     private val polylineLayer = ArrayList<Polyline>()
 
     private var serviceIsRunning = false
-    private var nMockBinder: NMockService.NMockBinder? = null
-    private var nMockService: NMockService? = null
+    private var mockPlayerService: MockPlayerService? = null
 
     companion object {
         const val KEY_MOCK_ID_PLAYER = "MOCK_PLAYER_ID"
@@ -56,8 +55,9 @@ class MockPlayerActivity : AppCompatActivity() {
         binding = ActivityMockPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        startService(Intent(this, NMockService::class.java))
-
+        if (!isServiceStillRunning(MockPlayerService::class.java)) {
+            startService(Intent(this, MockPlayerService::class.java))
+        }
         initViewsFromBundle()
 
         initObservers()
@@ -78,11 +78,10 @@ class MockPlayerActivity : AppCompatActivity() {
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(component: ComponentName?, binder: IBinder?) {
             serviceIsRunning = true
-            nMockBinder = binder as NMockService.NMockBinder
-            nMockBinder?.setMockSpeed(viewModel.mockPlayerState.value.mockInformation?.speed!!)
-            nMockBinder?.setLineVectorForProcessing(viewModel.mockPlayerState.value.mockInformation?.lineVector!![0])
-            nMockBinder?.setLocationListener(locationListener)
-            nMockService = nMockBinder?.getService()
+            val mockPlayerBinder = binder as MockPlayerService.MockPlayerBinder
+            mockPlayerService?.setMockSpeed(viewModel.mockPlayerState.value.mockInformation?.speed!!)
+            mockPlayerService?.setLineVectorForProcessing(viewModel.mockPlayerState.value.mockInformation?.lineVector!![0])
+            mockPlayerService = mockPlayerBinder.getService()
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -92,7 +91,12 @@ class MockPlayerActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        unbindService(serviceConnection)
+        if (!serviceIsRunning) return
+        if (mockPlayerService?.mockIsRunning()!!) {
+            unbindService(serviceConnection)
+        } else {
+            mockPlayerService?.stopIdleService()
+        }
         serviceIsRunning = false
     }
 
@@ -101,7 +105,7 @@ class MockPlayerActivity : AppCompatActivity() {
             viewModel.mockPlayerState.collect { state ->
 
                 state.mockInformation?.let { mockInformation ->
-                    Intent(this@MockPlayerActivity, NMockService::class.java).also { intent ->
+                    Intent(this@MockPlayerActivity, MockPlayerService::class.java).also { intent ->
                         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
                     }
                     showProgressbar(false)
@@ -145,7 +149,6 @@ class MockPlayerActivity : AppCompatActivity() {
                         destination = mockInformation.destinationLocation
                     )
                 }
-
             }
         }
         lifecycleScope.launch {
@@ -168,10 +171,38 @@ class MockPlayerActivity : AppCompatActivity() {
         }
     }
 
+    private fun initializeMockListener() = lifecycleScope.launch {
+        mockPlayerService?.startCreatingMockLocations()!!.collect { location ->
+            var currentLocationMarker = MarkerManager.getMarkerFromLayer(
+                layer = markerLayer,
+                id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+            )
+            val latLng = LatLng(location.latitude, location.longitude)
+            if (currentLocationMarker == null) {
+                currentLocationMarker = MarkerManager.createMarker(
+                    location = latLng,
+                    drawableRes = R.drawable.current_location_marker,
+                    context = this@MockPlayerActivity,
+                    elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
+                    markerSize = MarkerManager.CURRENT_LOCATION_MARKER_SIZE
+                )
+                currentLocationMarker?.let {
+                    markerLayer.add(it)
+                    binding.mapview.addMarker(currentLocationMarker)
+                }
+            } else {
+                currentLocationMarker.latLng = latLng
+            }
+        }
+    }
+
     private fun initListeners() {
         binding.backImageView.setOnClickListener {
-            // todo: check service is running and if, show a dialog to user
-            this.finish()
+            if (!mockPlayerService?.mockIsRunning()!!) {
+                this.finish()
+                return@setOnClickListener
+            }
+            showEndDialog()
         }
 
         binding.detailImageView.setOnClickListener {
@@ -188,15 +219,29 @@ class MockPlayerActivity : AppCompatActivity() {
         }
 
         binding.playPauseFloatingActionButton.setOnClickListener {
-            nMockService?.initializeMockProvider()
-            lifecycleScope.launch{
-                nMockService?.startCreatingMockLocations()
+            if (mockPlayerService?.mockIsRunning()!!) {
+                mockPlayerService?.pauseOrPlayMock()
+                binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
+            } else {
+                binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_pause_24))
+                if (mockPlayerService?.shouldReInitialize()!!) {
+                    mockPlayerService?.setLineVectorForProcessing(
+                        viewModel.mockPlayerState.value.mockInformation?.lineVector!![0]
+                    )
+                    mockPlayerService?.setMockSpeed(
+                        viewModel.mockPlayerState.value.mockInformation?.speed!!
+                    )
+                }
+                mockPlayerService?.initializeMockProvider()
+                mockPlayerService?.pauseOrPlayMock()
+                initializeMockListener()
             }
-            // todo: change the state of player in second
         }
         binding.stopFloatingActionButton.setOnClickListener {
-            if (nMockBinder?.mockIsRunning()!!) {
-                nMockService?.removeMockProvider()
+            if (mockPlayerService?.mockIsRunning()!!) {
+                mockPlayerService?.pauseOrPlayMock()
+                mockPlayerService?.removeMockProvider()
+                mockPlayerService?.resetResources()
             }
         }
         binding.speedFloatingActionButton.setOnClickListener {
@@ -205,7 +250,7 @@ class MockPlayerActivity : AppCompatActivity() {
             )
             speedDialog.isCancelable = false
             speedDialog.setOnSaveClickListener { newSpeed ->
-                nMockBinder?.setMockSpeed(newSpeed)
+                mockPlayerService?.setMockSpeed(newSpeed)
                 viewModel.changeMockSpeed(newSpeed)
                 speedDialog.dismiss()
             }
@@ -236,27 +281,6 @@ class MockPlayerActivity : AppCompatActivity() {
         }
     }
 
-    private val locationListener = LocationListener { location ->
-        var currentLocationMarker = MarkerManager.getMarkerFromLayer(
-            layer = markerLayer,
-            id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
-        )
-        val latLng = LatLng(location.latitude, location.longitude)
-        if (currentLocationMarker == null) {
-            currentLocationMarker = MarkerManager.createMarker(
-                location = latLng,
-                drawableRes = R.drawable.current_mock_location_marker,
-                context = this,
-                elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
-            )
-            currentLocationMarker?.let {
-                markerLayer.add(it)
-            }
-        } else {
-            currentLocationMarker.setLatLng(latLng)
-        }
-    }
-
     private fun showProgressbar(show: Boolean) {
         binding.loadingProgressbar.visibility = if (show) View.VISIBLE else View.GONE
         binding.titleTextView.visibility = if (!show) View.VISIBLE else View.GONE
@@ -268,6 +292,35 @@ class MockPlayerActivity : AppCompatActivity() {
     ): String {
         val suffix = if (isOrigin) "From:" else "To:"
         return "$suffix $address"
+    }
+
+    private fun showEndDialog() {
+        val dialog = NMockDialog.newInstance(
+            title = getString(R.string.playerDialogTitle),
+            actionButtonText = getString(R.string.stopMockService),
+            secondaryButtonText = getString(R.string.justLeave)
+        )
+        dialog.isCancelable = true
+        dialog.setDialogListener(
+            onActionButtonClicked = {
+                mockPlayerService?.stopIdleService()
+                dialog.dismiss()
+                this.finish()
+            },
+            onSecondaryButtonClicked = {
+                dialog.dismiss()
+                this.finish()
+            }
+        )
+        dialog.show(supportFragmentManager.beginTransaction(), null)
+    }
+
+    override fun onBackPressed() {
+        if (!mockPlayerService?.mockIsRunning()!!) {
+            super.onBackPressed()
+            return
+        }
+        showEndDialog()
     }
 
 }

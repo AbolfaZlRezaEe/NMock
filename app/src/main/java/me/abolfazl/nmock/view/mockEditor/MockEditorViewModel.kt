@@ -15,7 +15,6 @@ import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepository
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_FORCE_CLOSE
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_UNKNOWN
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
@@ -36,7 +35,6 @@ class MockEditorViewModel @Inject constructor(
     val mockEditorState = _mockEditorState.asStateFlow()
 
     // for errors..
-    // Long used for passing (mockId) to View, and String used for sending exception types:
     private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter<String>>()
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 

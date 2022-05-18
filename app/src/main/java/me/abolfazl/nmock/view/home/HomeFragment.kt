@@ -6,13 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
+import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentHomeBinding
-import me.abolfazl.nmock.utils.managers.UriManager
+import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.mockArchive.MockArchiveActivity
 import me.abolfazl.nmock.view.mockEditor.MockEditorActivity
-import me.abolfazl.nmock.view.mockPlayer.MockPlayerActivity
-import org.neshan.common.model.LatLng
-import timber.log.Timber
 
 class HomeFragment : Fragment() {
 
@@ -30,16 +29,32 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initializeListeners()
+        initializeListeners(view)
     }
 
-    private fun initializeListeners() {
+    private fun initializeListeners(view: View) {
         binding.createMockMaterialButton.setOnClickListener {
             activity?.startActivity(Intent(activity, MockEditorActivity::class.java))
         }
 
         binding.mockListMaterialButton.setOnClickListener {
             activity?.startActivity(Intent(activity, MockArchiveActivity::class.java))
+        }
+
+        binding.mockTrackerMaterialButton.setOnClickListener {
+            showSnackBar(
+                message = getString(R.string.comingSoon),
+                rootView = view.findViewById(R.id.homeFragmentRootView),
+                duration = Snackbar.LENGTH_LONG
+            )
+        }
+
+        binding.mockImportMaterialButton.setOnClickListener {
+            showSnackBar(
+                message = getString(R.string.comingSoon),
+                rootView = view.findViewById(R.id.homeFragmentRootView),
+                duration = Snackbar.LENGTH_LONG
+            )
         }
     }
 }

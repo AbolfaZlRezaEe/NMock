@@ -1,5 +1,7 @@
 package me.abolfazl.nmock.utils
 
+import android.app.ActivityManager
+import android.content.Context
 import android.view.View
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
@@ -56,4 +58,13 @@ fun Fragment.showSnackBar(
         snackBar.setAction(actionText, actionListener)
     }
     snackBar.show()
+}
+
+fun<T> AppCompatActivity.isServiceStillRunning(service: Class<T>): Boolean {
+    val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    manager.getRunningServices(Int.MAX_VALUE).forEach { serviceInfo ->
+        if (service::class.java.name.equals(serviceInfo.service.className))
+            return true
+    }
+    return false
 }
