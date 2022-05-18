@@ -8,6 +8,7 @@ import me.abolfazl.nmock.model.database.dao.PositionDao
 import me.abolfazl.nmock.model.database.models.MockEntity
 import me.abolfazl.nmock.model.database.models.PositionEntity
 import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.utils.locationFormat
 import me.abolfazl.nmock.utils.response.Failure
 import me.abolfazl.nmock.utils.response.Response
 import me.abolfazl.nmock.utils.response.Success
@@ -122,8 +123,8 @@ class MockRepositoryImpl @Inject constructor(
             mockName = mockEntity.mockName,
             mockDescription = mockEntity.description,
             mockType = mockEntity.mockType,
-            originLocation = toLatLang(mockEntity.originLocation),
-            destinationLocation = toLatLang(mockEntity.destinationLocation),
+            originLocation = mockEntity.originLocation.locationFormat(),
+            destinationLocation = mockEntity.destinationLocation.locationFormat(),
             originAddress = mockEntity.originAddress,
             destinationAddress = mockEntity.destinationAddress,
             speed = mockEntity.speed,
@@ -156,23 +157,6 @@ class MockRepositoryImpl @Inject constructor(
             result.add(fromMockEntity(mockEntity))
         }
         return result
-    }
-
-    private fun toLatLang(
-        rawLocation: String
-    ): LatLng {
-        val origin = StringBuilder()
-        var destination: String? = null
-        run operation@{
-            rawLocation.forEachIndexed { index, character ->
-                if (character == ',') {
-                    destination = rawLocation.substring(index + 1)
-                    return@operation
-                }
-                origin.append(character)
-            }
-        }
-        return LatLng(origin.toString().toDouble(), destination.toString().toDouble())
     }
 
     private fun fromLatLng(

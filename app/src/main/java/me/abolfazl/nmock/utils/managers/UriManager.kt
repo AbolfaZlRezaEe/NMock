@@ -6,11 +6,11 @@ import org.neshan.common.model.LatLng
 object UriManager {
 
     private const val SHARED_URI_SCHEME = "https"
-    private const val SHARED_URI_AUTHORITY = "shared.nmock.trip"
+    const val SHARED_URI_AUTHORITY = "shared.nmock.trip"
     private const val SHARED_URI_PATH = "editor"
-    private const val SHARED_URI_SPEED_KEY = "speed"
-    private const val SHARED_URI_ORIGIN_KEY = "origin"
-    private const val SHARED_URI_DESTINATION_KEY = "destination"
+    const val SHARED_URI_SPEED_KEY = "speed"
+    const val SHARED_URI_ORIGIN_KEY = "origin"
+    const val SHARED_URI_DESTINATION_KEY = "destination"
 
     fun createShareUri(
         origin: LatLng,

@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockArchive
+package me.abolfazl.nmock.view.archive
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

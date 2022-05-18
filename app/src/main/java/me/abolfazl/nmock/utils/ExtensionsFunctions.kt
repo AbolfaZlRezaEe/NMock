@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import org.neshan.common.model.LatLng
 import kotlin.math.ceil
 
 fun <T : RecyclerView.ViewHolder> T.setupListeners(
@@ -68,6 +69,25 @@ fun <T> AppCompatActivity.isServiceStillRunning(service: Class<T>): Boolean {
             return true
     }
     return false
+}
+
+fun LatLng.locationFormat(): String {
+    return "${this.latitude},${this.longitude}"
+}
+
+fun String.locationFormat():LatLng{
+    val origin = StringBuilder()
+    var destination: String? = null
+    run operation@{
+        this@locationFormat.forEachIndexed { index, character ->
+            if (character == ',') {
+                destination = this@locationFormat.substring(index + 1)
+                return@operation
+            }
+            origin.append(character)
+        }
+    }
+    return LatLng(origin.toString().toDouble(), destination.toString().toDouble())
 }
 
 fun Int.toPixel(context: Context): Int {

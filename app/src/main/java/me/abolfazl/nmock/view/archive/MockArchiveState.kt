@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockArchive
+package me.abolfazl.nmock.view.archive
 
 import me.abolfazl.nmock.repository.models.MockDataClass
 

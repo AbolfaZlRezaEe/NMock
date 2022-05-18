@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockDetail
+package me.abolfazl.nmock.view.detail
 
 import android.os.Bundle
 import android.view.LayoutInflater

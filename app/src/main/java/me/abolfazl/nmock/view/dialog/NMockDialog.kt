@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockDialog
+package me.abolfazl.nmock.view.dialog
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable

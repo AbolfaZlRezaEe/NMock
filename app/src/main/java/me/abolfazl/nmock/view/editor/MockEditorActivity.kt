@@ -1,9 +1,10 @@
-package me.abolfazl.nmock.view.mockEditor
+package me.abolfazl.nmock.view.editor
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
 import android.view.View
 import androidx.activity.viewModels
@@ -21,23 +22,22 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockEditorBinding
 import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.Constant
-import me.abolfazl.nmock.utils.managers.CameraManager
-import me.abolfazl.nmock.utils.managers.LineManager
-import me.abolfazl.nmock.utils.managers.MarkerManager
-import me.abolfazl.nmock.utils.managers.PermissionManager
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ERROR
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_LIMIT_EXCEEDED
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.utils.changeStringTo
+import me.abolfazl.nmock.utils.managers.*
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.toPixel
-import me.abolfazl.nmock.view.mockDialog.NMockDialog
-import me.abolfazl.nmock.view.mockPlayer.MockPlayerActivity
-import me.abolfazl.nmock.view.mockSaverDialog.SaveMockBottomSheetDialogFragment
+import me.abolfazl.nmock.view.dialog.NMockDialog
+import me.abolfazl.nmock.view.home.HomeActivity
+import me.abolfazl.nmock.view.player.MockPlayerActivity
+import me.abolfazl.nmock.view.saverDialog.SaveMockBottomSheetDialogFragment
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MockEditorActivity : AppCompatActivity() {
@@ -59,6 +59,7 @@ class MockEditorActivity : AppCompatActivity() {
     private var locationRequest: LocationRequest? = null
 
     private var mockSaverDialog: SaveMockBottomSheetDialogFragment? = null
+    private var fromImplicitIntent = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +67,7 @@ class MockEditorActivity : AppCompatActivity() {
         setContentView(binding.root)
         window.statusBarColor = getColor(R.color.colorSecondary)
 
-        initViewFromArguments()
+        handlingIntent()
 
         initListeners()
 
@@ -75,11 +76,49 @@ class MockEditorActivity : AppCompatActivity() {
         initLiveLocation()
     }
 
-    private fun initViewFromArguments() {
-        val mockId = intent.getLongExtra(KEY_MOCK_INFORMATION, -1)
-        if (mockId == -1L) return
+    private fun handlingIntent() {
+        if (intent == null) return
         showLoadingProgressbar(true)
-        viewModel.getMockFromId(mockId)
+        // Reading intent data from Extras:
+        val mockId = intent.getLongExtra(KEY_MOCK_INFORMATION, -1)
+        if (mockId != -1L) {
+            viewModel.getMockFromId(mockId)
+            return
+        } else {
+            // Reading intent data from URI object:
+            var speed: String? = null
+            var originLocation: String? = null
+            var destinationLocation: String? = null
+            intent.data?.let { uri ->
+                uri.authority?.let { string ->
+                    if (string.contains(UriManager.SHARED_URI_AUTHORITY)) {
+                        speed = uri.getQueryParameter(UriManager.SHARED_URI_SPEED_KEY)
+                        originLocation = uri.getQueryParameter(UriManager.SHARED_URI_ORIGIN_KEY)
+                        destinationLocation =
+                            uri.getQueryParameter(UriManager.SHARED_URI_DESTINATION_KEY)
+                    }
+                }
+            }
+            if (speed == null) {
+                speed = Constant.DEFAULT_SPEED.toString()
+            }
+            if (originLocation == null || destinationLocation == null) {
+                showSnackBar(
+                    message = getString(R.string.linkProblemTitle),
+                    rootView = findViewById(R.id.mockEditorRootView),
+                    duration = Snackbar.LENGTH_LONG
+                )
+                Handler(Looper.getMainLooper()).postDelayed({
+                    this.finish()
+                }, 3000)
+            }
+            fromImplicitIntent = true
+            viewModel.loadMockData(
+                originLocation = originLocation!!,
+                destinationLocation = destinationLocation!!,
+                speed = speed!!
+            )
+        }
     }
 
     private fun initListeners() {
@@ -87,7 +126,7 @@ class MockEditorActivity : AppCompatActivity() {
 
         binding.currentLocationFloatingActionButton.setOnClickListener { onCurrentLocationClicked() }
 
-        binding.backImageView.setOnClickListener { this.finish() }
+        binding.backImageView.setOnClickListener { onBackClicked() }
 
         binding.saveExtendedFab.setOnClickListener { onSaveClicked() }
 
@@ -110,6 +149,10 @@ class MockEditorActivity : AppCompatActivity() {
 
                     state.mockId?.let { processAfterMockSaved(it) }
 
+                    state.originLocation?.let { processMarker(true, it) }
+
+                    state.destinationLocation?.let { processMarker(false, it) }
+
                     /*
                         this section used for situation when we came into this fragment
                         with mockId and we want to load all of information about that mock.
@@ -126,6 +169,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun processOriginAddress(originAddress: String) {
+        Timber.e("process OriginAddress")
         binding.originTextView.text = originAddress.changeStringTo("From:")
         binding.titleTextView.text =
             resources.getText(R.string.chooseDestinationLocation)
@@ -139,12 +183,14 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun processDestinationAddress(destinationAddress: String) {
+        Timber.e("process destination address")
         binding.destinationTextView.visibility = View.VISIBLE
         binding.destinationTextView.text =
             destinationAddress.changeStringTo("To:")
     }
 
     private fun processLineVector(lineVector: ArrayList<List<LatLng>>) {
+        Timber.e("process linevector")
         LineManager.drawLineOnMap(
             mapView = binding.mapview,
             polylineLayer = polylineLayer,
@@ -200,6 +246,32 @@ class MockEditorActivity : AppCompatActivity() {
             }
         )
         dialog.show(supportFragmentManager.beginTransaction(), null)
+    }
+
+    private fun processMarker(
+        isOrigin: Boolean,
+        location: LatLng
+    ) {
+        val markerFromMap = MarkerManager.getMarkerFromLayer(
+            markerLayer,
+            if (isOrigin) MarkerManager.ELEMENT_ID_ORIGIN_MARKER else MarkerManager.ELEMENT_ID_DESTINATION_MARKER
+        )
+        if (markerFromMap != null) {
+            markerFromMap.latLng = location
+        } else {
+            val marker = MarkerManager.createMarker(
+                location = location,
+                drawableRes = if (isOrigin) R.drawable.ic_origin_marker
+                else R.drawable.ic_destination_marker,
+                elementId = if (isOrigin) MarkerManager.ELEMENT_ID_ORIGIN_MARKER
+                else MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
+                context = this@MockEditorActivity
+            )
+            marker?.let {
+                markerLayer.add(it)
+                binding.mapview.addMarker(it)
+            }
+        }
     }
 
     private fun processMockInformation(mockInformation: MockDataClass) {
@@ -412,14 +484,38 @@ class MockEditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun onBackClicked() {
+        val dialog = NMockDialog.newInstance(
+            title = getString(R.string.mockEditorLeaveDialogTitle),
+            actionButtonText = getString(R.string.yes),
+            secondaryButtonText = getString(R.string.cancel)
+        )
+        dialog.isCancelable = true
+        dialog.setDialogListener(
+            onActionButtonClicked = {
+                if (fromImplicitIntent) {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                }
+                dialog.dismiss()
+                this.finish()
+            },
+            onSecondaryButtonClicked = {
+                dialog.dismiss()
+            }
+        )
+        dialog.show(supportFragmentManager.beginTransaction(), null)
+    }
+
     private fun onSaveClicked() {
         if (mockSaverDialog != null && !mockSaverDialog?.isDetached!!) {
             mockSaverDialog?.dismiss()
         }
+        val speed = viewModel.mockEditorState.value.mockInformation?.speed
+            ?: viewModel.mockEditorState.value.speed!!
         mockSaverDialog = SaveMockBottomSheetDialogFragment.newInstance(
             name = viewModel.mockEditorState.value.mockInformation?.mockName,
             description = viewModel.mockEditorState.value.mockInformation?.mockDescription,
-            speed = viewModel.mockEditorState.value.mockInformation?.speed?.toString()
+            speed = speed.toString()
         )
         mockSaverDialog?.let {
             it.onSaveClickListener { mockName, mockDescription, speed ->
@@ -529,5 +625,9 @@ class MockEditorActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+    }
+
+    override fun onBackPressed() {
+        onBackClicked()
     }
 }

@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockPlayer
+package me.abolfazl.nmock.view.player
 
 import android.content.ComponentName
 import android.content.Context
@@ -30,9 +30,9 @@ import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ER
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.utils.toPixel
-import me.abolfazl.nmock.view.mockDetail.MockDetailBottomSheetDialogFragment
-import me.abolfazl.nmock.view.mockDialog.NMockDialog
-import me.abolfazl.nmock.view.mockSpeed.MockSpeedBottomSheetDialogFragment
+import me.abolfazl.nmock.view.detail.MockDetailBottomSheetDialogFragment
+import me.abolfazl.nmock.view.dialog.NMockDialog
+import me.abolfazl.nmock.view.speedDialog.MockSpeedBottomSheetDialogFragment
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline

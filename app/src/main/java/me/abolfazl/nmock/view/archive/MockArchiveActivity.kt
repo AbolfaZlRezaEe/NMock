@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockArchive
+package me.abolfazl.nmock.view.archive
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,9 +16,9 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockArchiveBinding
 import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.showSnackBar
-import me.abolfazl.nmock.view.mockDialog.NMockDialog
-import me.abolfazl.nmock.view.mockEditor.MockEditorActivity
-import me.abolfazl.nmock.view.mockPlayer.MockPlayerActivity
+import me.abolfazl.nmock.view.dialog.NMockDialog
+import me.abolfazl.nmock.view.editor.MockEditorActivity
+import me.abolfazl.nmock.view.player.MockPlayerActivity
 
 @AndroidEntryPoint
 class MockArchiveActivity : AppCompatActivity() {

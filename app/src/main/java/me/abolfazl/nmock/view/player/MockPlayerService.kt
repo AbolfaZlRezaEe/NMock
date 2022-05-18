@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockPlayer
+package me.abolfazl.nmock.view.player
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel

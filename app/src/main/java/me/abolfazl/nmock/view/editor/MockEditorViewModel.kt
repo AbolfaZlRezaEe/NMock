@@ -1,19 +1,22 @@
-package me.abolfazl.nmock.view.mockEditor
+package me.abolfazl.nmock.view.editor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepository
 import me.abolfazl.nmock.repository.mock.MockRepository
 import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepository
 import me.abolfazl.nmock.utils.Constant
+import me.abolfazl.nmock.utils.locationFormat
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_UNKNOWN
@@ -76,8 +79,8 @@ class MockEditorViewModel @Inject constructor(
         destinationLocation: LatLng
     ) = viewModelScope.launch(exceptionHandler) {
         routingInfoRepository.getRoutingInformation(
-            origin = getLocationFormattedForServer(originLocation),
-            destination = getLocationFormattedForServer(destinationLocation)
+            origin = originLocation.locationFormat(),
+            destination = destinationLocation.locationFormat()
         ).collect { response ->
             response.ifSuccessful { result ->
                 _mockEditorState.value = _mockEditorState.value.copy(
@@ -137,12 +140,14 @@ class MockEditorViewModel @Inject constructor(
             _mockEditorState.value = _mockEditorState.value.copy(
                 destinationAddress = null,
                 originAddress = null,
-                lineVector = null
+                lineVector = null,
+                originLocation = null
             )
         } else {
             _mockEditorState.value = _mockEditorState.value.copy(
                 destinationAddress = null,
-                lineVector = null
+                lineVector = null,
+                destinationLocation = null
             )
         }
     }
@@ -170,9 +175,21 @@ class MockEditorViewModel @Inject constructor(
         )
     }
 
-    private fun getLocationFormattedForServer(
-        location: LatLng
-    ): String {
-        return "${location.latitude},${location.longitude}"
+    fun loadMockData(
+        originLocation: String,
+        destinationLocation: String,
+        speed: String
+    ) = viewModelScope.launch {
+        val realOrigin = originLocation.locationFormat()
+        val realDestination = destinationLocation.locationFormat()
+        val realSpeed = speed.toInt()
+        _mockEditorState.value = _mockEditorState.value.copy(
+            speed = realSpeed,
+            originLocation = realOrigin,
+            destinationLocation = realDestination
+        )
+        withContext(Dispatchers.Default) { getLocationInformation(realOrigin, true) }
+        withContext(Dispatchers.Default) { getLocationInformation(realDestination, false) }
+        withContext(Dispatchers.Default) { getRouteInformation(realOrigin, realDestination) }
     }
 }

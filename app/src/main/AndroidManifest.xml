@@ -20,14 +20,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NMock">
         <activity
-            android:name=".view.mockPlayer.MockPlayerActivity"
+            android:name=".view.player.MockPlayerActivity"
             android:exported="false" />
         <activity
-            android:name=".view.mockArchive.MockArchiveActivity"
+            android:name=".view.archive.MockArchiveActivity"
             android:exported="false" />
         <activity
-            android:name=".view.mockEditor.MockEditorActivity"
-            android:exported="false" />
+            android:name=".view.editor.MockEditorActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https"/>
+                <data android:host="shared.nmock.trip"/>
+            </intent-filter>
+        </activity>
         <activity
             android:name=".view.home.HomeActivity"
             android:exported="true">
@@ -39,7 +49,7 @@
         </activity>
 
         <service
-            android:name=".view.mockPlayer.MockPlayerService"
+            android:name=".view.player.MockPlayerService"
             android:foregroundServiceType="location" />
 
     </application>

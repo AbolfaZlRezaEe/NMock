@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockSaverDialog
+package me.abolfazl.nmock.view.saverDialog
 
 import android.os.Bundle
 import android.view.LayoutInflater

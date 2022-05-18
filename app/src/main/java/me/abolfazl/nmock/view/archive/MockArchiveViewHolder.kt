@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockArchive
+package me.abolfazl.nmock.view.archive
 
 import androidx.recyclerview.widget.RecyclerView
 import me.abolfazl.nmock.databinding.ItemMockBinding

@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockPlayer
+package me.abolfazl.nmock.view.player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,11 +8,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.repository.mock.MockRepository
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_FORCE_CLOSE
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_UNKNOWN
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
 import me.abolfazl.nmock.utils.response.ifSuccessful
-import me.abolfazl.nmock.view.mockEditor.MockEditorState
 import timber.log.Timber
 import javax.inject.Inject
 

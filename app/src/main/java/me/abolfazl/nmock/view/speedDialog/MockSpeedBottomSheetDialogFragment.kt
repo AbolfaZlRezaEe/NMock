@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.view.mockSpeed
+package me.abolfazl.nmock.view.speedDialog
 
 import android.os.Bundle
 import android.view.LayoutInflater
