@@ -18,14 +18,18 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockPlayerBinding
+import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.utils.changeStringTo
 import me.abolfazl.nmock.utils.isServiceStillRunning
 import me.abolfazl.nmock.utils.managers.CameraManager
 import me.abolfazl.nmock.utils.managers.LineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
 import me.abolfazl.nmock.utils.managers.UriManager
+import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ERROR
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.utils.showSnackBar
+import me.abolfazl.nmock.utils.toPixel
 import me.abolfazl.nmock.view.mockDetail.MockDetailBottomSheetDialogFragment
 import me.abolfazl.nmock.view.mockDialog.NMockDialog
 import me.abolfazl.nmock.view.mockSpeed.MockSpeedBottomSheetDialogFragment
@@ -103,72 +107,77 @@ class MockPlayerActivity : AppCompatActivity() {
     private fun initObservers() {
         lifecycleScope.launch {
             viewModel.mockPlayerState.collect { state ->
-
-                state.mockInformation?.let { mockInformation ->
-                    Intent(this@MockPlayerActivity, MockPlayerService::class.java).also { intent ->
-                        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
-                    }
-                    showProgressbar(false)
-                    binding.titleTextView.text = mockInformation.mockName
-                    binding.originTextView.text =
-                        locationInformationFormat(mockInformation.originAddress, true)
-                    binding.destinationTextView.text =
-                        locationInformationFormat(mockInformation.destinationAddress, false)
-                    LineManager.drawLineOnMap(
-                        mapView = binding.mapview,
-                        polylineLayer = polylineLayer,
-                        vector = mockInformation.lineVector!!
-                    )
-                    val originMarker = MarkerManager.createMarker(
-                        location = mockInformation.originLocation,
-                        drawableRes = R.drawable.ic_origin_marker,
-                        elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER,
-                        context = this@MockPlayerActivity
-                    )
-                    val destinationMarker = MarkerManager.createMarker(
-                        location = mockInformation.destinationLocation,
-                        drawableRes = R.drawable.ic_destination_marker,
-                        elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
-                        context = this@MockPlayerActivity
-                    )
-                    if (originMarker != null && destinationMarker != null) {
-                        markerLayer.add(originMarker)
-                        markerLayer.add(destinationMarker)
-                        binding.mapview.addMarker(originMarker)
-                        binding.mapview.addMarker(destinationMarker)
-                    }
-                    LineManager.drawLineOnMap(
-                        mapView = binding.mapview,
-                        polylineLayer = polylineLayer,
-                        vector = mockInformation.lineVector
-                    )
-                    CameraManager.moveCameraToTripLine(
-                        mapView = binding.mapview,
-                        screenPos = ScreenPos(binding.root.x, binding.root.y),
-                        origin = mockInformation.originLocation,
-                        destination = mockInformation.destinationLocation
-                    )
-                }
+                state.mockInformation?.let { processMockInformation(it) }
             }
         }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-
-                viewModel.oneTimeEmitter.collect { response ->
-                    val message = when (response.exception) {
-                        EXCEPTION_INSERTION_ERROR -> getString(R.string.databaseInsertionException)
-                        EXCEPTION_DATABASE_GETTING_ERROR -> getString(R.string.databaseGettingException)
-                        else -> getString(R.string.unknownException)
-                    }
-
-                    showSnackBar(
-                        message = message,
-                        rootView = findViewById(R.id.mockPlayerRootView),
-                        Snackbar.LENGTH_SHORT
-                    )
-                }
+                viewModel.oneTimeEmitter.collect { processAction(it) }
             }
         }
+    }
+
+    private fun processMockInformation(mockInformation: MockDataClass) {
+        Intent(this@MockPlayerActivity, MockPlayerService::class.java).also { intent ->
+            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+        }
+        showProgressbar(false)
+        binding.titleTextView.text = mockInformation.mockName
+        binding.originTextView.text =
+            mockInformation.originAddress.changeStringTo("From:")
+        binding.destinationTextView.text =
+            mockInformation.destinationAddress.changeStringTo("To:")
+        LineManager.drawLineOnMap(
+            mapView = binding.mapview,
+            polylineLayer = polylineLayer,
+            vector = mockInformation.lineVector!!
+        )
+        val originMarker = MarkerManager.createMarker(
+            location = mockInformation.originLocation,
+            drawableRes = R.drawable.ic_origin_marker,
+            elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER,
+            context = this@MockPlayerActivity
+        )
+        val destinationMarker = MarkerManager.createMarker(
+            location = mockInformation.destinationLocation,
+            drawableRes = R.drawable.ic_destination_marker,
+            elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
+            context = this@MockPlayerActivity
+        )
+        if (originMarker != null && destinationMarker != null) {
+            markerLayer.add(originMarker)
+            markerLayer.add(destinationMarker)
+            binding.mapview.addMarker(originMarker)
+            binding.mapview.addMarker(destinationMarker)
+        }
+        LineManager.drawLineOnMap(
+            mapView = binding.mapview,
+            polylineLayer = polylineLayer,
+            vector = mockInformation.lineVector
+        )
+        CameraManager.moveCameraToTripLine(
+            mapView = binding.mapview,
+            screenPos = ScreenPos(
+                binding.root.x + 32.toPixel(this@MockPlayerActivity),
+                binding.root.y + 32.toPixel(this@MockPlayerActivity)
+            ),
+            origin = mockInformation.originLocation,
+            destination = mockInformation.destinationLocation
+        )
+    }
+
+    private fun processAction(response: OneTimeEmitter<String>) {
+        val message = when (response.exception) {
+            EXCEPTION_INSERTION_ERROR -> getString(R.string.databaseInsertionException)
+            EXCEPTION_DATABASE_GETTING_ERROR -> getString(R.string.databaseGettingException)
+            else -> getString(R.string.unknownException)
+        }
+
+        showSnackBar(
+            message = message,
+            rootView = findViewById(R.id.mockPlayerRootView),
+            Snackbar.LENGTH_SHORT
+        )
     }
 
     private fun initializeMockListener() = lifecycleScope.launch {
@@ -197,88 +206,94 @@ class MockPlayerActivity : AppCompatActivity() {
     }
 
     private fun initListeners() {
-        binding.backImageView.setOnClickListener {
-            if (!mockPlayerService?.mockIsRunning()!!) {
-                this.finish()
-                return@setOnClickListener
-            }
-            showEndDialog()
-        }
+        binding.backImageView.setOnClickListener { onBackClicked() }
 
-        binding.detailImageView.setOnClickListener {
-            val detailDialog = MockDetailBottomSheetDialogFragment.newInstance(
-                title = viewModel.mockPlayerState.value.mockInformation?.mockName!!,
-                description = viewModel.mockPlayerState.value.mockInformation?.mockDescription!!,
-                provider = viewModel.mockPlayerState.value.mockInformation?.provider!!,
-                type = viewModel.mockPlayerState.value.mockInformation?.mockType!!,
-                createdAt = viewModel.mockPlayerState.value.mockInformation?.createdAt!!,
-                updatedAt = viewModel.mockPlayerState.value.mockInformation?.updatedAt!!
-            )
-            detailDialog.isCancelable = true
-            detailDialog.show(supportFragmentManager.beginTransaction(), null)
-        }
+        binding.detailImageView.setOnClickListener { onDetailClicked() }
 
-        binding.playPauseFloatingActionButton.setOnClickListener {
-            if (mockPlayerService?.mockIsRunning()!!) {
-                mockPlayerService?.pauseOrPlayMock()
-                binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
-            } else {
-                binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_pause_24))
-                if (mockPlayerService?.shouldReInitialize()!!) {
-                    mockPlayerService?.setLineVectorForProcessing(
-                        viewModel.mockPlayerState.value.mockInformation?.lineVector!![0]
-                    )
-                    mockPlayerService?.setMockSpeed(
-                        viewModel.mockPlayerState.value.mockInformation?.speed!!
-                    )
-                }
-                mockPlayerService?.initializeMockProvider()
-                mockPlayerService?.pauseOrPlayMock()
-                initializeMockListener()
-            }
-        }
-        binding.stopFloatingActionButton.setOnClickListener {
-            if (mockPlayerService?.mockIsRunning()!!) {
-                mockPlayerService?.pauseOrPlayMock()
-                mockPlayerService?.removeMockProvider()
-                mockPlayerService?.resetResources()
-            }
-        }
-        binding.speedFloatingActionButton.setOnClickListener {
-            val speedDialog = MockSpeedBottomSheetDialogFragment.newInstance(
-                viewModel.mockPlayerState.value.mockInformation?.speed!!
-            )
-            speedDialog.isCancelable = false
-            speedDialog.setOnSaveClickListener { newSpeed ->
-                mockPlayerService?.setMockSpeed(newSpeed)
-                viewModel.changeMockSpeed(newSpeed)
-                speedDialog.dismiss()
-            }
-            speedDialog.show(supportFragmentManager.beginTransaction(), null)
-        }
+        binding.playPauseFloatingActionButton.setOnClickListener { onPlayPauseClicked() }
 
-        binding.shareMaterialButton.setOnClickListener {
-            val uri = UriManager.createShareUri(
-                origin = viewModel.mockPlayerState.value.mockInformation?.originLocation!!,
-                destination = viewModel.mockPlayerState.value.mockInformation?.destinationLocation!!,
-                speed = viewModel.mockPlayerState.value.mockInformation?.speed!!
-            )
-            startActivity(
-                Intent(Intent.ACTION_SEND, uri).apply {
-                    putExtra(Intent.EXTRA_TEXT, uri.toString())
-                    type = "text/plain"
-                }
-            )
-        }
+        binding.stopFloatingActionButton.setOnClickListener { onStopClicked() }
 
-        binding.navigateMaterialButton.setOnClickListener {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    UriManager.createNavigationUri(viewModel.mockPlayerState.value.mockInformation?.destinationLocation!!)
+        binding.speedFloatingActionButton.setOnClickListener { onSpeedFabClicked() }
+
+        binding.shareMaterialButton.setOnClickListener { onShareClicked() }
+
+        binding.navigateMaterialButton.setOnClickListener { onNavigationClicked() }
+    }
+
+    private fun onBackClicked() {
+        if (!mockPlayerService?.mockIsRunning()!!) {
+            this.finish()
+            return
+        }
+        showEndDialog()
+    }
+
+    private fun onDetailClicked() {
+        val detailDialog = MockDetailBottomSheetDialogFragment.newInstance(
+            title = viewModel.mockPlayerState.value.mockInformation?.mockName!!,
+            description = viewModel.mockPlayerState.value.mockInformation?.mockDescription!!,
+            provider = viewModel.mockPlayerState.value.mockInformation?.provider!!,
+            type = viewModel.mockPlayerState.value.mockInformation?.mockType!!,
+            createdAt = viewModel.mockPlayerState.value.mockInformation?.createdAt!!,
+            updatedAt = viewModel.mockPlayerState.value.mockInformation?.updatedAt!!
+        )
+        detailDialog.isCancelable = true
+        detailDialog.show(supportFragmentManager.beginTransaction(), null)
+    }
+
+    private fun onPlayPauseClicked() {
+        if (mockPlayerService?.mockIsRunning()!!) {
+            mockPlayerService?.pauseOrPlayMock()
+            binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
+        } else {
+            binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_pause_24))
+            if (mockPlayerService?.shouldReInitialize()!!) {
+                mockPlayerService?.setLineVectorForProcessing(
+                    viewModel.mockPlayerState.value.mockInformation?.lineVector!![0]
                 )
-            )
+                mockPlayerService?.setMockSpeed(
+                    viewModel.mockPlayerState.value.mockInformation?.speed!!
+                )
+            }
+            mockPlayerService?.initializeMockProvider()
+            mockPlayerService?.pauseOrPlayMock()
+            initializeMockListener()
         }
+    }
+
+    private fun onStopClicked() {
+        if (!mockPlayerService?.mockIsRunning()!!) return
+        mockPlayerService?.pauseOrPlayMock()
+        mockPlayerService?.removeMockProvider()
+        mockPlayerService?.resetResources()
+        val currentLocationMarker = MarkerManager.getMarkerFromLayer(
+            layer = markerLayer,
+            id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+        )
+        currentLocationMarker?.let { marker ->
+            markerLayer.remove(marker)
+            binding.mapview.removeMarker(marker)
+        }
+        binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
+        showSnackBar(
+            message = getString(R.string.mockPlayerServiceStoppedCompletely),
+            rootView = findViewById(R.id.mockPlayerRootView),
+            duration = Snackbar.LENGTH_LONG
+        )
+    }
+
+    private fun onSpeedFabClicked() {
+        val speedDialog = MockSpeedBottomSheetDialogFragment.newInstance(
+            viewModel.mockPlayerState.value.mockInformation?.speed!!
+        )
+        speedDialog.isCancelable = false
+        speedDialog.setOnSaveClickListener { newSpeed ->
+            mockPlayerService?.setMockSpeed(newSpeed)
+            viewModel.changeMockSpeed(newSpeed)
+            speedDialog.dismiss()
+        }
+        speedDialog.show(supportFragmentManager.beginTransaction(), null)
     }
 
     private fun showProgressbar(show: Boolean) {
@@ -286,12 +301,27 @@ class MockPlayerActivity : AppCompatActivity() {
         binding.titleTextView.visibility = if (!show) View.VISIBLE else View.GONE
     }
 
-    private fun locationInformationFormat(
-        address: String,
-        isOrigin: Boolean
-    ): String {
-        val suffix = if (isOrigin) "From:" else "To:"
-        return "$suffix $address"
+    private fun onShareClicked() {
+        val uri = UriManager.createShareUri(
+            origin = viewModel.mockPlayerState.value.mockInformation?.originLocation!!,
+            destination = viewModel.mockPlayerState.value.mockInformation?.destinationLocation!!,
+            speed = viewModel.mockPlayerState.value.mockInformation?.speed!!
+        )
+        startActivity(
+            Intent(Intent.ACTION_SEND, uri).apply {
+                putExtra(Intent.EXTRA_TEXT, uri.toString())
+                type = "text/plain"
+            }
+        )
+    }
+
+    private fun onNavigationClicked() {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                UriManager.createNavigationUri(viewModel.mockPlayerState.value.mockInformation?.destinationLocation!!)
+            )
+        )
     }
 
     private fun showEndDialog() {

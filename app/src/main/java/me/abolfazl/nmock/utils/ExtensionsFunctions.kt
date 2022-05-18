@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import kotlin.math.ceil
 
 fun <T : RecyclerView.ViewHolder> T.setupListeners(
     onLongClick: (position: Int) -> Unit,
@@ -60,11 +61,15 @@ fun Fragment.showSnackBar(
     snackBar.show()
 }
 
-fun<T> AppCompatActivity.isServiceStillRunning(service: Class<T>): Boolean {
+fun <T> AppCompatActivity.isServiceStillRunning(service: Class<T>): Boolean {
     val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     manager.getRunningServices(Int.MAX_VALUE).forEach { serviceInfo ->
         if (service::class.java.name.equals(serviceInfo.service.className))
             return true
     }
     return false
+}
+
+fun Int.toPixel(context: Context): Int {
+    return ceil(this * context.resources.displayMetrics.density).toInt()
 }

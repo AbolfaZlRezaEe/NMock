@@ -26,6 +26,7 @@ object Constant {
     const val LOCATION_REQUEST = 1005
     const val LOCATION_INTERVAL: Long = 1000
     const val LOCATION_FASTEST_INTERVAL: Long = 500
+    const val DEFAULT_RATIO = 0.00006
 
     // Notification
     const val NOTIFICATION_CHANNEL_NAME = "Mock_Provider"

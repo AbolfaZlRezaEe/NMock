@@ -36,7 +36,7 @@ class MockPlayerService : Service(), LocationListener {
 
     private var speed = 0
     private var index = 0.0
-    private var ratio: Double = 0.00006
+    private var ratio: Double = Constant.DEFAULT_RATIO
 
     override fun onCreate() {
         super.onCreate()
@@ -226,15 +226,19 @@ class MockPlayerService : Service(), LocationListener {
 
     fun removeMockProvider() {
         mockStillRunning = false
-        locationManager?.setTestProviderEnabled(Constant.TYPE_GPS, false)
-        locationManager?.removeTestProvider(Constant.TYPE_GPS)
+        try {
+            locationManager?.setTestProviderEnabled(Constant.TYPE_GPS, false)
+            locationManager?.removeTestProvider(Constant.TYPE_GPS)
+        } catch (exception: java.lang.IllegalArgumentException) {
+            Timber.e(exception.message)
+        }
     }
 
     fun resetResources() {
         lineVector = null
         speed = 0
         mockStillRunning = false
-        ratio = 0.00006
+        ratio = Constant.DEFAULT_RATIO
         index = 0.0
     }
 

@@ -47,7 +47,7 @@ class MockArchiveActivity : AppCompatActivity() {
     private fun initListeners() {
         binding.backImageView.setOnClickListener { this.finish() }
 
-        binding.deleteAllImageView.setOnClickListener(this::onDeleteAllClicked)
+        binding.deleteAllImageView.setOnClickListener { onDeleteAllClicked() }
 
         binding.addNewMockExtendedFab.setOnClickListener {
             startActivity(Intent(this, MockEditorActivity::class.java))
@@ -57,29 +57,11 @@ class MockArchiveActivity : AppCompatActivity() {
     private fun initState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.mockArchiveState.collect { state ->
-                    state.mockList?.let { mockList ->
-                        binding.contentRecyclerView.visibility =
-                            if (mockList.isEmpty()) View.GONE else View.VISIBLE
-                        binding.emptyStateTextView.visibility =
-                            if (mockList.isEmpty()) View.VISIBLE else View.GONE
-                        binding.deleteAllImageView.visibility =
-                            if (mockList.size >= 2) View.VISIBLE else View.GONE
-                        binding.loadingState.visibility = View.GONE
-                        initItems(mockList)
-                    }
-                }
+                viewModel.mockArchiveState.collect { processState(it) }
             }
         }
         lifecycleScope.launchWhenStarted {
-            viewModel.oneTimeEmitter.collect { response ->
-                binding.loadingState.visibility = View.GONE
-                showSnackBar(
-                    message = getString(R.string.unknownException),
-                    rootView = findViewById(R.id.mockArchiveRootView),
-                    Snackbar.LENGTH_SHORT
-                )
-            }
+            viewModel.oneTimeEmitter.collect { processAction() }
         }
     }
 
@@ -118,7 +100,29 @@ class MockArchiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun onDeleteAllClicked(view: View) {
+    private fun processState(mockArchiveState: MockArchiveState) {
+        mockArchiveState.mockList?.let { mockList ->
+            binding.contentRecyclerView.visibility =
+                if (mockList.isEmpty()) View.GONE else View.VISIBLE
+            binding.emptyStateTextView.visibility =
+                if (mockList.isEmpty()) View.VISIBLE else View.GONE
+            binding.deleteAllImageView.visibility =
+                if (mockList.size >= 2) View.VISIBLE else View.GONE
+            binding.loadingState.visibility = View.GONE
+            initItems(mockList)
+        }
+    }
+
+    private fun processAction() {
+        binding.loadingState.visibility = View.GONE
+        showSnackBar(
+            message = getString(R.string.unknownException),
+            rootView = findViewById(R.id.mockArchiveRootView),
+            Snackbar.LENGTH_SHORT
+        )
+    }
+
+    private fun onDeleteAllClicked() {
         val dialog = NMockDialog.newInstance(
             title = getString(R.string.deleteAllDialogTitle),
             actionButtonText = getString(R.string.yes),

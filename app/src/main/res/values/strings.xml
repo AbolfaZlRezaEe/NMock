@@ -52,4 +52,5 @@
     <string name="playerDialogTitle">You want to stop Mock service?</string>
     <string name="stopMockService">Stop mock service</string>
     <string name="justLeave">Just leave</string>
+    <string name="mockPlayerServiceStoppedCompletely">Mock player stopped!</string>
 </resources>
