@@ -16,10 +16,8 @@ import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ER
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.utils.response.exceptions.NMockException
 import org.neshan.common.model.LatLng
-import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
-import kotlin.text.StringBuilder
 
 class MockRepositoryImpl @Inject constructor(
     private val mockDao: MockDao,

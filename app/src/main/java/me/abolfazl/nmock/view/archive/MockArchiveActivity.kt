@@ -66,47 +66,14 @@ class MockArchiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun initItems(
-        list: List<MockDataClass>
-    ) {
+    private fun initItems(list: List<MockDataClass>) {
         if (adapter == null) {
-            adapter = MockArchiveAdapter(ArrayList(list), { onClickData ->
-                if (MockPlayerService.SERVICE_IS_RUNNING) {
-                    val dialog = NMockDialog.newInstance(
-                        title = getString(R.string.youWantToStopLastMock),
-                        actionButtonText = getString(R.string.yes),
-                        secondaryButtonText = getString(R.string.no)
-                    )
-                    dialog.isCancelable = true
-                    dialog.setDialogListener(
-                        onActionButtonClicked = {
-                            startActivity(Intent(this, MockPlayerActivity::class.java).apply {
-                                putExtra(MockPlayerActivity.RESET_COMMAND, true)
-                                putExtra(MockPlayerActivity.KEY_MOCK_ID_PLAYER, onClickData.id)
-                            })
-                            dialog.dismiss()
-                        },
-                        onSecondaryButtonClicked = { dialog.dismiss() }
-                    )
-                    dialog.show(supportFragmentManager.beginTransaction(), null)
-                } else {
-                    startActivity(
-                        Intent(
-                            this,
-                            MockPlayerActivity::class.java
-                        ).apply {
-                            putExtra(MockPlayerActivity.KEY_MOCK_ID_PLAYER, onClickData.id)
-                        })
-                }
-            }) { onLongClickData ->
-                startActivity(
-                    Intent(
-                        this@MockArchiveActivity, MockEditorActivity::class.java
-                    ).apply {
-                        putExtra(MockEditorActivity.KEY_MOCK_INFORMATION, onLongClickData.id)
-                    }
+            adapter =
+                MockArchiveAdapter(
+                    ArrayList(list),
+                    { onItemClicked(it) },
+                    { onItemLongClicked(it) }
                 )
-            }
         } else {
             adapter?.updateData(ArrayList(list))
         }
@@ -119,6 +86,44 @@ class MockArchiveActivity : AppCompatActivity() {
                 )
             binding.contentRecyclerView.adapter = adapter
         }
+    }
+
+    private fun onItemClicked(mockDataClass: MockDataClass) {
+        if (!MockPlayerService.SERVICE_IS_RUNNING) {
+            startPlayer(mockDataClass.id!!, false)
+            return
+        }
+        val dialog = NMockDialog.newInstance(
+            title = getString(R.string.youWantToStopLastMock),
+            actionButtonText = getString(R.string.yes),
+            secondaryButtonText = getString(R.string.no)
+        )
+        dialog.isCancelable = true
+        dialog.setDialogListener(
+            onActionButtonClicked = {
+                startPlayer(mockDataClass.id!!, true)
+                dialog.dismiss()
+            },
+            onSecondaryButtonClicked = { dialog.dismiss() }
+        )
+        dialog.show(supportFragmentManager.beginTransaction(), null)
+    }
+
+    private fun onItemLongClicked(mockDataClass: MockDataClass) {
+        startActivity(
+            Intent(
+                this@MockArchiveActivity, MockEditorActivity::class.java
+            ).apply { putExtra(MockEditorActivity.KEY_MOCK_INFORMATION, mockDataClass.id) }
+        )
+    }
+
+    private fun startPlayer(mockId: Long, reset: Boolean) {
+        startActivity(Intent(this, MockPlayerActivity::class.java).apply {
+            if (reset) {
+                putExtra(MockPlayerActivity.RESET_COMMAND, true)
+            }
+            putExtra(MockPlayerActivity.KEY_MOCK_ID_PLAYER, mockId)
+        })
     }
 
     private fun processState(mockArchiveState: MockArchiveState) {

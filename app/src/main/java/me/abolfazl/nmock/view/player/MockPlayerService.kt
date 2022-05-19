@@ -21,8 +21,6 @@ import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_COORDINATORS_ERROR
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_SPEED_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.ExceptionType
-import me.abolfazl.nmock.utils.response.exceptions.NMockException
 import org.neshan.common.model.LatLng
 import timber.log.Timber
 import kotlin.math.*

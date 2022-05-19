@@ -1,7 +1,5 @@
 package me.abolfazl.nmock.utils.response.exceptions
 
-import me.abolfazl.nmock.utils.response.Failure
-
 object ExceptionMapper {
 
     fun map(httpCode: Int): String = when (httpCode) {
