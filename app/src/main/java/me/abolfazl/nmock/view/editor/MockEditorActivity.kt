@@ -517,7 +517,7 @@ class MockEditorActivity : AppCompatActivity() {
             mockSaverDialog?.dismiss()
         }
         val speed = viewModel.mockEditorState.value.mockInformation?.speed
-            ?: viewModel.mockEditorState.value.speed!!
+            ?: viewModel.mockEditorState.value.speed ?: Constant.DEFAULT_SPEED
         mockSaverDialog = SaveMockBottomSheetDialogFragment.newInstance(
             name = viewModel.mockEditorState.value.mockInformation?.mockName,
             description = viewModel.mockEditorState.value.mockInformation?.mockDescription,

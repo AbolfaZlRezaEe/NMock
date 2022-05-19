@@ -18,6 +18,16 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a'
+            universalApk false
+        }
+    }
+
+
     signingConfigs {
         release {
             keyAlias 'key0'
@@ -63,6 +73,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-gcm:16.1.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
 
+    // Sentry
+    implementation 'io.sentry:sentry-android:5.7.1'
+
     // Navigation Component
     implementation "androidx.navigation:navigation-fragment-ktx:2.4.2"
     implementation "androidx.navigation:navigation-ui-ktx:2.4.2"
@@ -97,4 +110,11 @@ dependencies {
 
     // JTS
     implementation 'com.vividsolutions:jts:1.13'
+}
+
+sentry {
+    includeProguardMapping = true
+    autoUploadProguardMapping = true
+    uploadNativeSymbols = true
+    includeNativeSources = true
 }

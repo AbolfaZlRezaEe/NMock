@@ -3,6 +3,11 @@ package me.abolfazl.nmock.utils
 object Constant {
     const val BASE_URL = "https://api.neshan.org/"
 
+    // Sentry
+    const val SENTRY_DSN = "https://0221c991ee9f4fdc9a92def0bf4ee29e@o1040806.ingest.sentry.io/6421362"
+    const val ENVIRONMENT_DEBUG = "Debug-Mode"
+    const val ENVIRONMENT_RELEASE = "Release-Mode"
+
     // Mock types
     const val TYPE_CUSTOM_CREATE = "CUSTOM_CREATION"
     const val TYPE_AUTOMATIC_CREATE = "AUTOMATIC_CREATION"

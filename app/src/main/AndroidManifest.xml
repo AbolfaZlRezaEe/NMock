@@ -21,8 +21,8 @@
         android:theme="@style/Theme.NMock">
         <activity
             android:name=".view.player.MockPlayerActivity"
-            android:launchMode="singleInstance"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleInstance" />
         <activity
             android:name=".view.archive.MockArchiveActivity"
             android:exported="false" />
@@ -35,8 +35,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="https"/>
-                <data android:host="shared.nmock.trip"/>
+                <data android:scheme="https" />
+                <data android:host="shared.nmock.trip" />
             </intent-filter>
         </activity>
         <activity
@@ -52,6 +52,9 @@
         <service
             android:name=".view.player.MockPlayerService"
             android:foregroundServiceType="location" />
+
+        <!-- Sentry meta-data -->
+        <meta-data android:name="io.sentry.auto-init" android:value="false" />
 
     </application>
 
