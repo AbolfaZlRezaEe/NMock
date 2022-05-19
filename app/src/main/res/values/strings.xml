@@ -3,6 +3,7 @@
     <string name="versionName">v0.0.1</string>
     <string name="newTrip">New Mock</string>
     <string name="mockArchive">Mock Archive</string>
+    <string name="mockPlayer">Mock Player</string>
     <string name="requestLocationPermissionRelational">We should have (Location Permissions) for working correctly!</string>
     <string name="iAccept">I Accept!</string>
     <string name="locationIsOff">Your location provider is OFF!</string>
@@ -57,4 +58,6 @@
     <string name="mockEditorLeaveDialogTitle">You want leave this mock without saving?</string>
     <string name="mockInformationProblem">Your mock information has a problem! Please try again...</string>
     <string name="tripCompleted">Your trip was completed!</string>
+    <string name="youWantToStopLastMock">Are you sure that you want to stop player?</string>
+    <string name="youWantStopAndDeleteMock">Are you sure that you want to stop player and delete all Mocks?</string>
 </resources>

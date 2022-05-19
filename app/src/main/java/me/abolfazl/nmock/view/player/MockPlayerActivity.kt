@@ -22,10 +22,8 @@ import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.*
 import me.abolfazl.nmock.utils.managers.*
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_COORDINATORS_ERROR
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ERROR
 import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.NMockException
 import me.abolfazl.nmock.view.detail.MockDetailBottomSheetDialogFragment
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.home.HomeActivity
@@ -55,6 +53,7 @@ class MockPlayerActivity : AppCompatActivity() {
 
     companion object {
         const val KEY_MOCK_ID_PLAYER = "MOCK_PLAYER_ID"
+        const val RESET_COMMAND = "RESET_SERVICE!"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +74,13 @@ class MockPlayerActivity : AppCompatActivity() {
         initObservers()
 
         initListeners()
+    }
+
+    private fun handlingIntent() {
+        val serviceMustReset = intent.getBooleanExtra(RESET_COMMAND, false)
+        if (!serviceMustReset) return
+        mockPlayerService?.removeMockProvider()
+        mockPlayerService?.resetResources()
     }
 
     private fun initViewsFromBundle() {
@@ -108,6 +114,8 @@ class MockPlayerActivity : AppCompatActivity() {
             val mockPlayerBinder = binder as MockPlayerService.MockPlayerBinder
             mockPlayerService = mockPlayerBinder.getService()
 
+            handlingIntent()
+
             if (fromNotificationOpened && mockPlayerService?.mockIsRunning()!!) {
                 binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_pause_24))
             }
@@ -135,10 +143,9 @@ class MockPlayerActivity : AppCompatActivity() {
             if (currentLocationMarker == null) {
                 currentLocationMarker = MarkerManager.createMarker(
                     location = latLng,
-                    drawableRes = R.drawable.ic_origin_marker,
+                    drawableRes = R.drawable.current_mock_location,
                     context = this@MockPlayerActivity,
                     elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
-                    markerSize = MarkerManager.CURRENT_LOCATION_MARKER_SIZE
                 )
                 currentLocationMarker?.let {
                     markerLayer.add(it)
@@ -384,6 +391,10 @@ class MockPlayerActivity : AppCompatActivity() {
         dialog.setDialogListener(
             onActionButtonClicked = {
                 mockPlayerService?.stopIdleService()
+                SharedManager.deleteLong(
+                    sharedPreferences = sharedPreferences,
+                    key = SHARED_MOCK_ID
+                )
                 dialog.dismiss()
                 this.finish()
             },

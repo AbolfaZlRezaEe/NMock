@@ -31,23 +31,7 @@ fun String.changeStringTo(prefix: String): String {
     return "$prefix $this"
 }
 
-fun AppCompatActivity.showSnackBar(
-    @NonNull message: String,
-    @NonNull rootView: View,
-    @BaseTransientBottomBar.Duration duration: Int,
-    actionText: String? = null,
-    actionListener: View.OnClickListener? = null
-) {
-    val snackBar = Snackbar.make(
-        rootView, message, duration
-    )
-    if (actionText != null && actionListener != null) {
-        snackBar.setAction(actionText, actionListener)
-    }
-    snackBar.show()
-}
-
-fun Fragment.showSnackBar(
+fun showSnackBar(
     @NonNull message: String,
     @NonNull rootView: View,
     @BaseTransientBottomBar.Duration duration: Int,
@@ -65,19 +49,6 @@ fun Fragment.showSnackBar(
 
 fun <T> AppCompatActivity.isServiceStillRunning(service: Class<T>): Boolean {
     val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-    manager.getRunningServices(Int.MAX_VALUE).forEach { serviceInfo ->
-        if (service::class.java.name.equals(serviceInfo.service.className))
-            return true
-    }
-    return false
-}
-
-fun <T> Fragment.isServiceStillRunning(
-    activity: FragmentActivity?,
-    service: Class<T>
-): Boolean {
-    if (activity == null) return false
-    val manager = activity.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     manager.getRunningServices(Int.MAX_VALUE).forEach { serviceInfo ->
         if (service::class.java.name.equals(serviceInfo.service.className))
             return true

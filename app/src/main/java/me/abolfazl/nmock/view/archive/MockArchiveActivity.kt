@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockArchiveBinding
 import me.abolfazl.nmock.repository.models.MockDataClass
-import me.abolfazl.nmock.utils.isServiceStillRunning
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.editor.MockEditorActivity
@@ -72,13 +71,33 @@ class MockArchiveActivity : AppCompatActivity() {
     ) {
         if (adapter == null) {
             adapter = MockArchiveAdapter(ArrayList(list), { onClickData ->
-                startActivity(
-                    Intent(
-                        this,
-                        MockPlayerActivity::class.java
-                    ).also {
-                        it.putExtra(MockPlayerActivity.KEY_MOCK_ID_PLAYER, onClickData.id)
-                    })
+                if (MockPlayerService.SERVICE_IS_RUNNING) {
+                    val dialog = NMockDialog.newInstance(
+                        title = getString(R.string.youWantToStopLastMock),
+                        actionButtonText = getString(R.string.yes),
+                        secondaryButtonText = getString(R.string.no)
+                    )
+                    dialog.isCancelable = true
+                    dialog.setDialogListener(
+                        onActionButtonClicked = {
+                            startActivity(Intent(this, MockPlayerActivity::class.java).apply {
+                                putExtra(MockPlayerActivity.RESET_COMMAND, true)
+                                putExtra(MockPlayerActivity.KEY_MOCK_ID_PLAYER, onClickData.id)
+                            })
+                            dialog.dismiss()
+                        },
+                        onSecondaryButtonClicked = { dialog.dismiss() }
+                    )
+                    dialog.show(supportFragmentManager.beginTransaction(), null)
+                } else {
+                    startActivity(
+                        Intent(
+                            this,
+                            MockPlayerActivity::class.java
+                        ).apply {
+                            putExtra(MockPlayerActivity.KEY_MOCK_ID_PLAYER, onClickData.id)
+                        })
+                }
             }) { onLongClickData ->
                 startActivity(
                     Intent(
@@ -126,13 +145,19 @@ class MockArchiveActivity : AppCompatActivity() {
 
     private fun onDeleteAllClicked() {
         val dialog = NMockDialog.newInstance(
-            title = getString(R.string.deleteAllDialogTitle),
+            title = if (MockPlayerService.SERVICE_IS_RUNNING) getString(R.string.youWantStopAndDeleteMock)
+            else getString(R.string.deleteAllDialogTitle),
             actionButtonText = getString(R.string.yes),
             secondaryButtonText = getString(R.string.cancel)
         )
         dialog.isCancelable = false
         dialog.setDialogListener(
             onActionButtonClicked = {
+                if (MockPlayerService.SERVICE_IS_RUNNING) {
+                    startService(Intent(this, MockPlayerService::class.java).apply {
+                        putExtra(MockPlayerService.KILL_SERVICE, true)
+                    })
+                }
                 viewModel.deleteAllMocks()
                 adapter?.removeAll()
                 binding.contentRecyclerView.visibility = View.GONE

@@ -9,12 +9,9 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentHomeBinding
-import me.abolfazl.nmock.utils.isServiceStillRunning
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.archive.MockArchiveActivity
 import me.abolfazl.nmock.view.editor.MockEditorActivity
-import me.abolfazl.nmock.view.player.MockPlayerActivity
-import me.abolfazl.nmock.view.player.MockPlayerService
 
 class HomeFragment : Fragment() {
 

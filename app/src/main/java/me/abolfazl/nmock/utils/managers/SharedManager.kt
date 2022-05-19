@@ -23,4 +23,12 @@ object SharedManager {
     ): Long {
         return sharedPreferences.getLong(key, defaultValue)
     }
+
+    fun deleteLong(
+        sharedPreferences: SharedPreferences,
+        @SharedParametersType key: String
+    ) {
+        sharedPreferences.edit().remove(key).apply()
+    }
+
 }

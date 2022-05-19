@@ -29,6 +29,11 @@ import kotlin.math.*
 
 class MockPlayerService : Service(), LocationListener {
 
+    companion object {
+        var SERVICE_IS_RUNNING = false
+        const val KILL_SERVICE = "KILL_SERVICE!"
+    }
+
     private val nMockBinder = MockPlayerBinder()
     private var lineVector: List<LatLng>? = null
     private var lengthIndexedLine: LengthIndexedLine? = null
@@ -71,6 +76,7 @@ class MockPlayerService : Service(), LocationListener {
                 Timber.e(exception.message)
             }
         }
+        SERVICE_IS_RUNNING = true
         startCreatingMockLocations()
     }
 
@@ -117,7 +123,18 @@ class MockPlayerService : Service(), LocationListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        handlingIntent(intent)
         return START_NOT_STICKY
+    }
+
+    private fun handlingIntent(intent: Intent?) {
+        if (intent == null) return
+        val mustBeKilled = intent.getBooleanExtra(KILL_SERVICE, false)
+        if (!mustBeKilled) return
+        if (!mockStillRunning) return
+        removeMockProvider()
+        resetResources()
+        stopIdleService()
     }
 
     override fun onBind(p0: Intent?): IBinder {
@@ -260,6 +277,7 @@ class MockPlayerService : Service(), LocationListener {
     }
 
     fun resetResources() {
+        SERVICE_IS_RUNNING = false
         lineVector = null
         speed = 0
         mockStillRunning = false
@@ -278,6 +296,7 @@ class MockPlayerService : Service(), LocationListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        SERVICE_IS_RUNNING = false
         removeMockProvider()
     }
 
