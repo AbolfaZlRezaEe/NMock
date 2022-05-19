@@ -13,5 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
-/Key/
+/Key/nmockReleaseKey.jks
 /.idea/
