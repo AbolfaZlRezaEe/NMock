@@ -15,10 +15,12 @@ import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockArchiveBinding
 import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.utils.isServiceStillRunning
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.editor.MockEditorActivity
 import me.abolfazl.nmock.view.player.MockPlayerActivity
+import me.abolfazl.nmock.view.player.MockPlayerService
 
 @AndroidEntryPoint
 class MockArchiveActivity : AppCompatActivity() {

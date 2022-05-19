@@ -16,11 +16,13 @@ import com.vividsolutions.jts.geom.Coordinate
 import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.LineString
 import com.vividsolutions.jts.linearref.LengthIndexedLine
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.utils.Constant
+import me.abolfazl.nmock.utils.response.OneTimeEmitter
+import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_COORDINATORS_ERROR
+import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_SPEED_ERROR
+import me.abolfazl.nmock.utils.response.exceptions.ExceptionType
+import me.abolfazl.nmock.utils.response.exceptions.NMockException
 import org.neshan.common.model.LatLng
 import timber.log.Timber
 import kotlin.math.*
@@ -33,6 +35,7 @@ class MockPlayerService : Service(), LocationListener {
 
     private var locationManager: LocationManager? = null
     private var mockStillRunning = false
+    private var locationListener: ((Location?, OneTimeEmitter<String>?) -> Unit)? = null
 
     private var speed = 0
     private var index = 0.0
@@ -68,6 +71,7 @@ class MockPlayerService : Service(), LocationListener {
                 Timber.e(exception.message)
             }
         }
+        startCreatingMockLocations()
     }
 
     private fun startForegroundService() {
@@ -103,7 +107,12 @@ class MockPlayerService : Service(), LocationListener {
     @SuppressLint("UnspecifiedImmutableFlag")
     private fun getNMockIntent(): PendingIntent {
         return Intent(this, MockPlayerActivity::class.java).let { notificationIntent ->
-            PendingIntent.getActivity(this, 0, notificationIntent, 0)
+            PendingIntent.getActivity(
+                this,
+                0,
+                notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
         }
     }
 
@@ -157,15 +166,20 @@ class MockPlayerService : Service(), LocationListener {
         return sqrt(distance)
     }
 
-    fun startCreatingMockLocations(): Flow<Location> = flow {
-        while (mockStillRunning) {
+    private fun startCreatingMockLocations() {
+        if (mockStillRunning) {
             if (lengthIndexedLine == null) {
                 processLineVector()
             }
             if (speed == 0) {
-                // todo: speed error
+                locationListener?.invoke(
+                    null, OneTimeEmitter(
+                        exception = EXCEPTION_SPEED_ERROR,
+                        message = null
+                    )
+                )
                 mockStillRunning = false
-                return@flow
+                return
             }
             lengthIndexedLine?.let { line ->
                 val firstCoordinate: Coordinate?
@@ -175,14 +189,17 @@ class MockPlayerService : Service(), LocationListener {
                     secondCoordinate = line.extractPoint(index + ratio)
                     index += ratio
                 } else {
-                    // trip was finished and we should send a event!
-                    mockStillRunning = false
-                    return@flow
+                    locationListener?.invoke(null, OneTimeEmitter(message = "Trip was finished!"))
+                    resetResources()
+                    return
                 }
                 if (firstCoordinate == null || secondCoordinate == null) {
-                    // todo: coordination Error
+                    locationListener?.invoke(
+                        null,
+                        OneTimeEmitter(exception = EXCEPTION_COORDINATORS_ERROR, message = null)
+                    )
                     mockStillRunning = false
-                    return@flow
+                    return
                 }
                 val distance: Double = distanceBetweenTwoCoordinates(
                     first = LatLng(firstCoordinate.x, firstCoordinate.y),
@@ -198,8 +215,10 @@ class MockPlayerService : Service(), LocationListener {
                 location.time = System.currentTimeMillis()
                 location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
                 locationManager?.setTestProviderLocation(Constant.TYPE_GPS, location)
-                emit(location)
-                delay(delay.toLong())
+                locationListener?.invoke(location, OneTimeEmitter(null, null))
+                Handler(Looper.getMainLooper()).postDelayed({
+                    startCreatingMockLocations()
+                }, delay.toLong())
             }
         }
     }
@@ -214,6 +233,12 @@ class MockPlayerService : Service(), LocationListener {
 
     fun setMockSpeed(speed: Int) {
         this.speed = speed
+    }
+
+    fun setLocationChangedListener(
+        callback: (Location?, OneTimeEmitter<String>?) -> Unit
+    ) {
+        this.locationListener = callback
     }
 
     fun mockIsRunning(): Boolean {

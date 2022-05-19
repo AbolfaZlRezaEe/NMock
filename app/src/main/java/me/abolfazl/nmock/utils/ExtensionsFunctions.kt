@@ -6,6 +6,7 @@ import android.view.View
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -71,11 +72,24 @@ fun <T> AppCompatActivity.isServiceStillRunning(service: Class<T>): Boolean {
     return false
 }
 
+fun <T> Fragment.isServiceStillRunning(
+    activity: FragmentActivity?,
+    service: Class<T>
+): Boolean {
+    if (activity == null) return false
+    val manager = activity.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    manager.getRunningServices(Int.MAX_VALUE).forEach { serviceInfo ->
+        if (service::class.java.name.equals(serviceInfo.service.className))
+            return true
+    }
+    return false
+}
+
 fun LatLng.locationFormat(): String {
     return "${this.latitude},${this.longitude}"
 }
 
-fun String.locationFormat():LatLng{
+fun String.locationFormat(): LatLng {
     val origin = StringBuilder()
     var destination: String? = null
     run operation@{

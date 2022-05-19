@@ -21,6 +21,7 @@
         android:theme="@style/Theme.NMock">
         <activity
             android:name=".view.player.MockPlayerActivity"
+            android:launchMode="singleInstance"
             android:exported="false" />
         <activity
             android:name=".view.archive.MockArchiveActivity"

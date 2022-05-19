@@ -55,4 +55,6 @@
     <string name="mockPlayerServiceStoppedCompletely">Mock player stopped!</string>
     <string name="linkProblemTitle">Your link has a problem, we can open that!</string>
     <string name="mockEditorLeaveDialogTitle">You want leave this mock without saving?</string>
+    <string name="mockInformationProblem">Your mock information has a problem! Please try again...</string>
+    <string name="tripCompleted">Your trip was completed!</string>
 </resources>

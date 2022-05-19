@@ -35,4 +35,7 @@ object Constant {
     const val NOTIFICATION_CHANNEL_DESCRIPTION =
         "This Notification used for Broadcasting Mock around the Android System!"
     const val NOTIFICATION_ID = 15435
+
+    // Shared
+    const val SHARED_PREFERENCES_NAME = "mock_shared"
 }

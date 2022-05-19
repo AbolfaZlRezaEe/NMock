@@ -84,7 +84,7 @@ class MockEditorActivity : AppCompatActivity() {
         if (mockId != -1L) {
             viewModel.getMockFromId(mockId)
             return
-        } else {
+        } else if (intent.data != null) {
             // Reading intent data from URI object:
             var speed: String? = null
             var originLocation: String? = null
@@ -485,6 +485,12 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onBackClicked() {
+        if (viewModel.mockEditorState.value.lineVector == null ||
+            viewModel.mockEditorState.value.mockInformation == null
+        ) {
+            this.finish()
+            return
+        }
         val dialog = NMockDialog.newInstance(
             title = getString(R.string.mockEditorLeaveDialogTitle),
             actionButtonText = getString(R.string.yes),
