@@ -74,7 +74,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:16.0.0'
 
     // Sentry
-    implementation 'io.sentry:sentry-android:5.7.1'
+    implementation 'io.sentry:sentry-android:5.7.4'
 
     // Navigation Component
     implementation "androidx.navigation:navigation-fragment-ktx:2.4.2"
@@ -111,8 +111,8 @@ dependencies {
     // JTS
     implementation 'com.vividsolutions:jts:1.13'
 }
-
 sentry {
+    autoUpload = true
     includeProguardMapping = true
     autoUploadProguardMapping = true
     uploadNativeSymbols = true

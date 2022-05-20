@@ -14,7 +14,7 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var _binding: FragmentSaveMockBinding? = null
     private val binding get() = _binding!!
 
-    private var callback: ((mockName: String, mockDescription: String, speed: Int) -> Unit)? = null
+    private var callback: ((mockName: String, mockDescription: String?, speed: Int) -> Unit)? = null
 
     companion object {
         private const val KEY_SAVE_MOCK_NAME = "KEY_MOCK_NAME"
@@ -37,7 +37,7 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     fun onSaveClickListener(
-        mockCallback: (mockName: String, mockDescription: String, speed: Int) -> Unit
+        mockCallback: (mockName: String, mockDescription: String?, speed: Int) -> Unit
     ) {
         this.callback = mockCallback
     }
@@ -75,7 +75,7 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun initListeners() {
         binding.closeAppCompatImageView.setOnClickListener { dismiss() }
-        binding.saveMaterialButton.setOnClickListener(this::onSaveButtonClick)
+        binding.saveMaterialButton.setOnClickListener { onSaveButtonClick() }
         binding.speedTextInputEditText.doOnTextChanged { text, _, _, _ ->
             if (text?.length!! > 3) {
                 binding.speedTextInputLayout.error = getString(R.string.unValidSpeed)
@@ -84,7 +84,7 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun onSaveButtonClick(view: View) {
+    private fun onSaveButtonClick() {
         if (binding.mockNameTextInputEditText.text.isNullOrEmpty()) {
             binding.mockNameTextInputLayout.error = getString(R.string.youMustHaveANameForIt)
             return

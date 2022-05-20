@@ -20,6 +20,7 @@ class NMockApplication : Application() {
             option.setDebug(BuildConfig.DEBUG)
             option.environment = if (BuildConfig.DEBUG) Constant.ENVIRONMENT_DEBUG
             else Constant.ENVIRONMENT_RELEASE
+            option.tracesSampleRate = 1.0
         }
     }
 }

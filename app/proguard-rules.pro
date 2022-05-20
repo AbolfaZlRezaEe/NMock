@@ -87,6 +87,17 @@
 -keep class * extends androidx.fragment.app.Fragment{}
 -keepnames class androidx.navigation.fragment.NavHostFragment
 
+-dontwarn io.sentry.android.fragment.FragmentLifecycleIntegration
+-dontwarn io.sentry.android.timber.SentryTimberIntegration
+-dontwarn org.bouncycastle.jsse.BCSSLParameters
+-dontwarn org.bouncycastle.jsse.BCSSLSocket
+-dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
+-dontwarn org.conscrypt.Conscrypt$Version
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.openjsse.javax.net.ssl.SSLParameters
+-dontwarn org.openjsse.javax.net.ssl.SSLSocket
+-dontwarn org.openjsse.net.ssl.OpenJSSE
+
 # Keep all data clases
 -keep class me.abolfazl.nmock.model.apiService.models.** { *; }
 -keep class me.abolfazl.nmock.model.database.models.** { *; }
