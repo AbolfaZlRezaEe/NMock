@@ -222,7 +222,7 @@ class MockPlayerService : Service(), LocationListener {
                 )
                 val delay: Double = (distance / (speed / 3.6)) * 1000
                 val location = Location(Constant.TYPE_GPS)
-                location.speed = speed.toFloat()
+                location.speed = (speed / 3.6).toFloat()
                 location.bearing = 0F
                 location.latitude = firstCoordinate.x
                 location.longitude = firstCoordinate.y

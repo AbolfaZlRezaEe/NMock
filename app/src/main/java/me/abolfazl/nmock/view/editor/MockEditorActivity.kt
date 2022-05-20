@@ -33,6 +33,7 @@ import me.abolfazl.nmock.utils.toPixel
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.home.HomeActivity
 import me.abolfazl.nmock.view.player.MockPlayerActivity
+import me.abolfazl.nmock.view.player.MockPlayerService
 import me.abolfazl.nmock.view.saverDialog.SaveMockBottomSheetDialogFragment
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
@@ -222,7 +223,7 @@ class MockEditorActivity : AppCompatActivity() {
         mockSaverDialog?.dismiss()
         resetUiStateToDefault()
         viewModel.clearTripInformation(true)
-
+        if (MockPlayerService.SERVICE_IS_RUNNING) return
         val dialog = NMockDialog.newInstance(
             title = getString(R.string.playingMockDialogTitle),
             actionButtonText = getString(R.string.yes),
@@ -485,9 +486,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onBackClicked() {
-        if (viewModel.mockEditorState.value.lineVector == null ||
-            viewModel.mockEditorState.value.mockInformation == null
-        ) {
+        if (!viewModel.hasMockData()) {
             this.finish()
             return
         }

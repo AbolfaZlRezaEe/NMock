@@ -60,4 +60,6 @@
     <string name="tripCompleted">Your trip was completed!</string>
     <string name="youWantToStopLastMock">Are you sure that you want to stop player?</string>
     <string name="youWantStopAndDeleteMock">Are you sure that you want to stop player and delete all Mocks?</string>
+    <string name="allowApplicationToMock">For using application, you should set application as Mock application in developer setting!</string>
+    <string name="openIt">Open it!</string>
 </resources>

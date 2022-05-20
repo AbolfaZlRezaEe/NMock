@@ -301,6 +301,7 @@ class MockPlayerActivity : AppCompatActivity() {
     }
 
     private fun onPlayPauseClicked() {
+        if (handleDeveloperSettingSection()) return
         if (mockPlayerService?.mockIsRunning()!!) {
             mockPlayerService?.pauseOrPlayMock()
             binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
@@ -317,6 +318,31 @@ class MockPlayerActivity : AppCompatActivity() {
             mockPlayerService?.pauseOrPlayMock()
         }
         mockPlayerService?.initializeMockProvider()
+    }
+
+    private fun handleDeveloperSettingSection(): Boolean {
+        val mustShowDeveloperOption = SharedManager.getBoolean(
+            sharedPreferences = sharedPreferences,
+            key = SHARED_MOCK_SETTING,
+            defaultValue = true
+        )
+        if (mustShowDeveloperOption) {
+            showSnackBar(
+                message = getString(R.string.allowApplicationToMock),
+                rootView = findViewById(R.id.mockPlayerRootView),
+                duration = Snackbar.LENGTH_LONG,
+                actionText = getString(R.string.openIt),
+            ) {
+                startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+            }
+            SharedManager.putBoolean(
+                sharedPreferences = sharedPreferences,
+                key = SHARED_MOCK_SETTING,
+                value = false
+            )
+            return true
+        }
+        return false
     }
 
     private fun onStopClicked() {

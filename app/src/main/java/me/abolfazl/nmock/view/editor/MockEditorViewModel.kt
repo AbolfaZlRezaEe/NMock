@@ -192,4 +192,11 @@ class MockEditorViewModel @Inject constructor(
         withContext(Dispatchers.Default) { getLocationInformation(realDestination, false) }
         withContext(Dispatchers.Default) { getRouteInformation(realOrigin, realDestination) }
     }
+
+    fun hasMockData(): Boolean {
+        if (_mockEditorState.value.lineVector == null) {
+            return _mockEditorState.value.mockInformation != null
+        }
+        return true
+    }
 }
