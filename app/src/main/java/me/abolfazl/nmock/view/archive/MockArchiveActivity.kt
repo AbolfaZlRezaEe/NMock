@@ -94,9 +94,9 @@ class MockArchiveActivity : AppCompatActivity() {
             return
         }
         val dialog = NMockDialog.newInstance(
-            title = getString(R.string.youWantToStopLastMock),
-            actionButtonText = getString(R.string.yes),
-            secondaryButtonText = getString(R.string.no)
+            title = resources.getString(R.string.youWantToStopLastMock),
+            actionButtonText = resources.getString(R.string.yes),
+            secondaryButtonText = resources.getString(R.string.no)
         )
         dialog.isCancelable = true
         dialog.setDialogListener(
@@ -142,7 +142,7 @@ class MockArchiveActivity : AppCompatActivity() {
     private fun processAction() {
         binding.loadingState.visibility = View.GONE
         showSnackBar(
-            message = getString(R.string.unknownException),
+            message = resources.getString(R.string.unknownException),
             rootView = findViewById(R.id.mockArchiveRootView),
             Snackbar.LENGTH_SHORT
         )
@@ -150,10 +150,10 @@ class MockArchiveActivity : AppCompatActivity() {
 
     private fun onDeleteAllClicked() {
         val dialog = NMockDialog.newInstance(
-            title = if (MockPlayerService.SERVICE_IS_RUNNING) getString(R.string.youWantStopAndDeleteMock)
-            else getString(R.string.deleteAllDialogTitle),
-            actionButtonText = getString(R.string.yes),
-            secondaryButtonText = getString(R.string.cancel)
+            title = if (MockPlayerService.SERVICE_IS_RUNNING) resources.getString(R.string.youWantStopAndDeleteMock)
+            else resources.getString(R.string.deleteAllDialogTitle),
+            actionButtonText = resources.getString(R.string.yes),
+            secondaryButtonText = resources.getString(R.string.cancel)
         )
         dialog.isCancelable = false
         dialog.setDialogListener(

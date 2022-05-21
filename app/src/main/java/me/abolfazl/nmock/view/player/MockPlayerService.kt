@@ -82,10 +82,10 @@ class MockPlayerService : Service(), LocationListener {
         val notification = NotificationCompat.Builder(this, Constant.NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.nmock_logo_notifcation)
             .setContentIntent(getNMockIntent())
-            .setContentTitle(getString(R.string.notificationTitle))
+            .setContentTitle(resources.getString(R.string.notificationTitle))
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText(getString(R.string.notificationDescription))
+                    .bigText(resources.getString(R.string.notificationDescription))
             )
             .setOngoing(true)
             .setAutoCancel(false)

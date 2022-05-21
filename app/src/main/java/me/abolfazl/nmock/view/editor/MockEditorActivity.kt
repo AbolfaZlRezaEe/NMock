@@ -10,6 +10,7 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -66,7 +67,7 @@ class MockEditorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMockEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.statusBarColor = getColor(R.color.colorSecondary)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.colorSecondary)
 
         handlingIntent()
 
@@ -105,7 +106,7 @@ class MockEditorActivity : AppCompatActivity() {
             }
             if (originLocation == null || destinationLocation == null) {
                 showSnackBar(
-                    message = getString(R.string.linkProblemTitle),
+                    message = resources.getString(R.string.linkProblemTitle),
                     rootView = findViewById(R.id.mockEditorRootView),
                     duration = Snackbar.LENGTH_LONG
                 )
@@ -176,7 +177,7 @@ class MockEditorActivity : AppCompatActivity() {
             resources.getText(R.string.chooseDestinationLocation)
         binding.destinationTextView.visibility = View.VISIBLE
         binding.destinationTextView.text =
-            getString(R.string.withoutDestinationInformation)
+            resources.getString(R.string.withoutDestinationInformation)
         binding.undoExtendedFab.show()
         binding.undoExtendedFab.postDelayed({
             binding.undoExtendedFab.shrink()
@@ -197,7 +198,7 @@ class MockEditorActivity : AppCompatActivity() {
             polylineLayer = polylineLayer,
             vector = lineVector
         )
-        binding.titleTextView.text = getString(R.string.youCanSaveNow)
+        binding.titleTextView.text = resources.getString(R.string.youCanSaveNow)
         CameraManager.moveCameraToTripLine(
             mapView = binding.mapview,
             screenPos = ScreenPos(
@@ -225,9 +226,9 @@ class MockEditorActivity : AppCompatActivity() {
         viewModel.clearTripInformation(true)
         if (MockPlayerService.SERVICE_IS_RUNNING) return
         val dialog = NMockDialog.newInstance(
-            title = getString(R.string.playingMockDialogTitle),
-            actionButtonText = getString(R.string.yes),
-            secondaryButtonText = getString(R.string.no)
+            title = resources.getString(R.string.playingMockDialogTitle),
+            actionButtonText = resources.getString(R.string.yes),
+            secondaryButtonText = resources.getString(R.string.no)
         )
         dialog.isCancelable = true
         dialog.setDialogListener(
@@ -276,7 +277,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun processMockInformation(mockInformation: MockDataClass) {
-        binding.titleTextView.text = getString(R.string.youCanEditYourTrip)
+        binding.titleTextView.text = resources.getString(R.string.youCanEditYourTrip)
         binding.destinationTextView.visibility = View.VISIBLE
         binding.saveExtendedFab.visibility = View.VISIBLE
         binding.undoExtendedFab.visibility = View.VISIBLE
@@ -323,10 +324,10 @@ class MockEditorActivity : AppCompatActivity() {
         showLoadingProgressbar(false)
 
         val message = when (response.exception) {
-            EXCEPTION_LIMIT_EXCEEDED -> getString(R.string.limitRequestsException)
-            EXCEPTION_INSERTION_ERROR -> getString(R.string.databaseInsertionException)
-            EXCEPTION_DATABASE_GETTING_ERROR -> getString(R.string.databaseGettingException)
-            else -> getString(R.string.unknownException)
+            EXCEPTION_LIMIT_EXCEEDED -> resources.getString(R.string.limitRequestsException)
+            EXCEPTION_INSERTION_ERROR -> resources.getString(R.string.databaseInsertionException)
+            EXCEPTION_DATABASE_GETTING_ERROR -> resources.getString(R.string.databaseGettingException)
+            else -> resources.getString(R.string.unknownException)
         }
 
         showSnackBar(
@@ -374,7 +375,7 @@ class MockEditorActivity : AppCompatActivity() {
         if (originMarker != null && destinationMarker != null) {
             // we have origin and destination
             showSnackBar(
-                message = getString(R.string.originDestinationProblem),
+                message = resources.getString(R.string.originDestinationProblem),
                 rootView = findViewById(R.id.mockEditorRootView),
                 duration = Snackbar.LENGTH_SHORT
             )
@@ -449,10 +450,10 @@ class MockEditorActivity : AppCompatActivity() {
                 }
             } else {
                 showSnackBar(
-                    message = getString(R.string.pleaseTurnOnLocation),
+                    message = resources.getString(R.string.pleaseTurnOnLocation),
                     rootView = findViewById(R.id.mockEditorRootView),
                     duration = Snackbar.LENGTH_INDEFINITE,
-                    actionText = getString(R.string.iAccept)
+                    actionText = resources.getString(R.string.iAccept)
                 ) {
                     startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                 }
@@ -464,10 +465,10 @@ class MockEditorActivity : AppCompatActivity() {
             )
             if (shouldShowRelational) {
                 showSnackBar(
-                    message = getString(R.string.locationPermissionRational),
+                    message = resources.getString(R.string.locationPermissionRational),
                     rootView = findViewById(R.id.mockEditorRootView),
                     duration = Snackbar.LENGTH_INDEFINITE,
-                    actionText = getString(R.string.iAccept),
+                    actionText = resources.getString(R.string.iAccept),
                 ) {
                     ActivityCompat.requestPermissions(
                         this,
@@ -491,9 +492,9 @@ class MockEditorActivity : AppCompatActivity() {
             return
         }
         val dialog = NMockDialog.newInstance(
-            title = getString(R.string.mockEditorLeaveDialogTitle),
-            actionButtonText = getString(R.string.yes),
-            secondaryButtonText = getString(R.string.cancel)
+            title = resources.getString(R.string.mockEditorLeaveDialogTitle),
+            actionButtonText = resources.getString(R.string.yes),
+            secondaryButtonText = resources.getString(R.string.cancel)
         )
         dialog.isCancelable = true
         dialog.setDialogListener(
@@ -557,7 +558,7 @@ class MockEditorActivity : AppCompatActivity() {
             polylineLayer.clear()
             binding.saveExtendedFab.hide()
             viewModel.clearTripInformation(false)
-            binding.titleTextView.text = getString(R.string.chooseDestinationLocation)
+            binding.titleTextView.text = resources.getString(R.string.chooseDestinationLocation)
             binding.destinationTextView.visibility = View.GONE
         } else {
             val originMarker =
@@ -571,16 +572,16 @@ class MockEditorActivity : AppCompatActivity() {
                 binding.undoExtendedFab.hide()
             }
             binding.destinationTextView.visibility = View.GONE
-            binding.titleTextView.text = getString(R.string.chooseOriginLocation)
-            binding.originTextView.text = getString(R.string.withoutOriginInformation)
+            binding.titleTextView.text = resources.getString(R.string.chooseOriginLocation)
+            binding.originTextView.text = resources.getString(R.string.withoutOriginInformation)
         }
     }
 
     private fun onDeleteClicked() {
         val dialog = NMockDialog.newInstance(
-            title = getString(R.string.deleteDialogTitle),
-            actionButtonText = getString(R.string.yes),
-            secondaryButtonText = getString(R.string.cancel)
+            title = resources.getString(R.string.deleteDialogTitle),
+            actionButtonText = resources.getString(R.string.yes),
+            secondaryButtonText = resources.getString(R.string.cancel)
         )
         dialog.isCancelable = false
         dialog.setDialogListener(
@@ -607,8 +608,8 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun resetUiStateToDefault() {
-        binding.titleTextView.text = getString(R.string.chooseOriginLocation)
-        binding.originTextView.text = getString(R.string.withoutOriginInformation)
+        binding.titleTextView.text = resources.getString(R.string.chooseOriginLocation)
+        binding.originTextView.text = resources.getString(R.string.withoutOriginInformation)
         binding.destinationTextView.visibility = View.GONE
         binding.saveExtendedFab.hide()
         binding.undoExtendedFab.hide()

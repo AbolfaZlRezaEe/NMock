@@ -71,19 +71,19 @@ class MockSpeedBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         binding.speedTextInputEditText.doOnTextChanged { text, _, _, _ ->
             if (text?.length!! > 3) {
-                binding.speedTextInputLayout.error = getString(R.string.unValidSpeed)
+                binding.speedTextInputLayout.error = resources.getString(R.string.unValidSpeed)
             } else if (text.isNotEmpty()) {
                 binding.speedTextInputLayout.isErrorEnabled = false
                 binding.speedSeekbar.setCurrentValue(text.toString().toInt())
             } else {
-                binding.speedTextInputLayout.error = getString(R.string.speedError)
+                binding.speedTextInputLayout.error = resources.getString(R.string.speedError)
             }
         }
 
         binding.saveMaterialButton.setOnClickListener {
             if (binding.speedTextInputEditText.text?.length!! > 3) return@setOnClickListener
             if (binding.speedTextInputEditText.text.isNullOrEmpty()) {
-                binding.speedTextInputLayout.error = getString(R.string.speedError)
+                binding.speedTextInputLayout.error = resources.getString(R.string.speedError)
                 return@setOnClickListener
             }
             binding.saveMaterialButton.text = ""

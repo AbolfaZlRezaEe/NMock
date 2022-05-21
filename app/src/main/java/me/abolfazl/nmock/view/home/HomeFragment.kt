@@ -43,7 +43,7 @@ class HomeFragment : Fragment() {
 
         binding.mockTrackerMaterialButton.setOnClickListener {
             showSnackBar(
-                message = getString(R.string.comingSoon),
+                message = resources.getString(R.string.comingSoon),
                 rootView = view.findViewById(R.id.homeFragmentRootView),
                 duration = Snackbar.LENGTH_LONG
             )
@@ -51,7 +51,7 @@ class HomeFragment : Fragment() {
 
         binding.mockImportMaterialButton.setOnClickListener {
             showSnackBar(
-                message = getString(R.string.comingSoon),
+                message = resources.getString(R.string.comingSoon),
                 rootView = view.findViewById(R.id.homeFragmentRootView),
                 duration = Snackbar.LENGTH_LONG
             )

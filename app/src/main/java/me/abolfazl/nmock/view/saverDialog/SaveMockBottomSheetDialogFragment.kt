@@ -78,7 +78,7 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
         binding.saveMaterialButton.setOnClickListener { onSaveButtonClick() }
         binding.speedTextInputEditText.doOnTextChanged { text, _, _, _ ->
             if (text?.length!! > 3) {
-                binding.speedTextInputLayout.error = getString(R.string.unValidSpeed)
+                binding.speedTextInputLayout.error = resources.getString(R.string.unValidSpeed)
             } else
                 binding.speedTextInputLayout.isErrorEnabled = false
         }
@@ -86,15 +86,15 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun onSaveButtonClick() {
         if (binding.mockNameTextInputEditText.text.isNullOrEmpty()) {
-            binding.mockNameTextInputLayout.error = getString(R.string.youMustHaveANameForIt)
+            binding.mockNameTextInputLayout.error = resources.getString(R.string.youMustHaveANameForIt)
             return
         }
         if (binding.speedTextInputEditText.text.isNullOrEmpty()) {
-            binding.speedTextInputLayout.error = getString(R.string.speedError)
+            binding.speedTextInputLayout.error = resources.getString(R.string.speedError)
             return
         }
         if (binding.speedTextInputEditText.text!!.length > 3) {
-            binding.speedTextInputLayout.error = getString(R.string.unValidSpeed)
+            binding.speedTextInputLayout.error = resources.getString(R.string.unValidSpeed)
             return
         }
         binding.saveMaterialButton.text = ""

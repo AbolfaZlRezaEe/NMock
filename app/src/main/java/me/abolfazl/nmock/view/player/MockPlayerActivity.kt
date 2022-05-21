@@ -94,7 +94,7 @@ class MockPlayerActivity : AppCompatActivity() {
             fromNotificationOpened = true
             if (mockId == -1L) {
                 showSnackBar(
-                    message = getString(R.string.mockInformationProblem),
+                    message = resources.getString(R.string.mockInformationProblem),
                     rootView = findViewById(R.id.mockPlayerRootView),
                     duration = Snackbar.LENGTH_LONG
                 )
@@ -158,7 +158,7 @@ class MockPlayerActivity : AppCompatActivity() {
         oneTimeEmitter?.let { exception ->
             exception.exception?.let {
                 showSnackBar(
-                    message = getString(R.string.unknownException),
+                    message = resources.getString(R.string.unknownException),
                     rootView = findViewById(R.id.mockPlayerRootView),
                     duration = Snackbar.LENGTH_SHORT
                 )
@@ -166,7 +166,7 @@ class MockPlayerActivity : AppCompatActivity() {
             }
             exception.message?.let {
                 showSnackBar(
-                    message = getString(R.string.tripCompleted),
+                    message = resources.getString(R.string.tripCompleted),
                     rootView = findViewById(R.id.mockPlayerRootView),
                     duration = Snackbar.LENGTH_SHORT
                 )
@@ -251,9 +251,9 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private fun processAction(response: OneTimeEmitter<String>) {
         val message = when (response.exception) {
-            EXCEPTION_INSERTION_ERROR -> getString(R.string.databaseInsertionException)
-            EXCEPTION_DATABASE_GETTING_ERROR -> getString(R.string.databaseGettingException)
-            else -> getString(R.string.unknownException)
+            EXCEPTION_INSERTION_ERROR -> resources.getString(R.string.databaseInsertionException)
+            EXCEPTION_DATABASE_GETTING_ERROR -> resources.getString(R.string.databaseGettingException)
+            else -> resources.getString(R.string.unknownException)
         }
 
         showSnackBar(
@@ -328,10 +328,10 @@ class MockPlayerActivity : AppCompatActivity() {
         )
         if (mustShowDeveloperOption) {
             showSnackBar(
-                message = getString(R.string.allowApplicationToMock),
+                message = resources.getString(R.string.allowApplicationToMock),
                 rootView = findViewById(R.id.mockPlayerRootView),
                 duration = Snackbar.LENGTH_LONG,
-                actionText = getString(R.string.openIt),
+                actionText = resources.getString(R.string.openIt),
             ) {
                 startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
             }
@@ -360,7 +360,7 @@ class MockPlayerActivity : AppCompatActivity() {
         }
         binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
         showSnackBar(
-            message = getString(R.string.mockPlayerServiceStoppedCompletely),
+            message = resources.getString(R.string.mockPlayerServiceStoppedCompletely),
             rootView = findViewById(R.id.mockPlayerRootView),
             duration = Snackbar.LENGTH_LONG
         )
@@ -409,9 +409,9 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private fun showEndDialog() {
         val dialog = NMockDialog.newInstance(
-            title = getString(R.string.playerDialogTitle),
-            actionButtonText = getString(R.string.stopMockService),
-            secondaryButtonText = getString(R.string.justLeave)
+            title = resources.getString(R.string.playerDialogTitle),
+            actionButtonText = resources.getString(R.string.stopMockService),
+            secondaryButtonText = resources.getString(R.string.justLeave)
         )
         dialog.isCancelable = true
         dialog.setDialogListener(
