@@ -3,13 +3,12 @@ package me.abolfazl.nmock.repository.mock
 import kotlinx.coroutines.flow.Flow
 import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.response.Response
-import me.abolfazl.nmock.utils.response.exceptions.NMockException
 
 interface MockRepository {
 
     fun saveMock(
         mockDataClass: MockDataClass
-    ): Flow<Response<Long, NMockException>>
+    ): Flow<Response<Long, Int>>
 
     suspend fun deleteMock(
         mockDataClass: MockDataClass
@@ -17,9 +16,9 @@ interface MockRepository {
 
     suspend fun deleteAllMocks()
 
-    suspend fun getMocks(): Flow<Response<List<MockDataClass>, NMockException>>
+    suspend fun getMocks(): List<MockDataClass>
 
     suspend fun getMock(
         mockId: Long
-    ): Flow<Response<MockDataClass, NMockException>>
+    ): Flow<Response<MockDataClass, Int>>
 }

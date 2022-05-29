@@ -12,9 +12,6 @@ import me.abolfazl.nmock.utils.locationFormat
 import me.abolfazl.nmock.utils.response.Failure
 import me.abolfazl.nmock.utils.response.Response
 import me.abolfazl.nmock.utils.response.Success
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.NMockException
 import org.neshan.common.model.LatLng
 import java.util.*
 import javax.inject.Inject
@@ -24,9 +21,14 @@ class MockRepositoryImpl @Inject constructor(
     private val positionDao: PositionDao,
 ) : MockRepository {
 
+    companion object {
+        const val DATABASE_INSERTION_EXCEPTION = 210
+        const val DATABASE_EMPTY_LINE_EXCEPTION = 211
+    }
+
     override fun saveMock(
         mockDataClass: MockDataClass
-    ): Flow<Response<Long, NMockException>> = flow {
+    ): Flow<Response<Long, Int>> = flow {
         // when we want to update a mock:
         mockDataClass.id?.let {
             mockDao.updateMockInformation(
@@ -44,7 +46,7 @@ class MockRepositoryImpl @Inject constructor(
             toMockEntity(mockDataClass)
         )
         if (mockId == -1L) {
-            emit(Failure(NMockException(type = EXCEPTION_INSERTION_ERROR)))
+            emit(Failure(DATABASE_INSERTION_EXCEPTION))
             return@flow
         }
         mockDataClass.lineVector?.forEach { listOfLatLng ->
@@ -63,18 +65,17 @@ class MockRepositoryImpl @Inject constructor(
         emit(Success(mockId))
     }
 
-    override suspend fun getMocks(): Flow<Response<List<MockDataClass>, NMockException>> = flow {
-        val mockList = mockDao.getAllMocks()
-        emit(Success(fromMockEntityList(mockList)))
+    override suspend fun getMocks(): List<MockDataClass> {
+        return fromMockEntityList(mockDao.getAllMocks())
     }
 
     override suspend fun getMock(
         mockId: Long
-    ): Flow<Response<MockDataClass, NMockException>> = flow {
+    ): Flow<Response<MockDataClass, Int>> = flow {
         val mockObject = mockDao.getMockFromId(mockId)
         val positionList = positionDao.getMockPositionListFromId(mockId)
         if (positionList.isEmpty()) {
-            emit(Failure(NMockException(type = EXCEPTION_DATABASE_GETTING_ERROR)))
+            emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
             return@flow
         }
         emit(Success(fromMockEntity(mockObject, createLineVector(positionList))))
@@ -99,8 +100,8 @@ class MockRepositoryImpl @Inject constructor(
             mockType = mockDataClass.mockType,
             mockName = mockDataClass.mockName,
             description = mockDataClass.mockDescription,
-            originLocation = fromLatLng(mockDataClass.originLocation),
-            destinationLocation = fromLatLng(mockDataClass.destinationLocation),
+            originLocation = mockDataClass.originLocation.locationFormat(),
+            destinationLocation = mockDataClass.destinationLocation.locationFormat(),
             originAddress = mockDataClass.originAddress,
             destinationAddress = mockDataClass.destinationAddress,
             accuracy = mockDataClass.accuracy,
@@ -155,12 +156,6 @@ class MockRepositoryImpl @Inject constructor(
             result.add(fromMockEntity(mockEntity))
         }
         return result
-    }
-
-    private fun fromLatLng(
-        latLng: LatLng
-    ): String {
-        return "${latLng.latitude},${latLng.longitude}"
     }
 
     private fun getTime(): String {
