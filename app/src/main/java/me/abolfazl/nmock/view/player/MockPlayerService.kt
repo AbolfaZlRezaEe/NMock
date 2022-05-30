@@ -30,6 +30,15 @@ class MockPlayerService : Service(), LocationListener {
     companion object {
         var SERVICE_IS_RUNNING = false
         const val KILL_SERVICE = "KILL_SERVICE!"
+
+        // actions
+        const val ACTION_MOCK_IS_DONE = "MOCK_IS_DONE"
+        const val ACTION_SPEED_PROBLEM = "SPEED_PROBLEM"
+        const val ACTION_COORDINATES_PROBLEM = "COORDINATES_PROBLEM"
+
+        // exception types
+        const val EXCEPTION_SPEED_PROBLEM = "SPEED_EXCEPTION"
+        const val UNKNOWN_EXCEPTION = "UNKNOWN_EXCEPTION"
     }
 
     private val nMockBinder = MockPlayerBinder()
@@ -38,7 +47,7 @@ class MockPlayerService : Service(), LocationListener {
 
     private var locationManager: LocationManager? = null
     private var mockStillRunning = false
-    private var locationListener: ((Location?, OneTimeEmitter<String>?) -> Unit)? = null
+    private var locationListener: ((Location?, OneTimeEmitter?) -> Unit)? = null
 
     private var speed = 0
     private var index = 0.0
@@ -189,8 +198,8 @@ class MockPlayerService : Service(), LocationListener {
             if (speed == 0) {
                 locationListener?.invoke(
                     null, OneTimeEmitter(
-                        exception = EXCEPTION_SPEED_ERROR,
-                        message = null
+                        actionId = ACTION_SPEED_PROBLEM,
+                        message = messageMapper(EXCEPTION_SPEED_PROBLEM)
                     )
                 )
                 mockStillRunning = false
@@ -204,14 +213,23 @@ class MockPlayerService : Service(), LocationListener {
                     secondCoordinate = line.extractPoint(index + ratio)
                     index += ratio
                 } else {
-                    locationListener?.invoke(null, OneTimeEmitter(message = "Trip was finished!"))
+                    locationListener?.invoke(
+                        null,
+                        OneTimeEmitter(
+                            actionId = ACTION_MOCK_IS_DONE,
+                            message = messageMapper(ACTION_MOCK_IS_DONE)
+                        )
+                    )
                     resetResources()
                     return
                 }
                 if (firstCoordinate == null || secondCoordinate == null) {
                     locationListener?.invoke(
                         null,
-                        OneTimeEmitter(exception = EXCEPTION_COORDINATORS_ERROR, message = null)
+                        OneTimeEmitter(
+                            actionId = ACTION_COORDINATES_PROBLEM,
+                            message = messageMapper(UNKNOWN_EXCEPTION)
+                        )
                     )
                     mockStillRunning = false
                     return
@@ -230,7 +248,7 @@ class MockPlayerService : Service(), LocationListener {
                 location.time = System.currentTimeMillis()
                 location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
                 locationManager?.setTestProviderLocation(Constant.TYPE_GPS, location)
-                locationListener?.invoke(location, OneTimeEmitter(null, null))
+                locationListener?.invoke(location, null)
                 Handler(Looper.getMainLooper()).postDelayed({
                     startCreatingMockLocations()
                 }, delay.toLong())
@@ -251,7 +269,7 @@ class MockPlayerService : Service(), LocationListener {
     }
 
     fun setLocationChangedListener(
-        callback: (Location?, OneTimeEmitter<String>?) -> Unit
+        callback: (Location?, OneTimeEmitter?) -> Unit
     ) {
         this.locationListener = callback
     }
@@ -296,6 +314,13 @@ class MockPlayerService : Service(), LocationListener {
         super.onDestroy()
         SERVICE_IS_RUNNING = false
         removeMockProvider()
+    }
+
+    private fun messageMapper(messageType: String): Int {
+        return when (messageType) {
+            ACTION_MOCK_IS_DONE -> MockPlayerActivity.MOCK_IS_DONE_MESSAGE
+            else -> MockPlayerActivity.UNKNOWN_ERROR_MESSAGE
+        }
     }
 
     override fun onLocationChanged(p0: Location) {}

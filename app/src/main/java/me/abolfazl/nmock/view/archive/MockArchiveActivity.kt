@@ -145,7 +145,7 @@ class MockArchiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun processAction(response: OneTimeEmitter<String>) {
+    private fun processAction(response: OneTimeEmitter) {
         binding.loadingState.visibility = View.GONE
         showSnackBar(
             message = resources.getString(response.message),

@@ -26,7 +26,7 @@ class MockArchiveViewModel @Inject constructor(
     private val _mockArchiveState = MutableStateFlow(MockArchiveState())
     val mockArchiveState = _mockArchiveState.asStateFlow()
 
-    private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter<String>>()
+    private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter>()
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->

@@ -48,7 +48,7 @@ class MockEditorViewModel @Inject constructor(
     val mockEditorState = _mockEditorState.asStateFlow()
 
     // for errors..
-    private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter<String>>()
+    private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter>()
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->

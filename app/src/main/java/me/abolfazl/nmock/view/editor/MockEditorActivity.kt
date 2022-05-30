@@ -322,7 +322,7 @@ class MockEditorActivity : AppCompatActivity() {
         )
     }
 
-    private fun processAction(response: OneTimeEmitter<String>) {
+    private fun processAction(response: OneTimeEmitter) {
         showLoadingProgressbar(false)
 
         when (response.actionId) {
@@ -390,6 +390,13 @@ class MockEditorActivity : AppCompatActivity() {
                     duration = Snackbar.LENGTH_LONG
                 )
                 Handler(Looper.getMainLooper()).postDelayed({ this.finish() }, 3000)
+            }
+            else -> {
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = findViewById(R.id.mockEditorRootView),
+                    duration = Snackbar.LENGTH_LONG
+                )
             }
         }
     }
