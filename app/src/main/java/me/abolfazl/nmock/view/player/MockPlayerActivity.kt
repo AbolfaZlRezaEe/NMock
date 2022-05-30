@@ -22,8 +22,6 @@ import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.*
 import me.abolfazl.nmock.utils.managers.*
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.view.detail.MockDetailBottomSheetDialogFragment
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.home.HomeActivity
@@ -31,7 +29,6 @@ import me.abolfazl.nmock.view.speedDialog.MockSpeedBottomSheetDialogFragment
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint

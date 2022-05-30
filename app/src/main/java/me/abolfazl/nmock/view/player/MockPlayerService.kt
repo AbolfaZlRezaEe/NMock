@@ -19,8 +19,6 @@ import com.vividsolutions.jts.linearref.LengthIndexedLine
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_COORDINATORS_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_SPEED_ERROR
 import org.neshan.common.model.LatLng
 import timber.log.Timber
 import kotlin.math.*
