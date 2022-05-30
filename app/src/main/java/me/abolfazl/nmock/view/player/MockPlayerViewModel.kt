@@ -54,10 +54,11 @@ class MockPlayerViewModel @Inject constructor(
         _mockPlayerState.value = _mockPlayerState.value.copy(
             mockInformation = mock
         )
-        mockRepository.saveMock(_mockPlayerState.value.mockInformation!!).collect { response ->
-            response.ifNotSuccessful { exception ->
-                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
+        mockRepository.saveMockInformation(_mockPlayerState.value.mockInformation!!)
+            .collect { response ->
+                response.ifNotSuccessful { exception ->
+                    _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
+                }
             }
-        }
     }
 }

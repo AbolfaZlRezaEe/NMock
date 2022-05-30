@@ -3,6 +3,8 @@ package me.abolfazl.nmock.repository.mock
 import android.os.SystemClock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import me.abolfazl.nmock.model.database.MockProvider
+import me.abolfazl.nmock.model.database.MockType
 import me.abolfazl.nmock.model.database.dao.MockDao
 import me.abolfazl.nmock.model.database.dao.PositionDao
 import me.abolfazl.nmock.model.database.models.MockEntity
@@ -24,32 +26,82 @@ class MockRepositoryImpl @Inject constructor(
     companion object {
         const val DATABASE_INSERTION_EXCEPTION = 210
         const val DATABASE_EMPTY_LINE_EXCEPTION = 211
+        const val LINE_VECTOR_NULL_EXCEPTION = 212
     }
 
-    override fun saveMock(
-        mockDataClass: MockDataClass
+    override fun saveMockInformation(
+        name: String,
+        description: String,
+        originLocation: LatLng,
+        destinationLocation: LatLng,
+        originAddress: String?,
+        destinationAddress: String?,
+        @MockType type: String,
+        speed: Int,
+        lineVector: ArrayList<List<LatLng>>?,
+        bearing: Float,
+        accuracy: Float,
+        @MockProvider provider: String,
     ): Flow<Response<Long, Int>> = flow {
-        // when we want to update a mock:
-        mockDataClass.id?.let {
+        // check the lineVector doesn't null!
+        if (lineVector == null) {
+            emit(Failure(LINE_VECTOR_NULL_EXCEPTION))
+            return@flow
+        }
+        // todo: pass (Unknown) string in view...
+        // because we wanna use string resource in whole application
+        val mockId = mockDao.insertMockInformation(
+            MockEntity(
+                id = null,
+                type = type,
+                name = name,
+                description = description,
+                originLocation = originLocation.locationFormat(),
+                destinationLocation = destinationLocation.locationFormat(),
+                originAddress = originAddress ?: "Unknown",
+                destinationAddress = destinationAddress ?: "Unknown",
+                accuracy = accuracy,
+                bearing = bearing,
+                speed = speed,
+                createdAt = getTime(),
+                updatedAt = getTime(),
+                provider = provider,
+            )
+        )
+        if (mockId == -1L) {
+            emit(Failure(DATABASE_INSERTION_EXCEPTION))
+            return@flow
+        }
+        saveRoutingInformation(mockId, lineVector)
+        emit(Success(mockId))
+    }
+
+    override fun updateMockInformation(mockDataClass: MockDataClass): Flow<Response<Long, Int>> =
+        flow {
+            // check the lineVector doesn't null!
+            if (mockDataClass.lineVector == null) {
+                emit(Failure(LINE_VECTOR_NULL_EXCEPTION))
+                return@flow
+            }
+            if (mockDataClass.id == null) {
+                emit(Failure(DATABASE_INSERTION_EXCEPTION))
+                return@flow
+            }
             mockDao.updateMockInformation(
                 toMockEntity(
                     mockDataClass = mockDataClass,
                     updatedAt = getTime()
                 )
             )
+            saveRoutingInformation(mockDataClass.id, mockDataClass.lineVector)
             emit(Success(mockDataClass.id))
-            return@flow
         }
 
-        // when we want to insert a mock:
-        val mockId = mockDao.insertMockInformation(
-            toMockEntity(mockDataClass)
-        )
-        if (mockId == -1L) {
-            emit(Failure(DATABASE_INSERTION_EXCEPTION))
-            return@flow
-        }
-        mockDataClass.lineVector?.forEach { listOfLatLng ->
+    private suspend fun saveRoutingInformation(
+        mockId: Long,
+        lineVector: ArrayList<List<LatLng>>
+    ) {
+        lineVector.forEach { listOfLatLng ->
             listOfLatLng.forEach { latLng ->
                 positionDao.insertMockPosition(
                     PositionEntity(
@@ -62,7 +114,6 @@ class MockRepositoryImpl @Inject constructor(
                 )
             }
         }
-        emit(Success(mockId))
     }
 
     override suspend fun getMocks(): List<MockDataClass> {
@@ -97,8 +148,8 @@ class MockRepositoryImpl @Inject constructor(
     ): MockEntity {
         return MockEntity(
             id = mockDataClass.id,
-            mockType = mockDataClass.mockType,
-            mockName = mockDataClass.mockName,
+            type = mockDataClass.mockType,
+            name = mockDataClass.mockName,
             description = mockDataClass.mockDescription,
             originLocation = mockDataClass.originLocation.locationFormat(),
             destinationLocation = mockDataClass.destinationLocation.locationFormat(),
@@ -119,9 +170,9 @@ class MockRepositoryImpl @Inject constructor(
     ): MockDataClass {
         return MockDataClass(
             id = mockEntity.id!!,
-            mockName = mockEntity.mockName,
+            mockName = mockEntity.name,
             mockDescription = mockEntity.description,
-            mockType = mockEntity.mockType,
+            mockType = mockEntity.type,
             originLocation = mockEntity.originLocation.locationFormat(),
             destinationLocation = mockEntity.destinationLocation.locationFormat(),
             originAddress = mockEntity.originAddress,

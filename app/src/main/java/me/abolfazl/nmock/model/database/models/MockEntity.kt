@@ -14,9 +14,9 @@ data class MockEntity(
     val id: Long? = null,
     @ColumnInfo(name = "mock_type")
     @MockType
-    val mockType: String = Constant.TYPE_CUSTOM_CREATE,
+    val type: String = Constant.TYPE_CUSTOM_CREATE,
     @ColumnInfo(name = "mock_name")
-    val mockName: String,
+    val name: String,
     @ColumnInfo(name = "description")
     val description: String,
     @ColumnInfo(name = "origin_location")

@@ -3,6 +3,7 @@ package me.abolfazl.nmock.view.editor
 import me.abolfazl.nmock.repository.models.MockDataClass
 import org.neshan.common.model.LatLng
 
+// todo: we should check this model and optimize that...
 data class MockEditorState(
     val originAddress: String? = null,
     val destinationAddress: String? = null,
