@@ -22,8 +22,6 @@ import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.*
 import me.abolfazl.nmock.utils.managers.*
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
 import me.abolfazl.nmock.view.detail.MockDetailBottomSheetDialogFragment
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.home.HomeActivity
@@ -31,7 +29,6 @@ import me.abolfazl.nmock.view.speedDialog.MockSpeedBottomSheetDialogFragment
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -54,6 +51,11 @@ class MockPlayerActivity : AppCompatActivity() {
     companion object {
         const val KEY_MOCK_ID_PLAYER = "MOCK_PLAYER_ID"
         const val RESET_COMMAND = "RESET_SERVICE!"
+
+        // error messages
+        const val MOCK_INFORMATION_IS_WRONG_MESSAGE = R.string.mockProblemException
+        const val UNKNOWN_ERROR_MESSAGE = R.string.unknownException
+        const val MOCK_IS_DONE_MESSAGE = R.string.tripCompleted
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,7 +97,7 @@ class MockPlayerActivity : AppCompatActivity() {
             if (mockId == -1L) {
                 showSnackBar(
                     message = resources.getString(R.string.mockInformationProblem),
-                    rootView = findViewById(R.id.mockPlayerRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_LONG
                 )
                 Handler(Looper.getMainLooper()).postDelayed({
@@ -132,45 +134,32 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private fun onLocationChanged(
         mockLocation: Location?,
-        oneTimeEmitter: OneTimeEmitter<String>?
+        oneTimeEmitter: OneTimeEmitter?
     ) {
-        mockLocation?.let { location ->
-            var currentLocationMarker = MarkerManager.getMarkerFromLayer(
-                layer = markerLayer,
-                id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+        mockLocation?.let { processLocation(it) }
+
+        oneTimeEmitter?.let { processAction(it) }
+    }
+
+    private fun processLocation(location: Location) {
+        var currentLocationMarker = MarkerManager.getMarkerFromLayer(
+            layer = markerLayer,
+            id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+        )
+        val latLng = LatLng(location.latitude, location.longitude)
+        if (currentLocationMarker == null) {
+            currentLocationMarker = MarkerManager.createMarker(
+                location = latLng,
+                drawableRes = R.drawable.current_mock_location,
+                context = this@MockPlayerActivity,
+                elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
             )
-            val latLng = LatLng(location.latitude, location.longitude)
-            if (currentLocationMarker == null) {
-                currentLocationMarker = MarkerManager.createMarker(
-                    location = latLng,
-                    drawableRes = R.drawable.current_mock_location,
-                    context = this@MockPlayerActivity,
-                    elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
-                )
-                currentLocationMarker?.let {
-                    markerLayer.add(it)
-                    binding.mapview.addMarker(currentLocationMarker)
-                }
-            } else {
-                currentLocationMarker.latLng = latLng
+            currentLocationMarker?.let {
+                markerLayer.add(it)
+                binding.mapview.addMarker(currentLocationMarker)
             }
-        }
-        oneTimeEmitter?.let { exception ->
-            exception.exception?.let {
-                showSnackBar(
-                    message = resources.getString(R.string.unknownException),
-                    rootView = findViewById(R.id.mockPlayerRootView),
-                    duration = Snackbar.LENGTH_SHORT
-                )
-                Timber.e(exception.exception)
-            }
-            exception.message?.let {
-                showSnackBar(
-                    message = resources.getString(R.string.tripCompleted),
-                    rootView = findViewById(R.id.mockPlayerRootView),
-                    duration = Snackbar.LENGTH_SHORT
-                )
-            }
+        } else {
+            currentLocationMarker.latLng = latLng
         }
     }
 
@@ -200,11 +189,11 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private fun processMockInformation(mockInformation: MockDataClass) {
         showProgressbar(false)
-        binding.titleTextView.text = mockInformation.mockName
+        binding.titleTextView.text = mockInformation.name
         binding.originTextView.text =
-            mockInformation.originAddress.changeStringTo("From:")
+            mockInformation.originAddress.changeStringTo(resources.getString(R.string.from))
         binding.destinationTextView.text =
-            mockInformation.destinationAddress.changeStringTo("To:")
+            mockInformation.destinationAddress.changeStringTo(resources.getString(R.string.to))
         LineManager.drawLineOnMap(
             mapView = binding.mapview,
             polylineLayer = polylineLayer,
@@ -249,18 +238,58 @@ class MockPlayerActivity : AppCompatActivity() {
         )
     }
 
-    private fun processAction(response: OneTimeEmitter<String>) {
-        val message = when (response.exception) {
-            EXCEPTION_INSERTION_ERROR -> resources.getString(R.string.databaseInsertionException)
-            EXCEPTION_DATABASE_GETTING_ERROR -> resources.getString(R.string.databaseGettingException)
-            else -> resources.getString(R.string.unknownException)
+    private fun processAction(response: OneTimeEmitter) {
+        when (response.actionId) {
+            MockPlayerViewModel.ACTION_GET_MOCK_INFORMATION -> {
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_LONG
+                )
+                Handler(Looper.getMainLooper()).postDelayed({ this.finish() }, 3000)
+            }
+            MockPlayerViewModel.ACTION_UPDATE_MOCK_INFORMATION -> {
+                showSnackBar(
+                    message = resources.getString(R.string.updateSpeedWasFailed),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_LONG
+                )
+            }
+            MockPlayerService.ACTION_MOCK_IS_DONE -> {
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = binding.root,
+                    Snackbar.LENGTH_SHORT
+                )
+                binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
+                val currentLocationMarker = MarkerManager.getMarkerFromLayer(
+                    layer = markerLayer,
+                    id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+                )
+                currentLocationMarker?.let {
+                    markerLayer.remove(it)
+                    binding.mapview.removeMarker(it)
+                }
+            }
+            MockPlayerService.ACTION_DEVELOPER_OPTION_PROBLEM -> {
+                showSnackBar(
+                    message = resources.getString(R.string.allowApplicationToMock),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_LONG,
+                    actionText = resources.getString(R.string.openIt),
+                ) {
+                    startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+                }
+                binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
+            }
+            else -> {
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = binding.root,
+                    Snackbar.LENGTH_SHORT
+                )
+            }
         }
-
-        showSnackBar(
-            message = message,
-            rootView = findViewById(R.id.mockPlayerRootView),
-            Snackbar.LENGTH_SHORT
-        )
     }
 
     private fun initListeners() {
@@ -289,10 +318,10 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private fun onDetailClicked() {
         val detailDialog = MockDetailBottomSheetDialogFragment.newInstance(
-            title = viewModel.mockPlayerState.value.mockInformation?.mockName!!,
-            description = viewModel.mockPlayerState.value.mockInformation?.mockDescription!!,
+            title = viewModel.mockPlayerState.value.mockInformation?.name!!,
+            description = viewModel.mockPlayerState.value.mockInformation?.description!!,
             provider = viewModel.mockPlayerState.value.mockInformation?.provider!!,
-            type = viewModel.mockPlayerState.value.mockInformation?.mockType!!,
+            type = viewModel.mockPlayerState.value.mockInformation?.type!!,
             createdAt = viewModel.mockPlayerState.value.mockInformation?.createdAt!!,
             updatedAt = viewModel.mockPlayerState.value.mockInformation?.updatedAt!!
         )
@@ -301,7 +330,6 @@ class MockPlayerActivity : AppCompatActivity() {
     }
 
     private fun onPlayPauseClicked() {
-        if (handleDeveloperSettingSection()) return
         if (mockPlayerService?.mockIsRunning()!!) {
             mockPlayerService?.pauseOrPlayMock()
             binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
@@ -320,33 +348,8 @@ class MockPlayerActivity : AppCompatActivity() {
         mockPlayerService?.initializeMockProvider()
     }
 
-    private fun handleDeveloperSettingSection(): Boolean {
-        val mustShowDeveloperOption = SharedManager.getBoolean(
-            sharedPreferences = sharedPreferences,
-            key = SHARED_MOCK_SETTING,
-            defaultValue = true
-        )
-        if (mustShowDeveloperOption) {
-            showSnackBar(
-                message = resources.getString(R.string.allowApplicationToMock),
-                rootView = findViewById(R.id.mockPlayerRootView),
-                duration = Snackbar.LENGTH_LONG,
-                actionText = resources.getString(R.string.openIt),
-            ) {
-                startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-            }
-            SharedManager.putBoolean(
-                sharedPreferences = sharedPreferences,
-                key = SHARED_MOCK_SETTING,
-                value = false
-            )
-            return true
-        }
-        return false
-    }
-
     private fun onStopClicked() {
-        if (!mockPlayerService?.mockIsRunning()!!) return
+        if (!MockPlayerService.SERVICE_IS_RUNNING) return
         mockPlayerService?.pauseOrPlayMock()
         mockPlayerService?.removeMockProvider()
         mockPlayerService?.resetResources()
@@ -361,7 +364,7 @@ class MockPlayerActivity : AppCompatActivity() {
         binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
         showSnackBar(
             message = resources.getString(R.string.mockPlayerServiceStoppedCompletely),
-            rootView = findViewById(R.id.mockPlayerRootView),
+            rootView = binding.root,
             duration = Snackbar.LENGTH_LONG
         )
     }

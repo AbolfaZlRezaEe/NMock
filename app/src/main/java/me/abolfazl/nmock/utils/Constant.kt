@@ -4,7 +4,8 @@ object Constant {
     const val BASE_URL = "https://api.neshan.org/"
 
     // Sentry
-    const val SENTRY_DSN = "https://0221c991ee9f4fdc9a92def0bf4ee29e@o1040806.ingest.sentry.io/6421362"
+    const val SENTRY_DSN =
+        "https://0221c991ee9f4fdc9a92def0bf4ee29e@o1040806.ingest.sentry.io/6421362"
     const val ENVIRONMENT_DEBUG = "Debug-Mode"
     const val ENVIRONMENT_RELEASE = "Release-Mode"
 
@@ -21,9 +22,6 @@ object Constant {
 
     const val DATABASE_NAME = "nmock_db"
 
-    const val CREATED_AT = "Created at:"
-    const val UPDATED_AT = "Updated at:"
-
     const val HEADER_API_KEY = "Api-Key"
     const val HEADER_VALUE_API_KEY = "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
 
@@ -35,7 +33,7 @@ object Constant {
     const val DEFAULT_SPEED = 30
 
     // Notification
-    const val NOTIFICATION_CHANNEL_NAME = "Mock_Provider"
+    const val NOTIFICATION_CHANNEL_NAME = "NMock Notification"
     const val NOTIFICATION_CHANNEL_ID = "NMOCK_NOTIFICATION_ID"
     const val NOTIFICATION_CHANNEL_DESCRIPTION =
         "This Notification used for Broadcasting Mock around the Android System!"

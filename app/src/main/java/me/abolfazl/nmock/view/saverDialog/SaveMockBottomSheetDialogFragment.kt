@@ -86,7 +86,8 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun onSaveButtonClick() {
         if (binding.mockNameTextInputEditText.text.isNullOrEmpty()) {
-            binding.mockNameTextInputLayout.error = resources.getString(R.string.youMustHaveANameForIt)
+            binding.mockNameTextInputLayout.error =
+                resources.getString(R.string.youMustHaveANameForIt)
             return
         }
         if (binding.speedTextInputEditText.text.isNullOrEmpty()) {

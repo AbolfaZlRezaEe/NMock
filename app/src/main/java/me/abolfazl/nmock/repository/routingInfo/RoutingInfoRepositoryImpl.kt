@@ -1,5 +1,6 @@
 package me.abolfazl.nmock.repository.routingInfo
 
+import io.sentry.Sentry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.model.apiService.RoutingApiService
@@ -14,19 +15,20 @@ import me.abolfazl.nmock.repository.models.routingInfo.StepDataclass
 import me.abolfazl.nmock.utils.response.Failure
 import me.abolfazl.nmock.utils.response.Response
 import me.abolfazl.nmock.utils.response.Success
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_UNKNOWN
-import me.abolfazl.nmock.utils.response.exceptions.ExceptionMapper
-import me.abolfazl.nmock.utils.response.exceptions.NMockException
 import javax.inject.Inject
 
 class RoutingInfoRepositoryImpl @Inject constructor(
     private val apiService: RoutingApiService
 ) : RoutingInfoRepository {
 
+    companion object {
+        const val UNKNOWN_EXCEPTION = 310
+    }
+
     override suspend fun getRoutingInformation(
         origin: String,
         destination: String
-    ): Flow<Response<RoutingInfoDataclass, NMockException>> = flow {
+    ): Flow<Response<RoutingInfoDataclass, Int>> = flow {
         val response = apiService.getRoutingInformation(
             origin = origin,
             destination = destination
@@ -36,9 +38,9 @@ class RoutingInfoRepositoryImpl @Inject constructor(
                 emit(Success(toRoutingInfoDataclass(it)))
                 return@flow
             }
-            emit(Failure(NMockException(type = EXCEPTION_UNKNOWN)))
+            emit(Failure(UNKNOWN_EXCEPTION))
         } else {
-            emit(Failure(NMockException(type = ExceptionMapper.map(response.code()))))
+            Sentry.captureMessage("getRoutingInformation failed! response code was-> ${response.code()}")
         }
     }
 

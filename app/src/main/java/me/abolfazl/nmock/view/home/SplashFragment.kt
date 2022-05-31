@@ -22,14 +22,14 @@ class SplashFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSplashBinding.inflate(inflater, container, false)
-        return binding.root;
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-            Handler(Looper.getMainLooper())
-                .postDelayed({
-                    findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
-                }, 3000)
+        Handler(Looper.getMainLooper())
+            .postDelayed({
+                findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
+            }, 3000)
     }
 }

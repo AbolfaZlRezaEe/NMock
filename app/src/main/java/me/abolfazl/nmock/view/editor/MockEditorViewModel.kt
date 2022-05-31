@@ -3,6 +3,7 @@ package me.abolfazl.nmock.view.editor
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -12,18 +13,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepository
+import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepositoryImpl
 import me.abolfazl.nmock.repository.mock.MockRepository
-import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepository
+import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepositoryImpl
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.locationFormat
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_UNKNOWN
+import me.abolfazl.nmock.utils.response.SingleEvent
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
 import me.abolfazl.nmock.utils.response.ifSuccessful
 import org.neshan.common.model.LatLng
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,18 +34,32 @@ class MockEditorViewModel @Inject constructor(
     private val mockRepository: MockRepository,
 ) : ViewModel() {
 
+    companion object {
+        const val ACTION_UNKNOWN = "UNKNOWN_EXCEPTION"
+        const val ACTION_LOCATION_INFORMATION = "ACTION_LOCATION_INFORMATION"
+        const val ACTION_ROUTE_INFORMATION = "ROUTE_INFORMATION_REQUEST"
+        const val ACTION_SAVE_MOCK_INFORMATION = "SAVE_MOCK_INFORMATION"
+        const val ACTION_GET_MOCK_INFORMATION = "GET_MOCK_INFORMATION"
+        const val ACTION_MOCK_SAVED = "MOCK_SAVED!"
+    }
+
     // for handling states
     private val _mockEditorState = MutableStateFlow(MockEditorState())
     val mockEditorState = _mockEditorState.asStateFlow()
 
     // for errors..
-    private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter<String>>()
+    private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter>()
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Timber.e("Exception thrown in MockEditorViewModel: " + throwable.message)
+        Sentry.captureMessage("Exception thrown in MockEditorViewModel: " + throwable.message)
         viewModelScope.launch {
-            _oneTimeEmitter.emit(OneTimeEmitter(exception = EXCEPTION_UNKNOWN))
+            _oneTimeEmitter.emit(
+                OneTimeEmitter(
+                    actionId = ACTION_UNKNOWN,
+                    message = actionMapper(0)
+                )
+            )
         }
     }
 
@@ -59,81 +74,143 @@ class MockEditorViewModel @Inject constructor(
             response.ifSuccessful { result ->
                 if (isOrigin) {
                     _mockEditorState.value = _mockEditorState.value.copy(
-                        originAddress = result.fullAddress
+                        originAddress = SingleEvent(result.fullAddress),
+                        originLocation = SingleEvent(location)
                     )
                 } else {
                     _mockEditorState.value = _mockEditorState.value.copy(
-                        destinationAddress = result.fullAddress
+                        destinationAddress = SingleEvent(result.fullAddress),
+                        destinationLocation = SingleEvent(location)
                     )
                 }
             }
-            response.ifNotSuccessful { exception ->
-                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
-                Timber.e(exception.type)
+            response.ifNotSuccessful { exceptionType ->
+                _oneTimeEmitter.emit(
+                    OneTimeEmitter(
+                        actionId = ACTION_LOCATION_INFORMATION,
+                        message = actionMapper(exceptionType)
+                    )
+                )
             }
         }
     }
 
-    fun getRouteInformation(
-        originLocation: LatLng,
-        destinationLocation: LatLng
-    ) = viewModelScope.launch(exceptionHandler) {
+    fun getRouteInformation() = viewModelScope.launch(exceptionHandler) {
+        val originLocation = _mockEditorState.value.originLocation?.getRawValue()
+        val destinationLocation = _mockEditorState.value.destinationLocation?.getRawValue()
+        if (originLocation == null || destinationLocation == null) {
+            _oneTimeEmitter.emit(
+                OneTimeEmitter(
+                    actionId = ACTION_ROUTE_INFORMATION,
+                    message = actionMapper(RoutingInfoRepositoryImpl.UNKNOWN_EXCEPTION)
+                )
+            )
+            return@launch
+        }
         routingInfoRepository.getRoutingInformation(
             origin = originLocation.locationFormat(),
             destination = destinationLocation.locationFormat()
         ).collect { response ->
             response.ifSuccessful { result ->
                 _mockEditorState.value = _mockEditorState.value.copy(
-                    lineVector = result.routeModels[0].getRouteLineVector()
+                    lineVector = SingleEvent(result.routeModels[0].getRouteLineVector())
                 )
             }
-            response.ifNotSuccessful { exception ->
-                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
-                Timber.e(exception.type)
+            response.ifNotSuccessful { exceptionType ->
+                _oneTimeEmitter.emit(
+                    OneTimeEmitter(
+                        actionId = ACTION_ROUTE_INFORMATION,
+                        message = actionMapper(exceptionType)
+                    )
+                )
             }
         }
     }
 
     fun saveMockInformation(
-        mockName: String,
-        mockDescription: String,
-        originLocation: LatLng,
-        destinationLocation: LatLng,
+        name: String,
+        description: String,
         speed: Int
     ) = viewModelScope.launch(exceptionHandler) {
-        val lineVector = mockEditorState.value.lineVector
-        if (lineVector == null) {
-            _oneTimeEmitter.emit(OneTimeEmitter(exception = EXCEPTION_INSERTION_ERROR))
+        val originLocation = _mockEditorState.value.originLocation?.getRawValue()
+        val destinationLocation = _mockEditorState.value.destinationLocation?.getRawValue()
+        val id = _mockEditorState.value.id?.getRawValue()
+        if (originLocation == null || destinationLocation == null) {
+            _oneTimeEmitter.emit(
+                OneTimeEmitter(
+                    actionId = ACTION_ROUTE_INFORMATION,
+                    message = actionMapper(RoutingInfoRepositoryImpl.UNKNOWN_EXCEPTION)
+                )
+            )
             return@launch
         }
-        mockRepository.saveMock(
-            MockDataClass(
-                mockName = mockName,
-                mockDescription = mockDescription,
-                mockType = Constant.TYPE_CUSTOM_CREATE,
+        // For updating mock:
+        if (id != null) {
+            mockRepository.updateMockInformation(
+                id = id,
+                name = name,
+                description = description,
                 originLocation = originLocation,
                 destinationLocation = destinationLocation,
-                originAddress = _mockEditorState.value.originAddress ?: "Unknown",
-                destinationAddress = _mockEditorState.value.destinationAddress ?: "Unknown",
+                originAddress = _mockEditorState.value.originAddress?.getRawValue()!!,
+                destinationAddress = _mockEditorState.value.destinationAddress?.getRawValue()!!,
+                type = Constant.TYPE_CUSTOM_CREATE,
                 speed = speed,
-                lineVector = lineVector,
+                lineVector = _mockEditorState.value.lineVector?.getRawValue(),
+                bearing = 0f,
+                accuracy = 1f,
+                provider = Constant.PROVIDER_GPS,
+                createdAt = _mockEditorState.value.createdAt!!
+            ).collect { response ->
+                response.ifSuccessful { mockId ->
+                    _mockEditorState.value = _mockEditorState.value.copy(
+                        id = SingleEvent(mockId)
+                    )
+                    _oneTimeEmitter.emit(OneTimeEmitter(actionId = ACTION_MOCK_SAVED, message = 0))
+                }
+                response.ifNotSuccessful { exceptionType ->
+                    _oneTimeEmitter.emit(
+                        OneTimeEmitter(
+                            actionId = ACTION_SAVE_MOCK_INFORMATION,
+                            message = actionMapper(exceptionType)
+                        )
+                    )
+                }
+            }
+        } /*For inserting new mock:*/ else {
+            mockRepository.saveMockInformation(
+                name = name,
+                description = description,
+                type = Constant.TYPE_CUSTOM_CREATE,
+                originLocation = originLocation,
+                destinationLocation = destinationLocation,
+                originAddress = _mockEditorState.value.originAddress?.getRawValue(),
+                destinationAddress = _mockEditorState.value.destinationAddress?.getRawValue(),
+                speed = speed,
+                lineVector = mockEditorState.value.lineVector?.getRawValue(),
                 bearing = 0f,
                 accuracy = 1F,
                 provider = Constant.PROVIDER_GPS
-            )
-        ).collect { response ->
-            response.ifSuccessful { mockId ->
-                _mockEditorState.value = _mockEditorState.value.copy(
-                    mockId = mockId
-                )
-            }
-            response.ifNotSuccessful { exception ->
-                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
+            ).collect { response ->
+                response.ifSuccessful { mockId ->
+                    _mockEditorState.value = _mockEditorState.value.copy(
+                        id = SingleEvent(mockId)
+                    )
+                    _oneTimeEmitter.emit(OneTimeEmitter(actionId = ACTION_MOCK_SAVED, message = 0))
+                }
+                response.ifNotSuccessful { exceptionType ->
+                    _oneTimeEmitter.emit(
+                        OneTimeEmitter(
+                            actionId = ACTION_SAVE_MOCK_INFORMATION,
+                            message = actionMapper(exceptionType)
+                        )
+                    )
+                }
             }
         }
     }
 
-    fun clearTripInformation(
+    fun clearMockInformation(
         clearOrigin: Boolean
     ) {
         if (clearOrigin) {
@@ -141,7 +218,10 @@ class MockEditorViewModel @Inject constructor(
                 destinationAddress = null,
                 originAddress = null,
                 lineVector = null,
-                originLocation = null
+                originLocation = null,
+                destinationLocation = null,
+                speed = 0,
+                id = null,
             )
         } else {
             _mockEditorState.value = _mockEditorState.value.copy(
@@ -152,30 +232,42 @@ class MockEditorViewModel @Inject constructor(
         }
     }
 
-    fun getMockFromId(
-        mockId: Long
+    fun getMockInformationFromId(
+        id: Long
     ) = viewModelScope.launch(exceptionHandler) {
-        mockRepository.getMock(mockId).collect { response ->
+        mockRepository.getMock(id).collect { response ->
             response.ifSuccessful { mockData ->
                 _mockEditorState.value = _mockEditorState.value.copy(
-                    mockInformation = mockData
+                    id = SingleEvent(mockData.id!!),
+                    name = SingleEvent(mockData.name),
+                    description = SingleEvent(mockData.description),
+                    originLocation = SingleEvent(mockData.originLocation),
+                    destinationLocation = SingleEvent(mockData.destinationLocation),
+                    originAddress = SingleEvent(mockData.originAddress),
+                    destinationAddress = SingleEvent(mockData.destinationAddress),
+                    lineVector = SingleEvent(mockData.lineVector!!),
+                    speed = mockData.speed,
+                    createdAt = mockData.createdAt,
+                    updatedAt = mockData.updatedAt
                 )
             }
-            response.ifNotSuccessful { exception ->
-                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
-                Timber.e(exception.type)
+            response.ifNotSuccessful { exceptionType ->
+                _oneTimeEmitter.emit(
+                    OneTimeEmitter(
+                        actionId = ACTION_GET_MOCK_INFORMATION,
+                        message = actionMapper(exceptionType)
+                    )
+                )
             }
         }
     }
 
     fun deleteMock() = viewModelScope.launch(exceptionHandler) {
-        mockRepository.deleteMock(_mockEditorState.value.mockInformation!!)
-        _mockEditorState.value = _mockEditorState.value.copy(
-            mockInformation = null
-        )
+        mockRepository.deleteMock(_mockEditorState.value.id?.getRawValue())
+        clearMockInformation(true)
     }
 
-    fun loadMockData(
+    fun loadMockWithOriginAndDestinationLocation(
         originLocation: String,
         destinationLocation: String,
         speed: String
@@ -185,18 +277,24 @@ class MockEditorViewModel @Inject constructor(
         val realSpeed = speed.toInt()
         _mockEditorState.value = _mockEditorState.value.copy(
             speed = realSpeed,
-            originLocation = realOrigin,
-            destinationLocation = realDestination
         )
         withContext(Dispatchers.Default) { getLocationInformation(realOrigin, true) }
         withContext(Dispatchers.Default) { getLocationInformation(realDestination, false) }
-        withContext(Dispatchers.Default) { getRouteInformation(realOrigin, realDestination) }
+        withContext(Dispatchers.Default) { getRouteInformation() }
     }
 
     fun hasMockData(): Boolean {
-        if (_mockEditorState.value.lineVector == null) {
-            return _mockEditorState.value.mockInformation != null
+        return _mockEditorState.value.lineVector != null
+    }
+
+    private fun actionMapper(errorType: Int): Int {
+        return when (errorType) {
+            LocationInfoRepositoryImpl.UNKNOWN_EXCEPTION -> MockEditorActivity.LOCATION_INFORMATION_EXCEPTION_MESSAGE
+            RoutingInfoRepositoryImpl.UNKNOWN_EXCEPTION -> MockEditorActivity.ROUTE_INFORMATION_EXCEPTION_MESSAGE
+            MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
+            MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,
+            MockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockEditorActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
+            else -> MockEditorActivity.UNKNOWN_ERROR_MESSAGE
         }
-        return true
     }
 }

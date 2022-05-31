@@ -21,15 +21,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockEditorBinding
-import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.Constant
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_LIMIT_EXCEEDED
-import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.utils.changeStringTo
 import me.abolfazl.nmock.utils.managers.*
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
+import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.utils.toPixel
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.home.HomeActivity
@@ -39,13 +35,18 @@ import me.abolfazl.nmock.view.saverDialog.SaveMockBottomSheetDialogFragment
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
-import timber.log.Timber
 
 @AndroidEntryPoint
 class MockEditorActivity : AppCompatActivity() {
 
     companion object {
         const val KEY_MOCK_INFORMATION = "MOCK_INFORMATION"
+
+        // error messages
+        const val UNKNOWN_ERROR_MESSAGE = R.string.unknownException
+        const val LOCATION_INFORMATION_EXCEPTION_MESSAGE = R.string.locationInformationException
+        const val ROUTE_INFORMATION_EXCEPTION_MESSAGE = R.string.routeInformationException
+        const val MOCK_INFORMATION_IS_WRONG_MESSAGE = R.string.mockProblemException
     }
 
     private lateinit var binding: ActivityMockEditorBinding
@@ -84,7 +85,8 @@ class MockEditorActivity : AppCompatActivity() {
         // Reading intent data from Extras:
         val mockId = intent.getLongExtra(KEY_MOCK_INFORMATION, -1)
         if (mockId != -1L) {
-            viewModel.getMockFromId(mockId)
+            viewModel.getMockInformationFromId(mockId)
+            binding.deleteMockImageView.visibility = View.VISIBLE
             return
         } else if (intent.data != null) {
             // Reading intent data from URI object:
@@ -107,7 +109,7 @@ class MockEditorActivity : AppCompatActivity() {
             if (originLocation == null || destinationLocation == null) {
                 showSnackBar(
                     message = resources.getString(R.string.linkProblemTitle),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_LONG
                 )
                 Handler(Looper.getMainLooper()).postDelayed({
@@ -115,7 +117,7 @@ class MockEditorActivity : AppCompatActivity() {
                 }, 3000)
             }
             fromImplicitIntent = true
-            viewModel.loadMockData(
+            viewModel.loadMockWithOriginAndDestinationLocation(
                 originLocation = originLocation!!,
                 destinationLocation = destinationLocation!!,
                 speed = speed!!
@@ -143,25 +145,25 @@ class MockEditorActivity : AppCompatActivity() {
                 viewModel.mockEditorState.collect { state ->
                     showLoadingProgressbar(false)
 
-                    state.originAddress?.let { processOriginAddress(it) }
+                    state.originAddress?.let {
+                        it.ifNotHandled { address -> processOriginAddress(address) }
+                    }
 
-                    state.destinationAddress?.let { processDestinationAddress(it) }
+                    state.destinationAddress?.let {
+                        it.ifNotHandled { address -> processDestinationAddress(address) }
+                    }
 
-                    state.lineVector?.let { processLineVector(it) }
+                    state.lineVector?.let {
+                        it.ifNotHandled { lineVector -> processLineVector(lineVector) }
+                    }
 
-                    state.mockId?.let { processAfterMockSaved(it) }
+                    state.originLocation?.let {
+                        it.ifNotHandled { location -> processMarker(true, location) }
+                    }
 
-                    state.originLocation?.let { processMarker(true, it) }
-
-                    state.destinationLocation?.let { processMarker(false, it) }
-
-                    /*
-                        this section used for situation when we came into this fragment
-                        with mockId and we want to load all of information about that mock.
-                        we find the Mock with id and after, we show all the information
-                        that we want on Map.
-                     */
-                    state.mockInformation?.let { processMockInformation(it) }
+                    state.destinationLocation?.let {
+                        it.ifNotHandled { location -> processMarker(false, location) }
+                    }
                 }
             }
         }
@@ -171,8 +173,8 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun processOriginAddress(originAddress: String) {
-        Timber.e("process OriginAddress")
-        binding.originTextView.text = originAddress.changeStringTo("From:")
+        binding.originTextView.text =
+            originAddress.changeStringTo(resources.getString(R.string.from))
         binding.titleTextView.text =
             resources.getText(R.string.chooseDestinationLocation)
         binding.destinationTextView.visibility = View.VISIBLE
@@ -185,14 +187,15 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun processDestinationAddress(destinationAddress: String) {
-        Timber.e("process destination address")
         binding.destinationTextView.visibility = View.VISIBLE
         binding.destinationTextView.text =
-            destinationAddress.changeStringTo("To:")
+            destinationAddress.changeStringTo(resources.getString(R.string.to))
+
+        showLoadingProgressbar(true)
+        viewModel.getRouteInformation()
     }
 
     private fun processLineVector(lineVector: ArrayList<List<LatLng>>) {
-        Timber.e("process linevector")
         LineManager.drawLineOnMap(
             mapView = binding.mapview,
             polylineLayer = polylineLayer,
@@ -205,14 +208,8 @@ class MockEditorActivity : AppCompatActivity() {
                 binding.root.x + 32.toPixel(this@MockEditorActivity),
                 binding.root.y + 32.toPixel(this@MockEditorActivity)
             ),
-            origin = MarkerManager.getMarkerFromLayer(
-                markerLayer,
-                MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-            )?.latLng!!,
-            destination = MarkerManager.getMarkerFromLayer(
-                markerLayer,
-                MarkerManager.ELEMENT_ID_DESTINATION_MARKER
-            )?.latLng!!
+            origin = viewModel.mockEditorState.value.originLocation?.getRawValue()!!,
+            destination = viewModel.mockEditorState.value.destinationLocation?.getRawValue()!!
         )
         binding.saveExtendedFab.show()
         binding.saveExtendedFab.postDelayed({
@@ -220,10 +217,10 @@ class MockEditorActivity : AppCompatActivity() {
         }, 5000)
     }
 
-    private fun processAfterMockSaved(mockId: Long) {
+    private fun processAfterMockSaved() {
         mockSaverDialog?.dismiss()
         resetUiStateToDefault()
-        viewModel.clearTripInformation(true)
+        viewModel.clearMockInformation(true)
         if (MockPlayerService.SERVICE_IS_RUNNING) return
         val dialog = NMockDialog.newInstance(
             title = resources.getString(R.string.playingMockDialogTitle),
@@ -238,7 +235,10 @@ class MockEditorActivity : AppCompatActivity() {
                         this@MockEditorActivity,
                         MockPlayerActivity::class.java
                     ).also {
-                        it.putExtra(MockPlayerActivity.KEY_MOCK_ID_PLAYER, mockId)
+                        it.putExtra(
+                            MockPlayerActivity.KEY_MOCK_ID_PLAYER,
+                            viewModel.mockEditorState.value.id?.getRawValue()
+                        )
                     })
                 dialog.dismiss()
                 this@MockEditorActivity.finish()
@@ -276,65 +276,59 @@ class MockEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun processMockInformation(mockInformation: MockDataClass) {
-        binding.titleTextView.text = resources.getString(R.string.youCanEditYourTrip)
-        binding.destinationTextView.visibility = View.VISIBLE
-        binding.saveExtendedFab.visibility = View.VISIBLE
-        binding.undoExtendedFab.visibility = View.VISIBLE
-        binding.deleteMockImageView.visibility = View.VISIBLE
-        binding.originTextView.text =
-            mockInformation.originAddress.changeStringTo("From:")
-        binding.destinationTextView.text =
-            mockInformation.destinationAddress.changeStringTo("To:")
-        val originMarker = MarkerManager.createMarker(
-            location = mockInformation.originLocation,
-            drawableRes = R.drawable.ic_origin_marker,
-            elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER,
-            context = this@MockEditorActivity
-        )
-        val destinationMarker = MarkerManager.createMarker(
-            location = mockInformation.destinationLocation,
-            drawableRes = R.drawable.ic_destination_marker,
-            elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
-            context = this@MockEditorActivity
-        )
-        if (originMarker != null && destinationMarker != null) {
-            markerLayer.add(originMarker)
-            markerLayer.add(destinationMarker)
-            binding.mapview.addMarker(originMarker)
-            binding.mapview.addMarker(destinationMarker)
-        }
-        LineManager.drawLineOnMap(
-            mapView = binding.mapview,
-            polylineLayer = polylineLayer,
-            vector = mockInformation.lineVector!!
-        )
-        CameraManager.moveCameraToTripLine(
-            mapView = binding.mapview,
-            screenPos = ScreenPos(
-                binding.root.x + 32.toPixel(this@MockEditorActivity),
-                binding.root.y + 32.toPixel(this@MockEditorActivity)
-            ),
-            origin = mockInformation.originLocation,
-            destination = mockInformation.destinationLocation
-        )
-    }
-
-    private fun processAction(response: OneTimeEmitter<String>) {
+    private fun processAction(response: OneTimeEmitter) {
         showLoadingProgressbar(false)
 
-        val message = when (response.exception) {
-            EXCEPTION_LIMIT_EXCEEDED -> resources.getString(R.string.limitRequestsException)
-            EXCEPTION_INSERTION_ERROR -> resources.getString(R.string.databaseInsertionException)
-            EXCEPTION_DATABASE_GETTING_ERROR -> resources.getString(R.string.databaseGettingException)
-            else -> resources.getString(R.string.unknownException)
+        when (response.actionId) {
+            MockEditorViewModel.ACTION_MOCK_SAVED -> {
+                processAfterMockSaved()
+            }
+            MockEditorViewModel.ACTION_ROUTE_INFORMATION -> {
+                val dialog = NMockDialog.newInstance(
+                    title = resources.getString(R.string.wouldYouLikeToTryAgain),
+                    actionButtonText = resources.getString(R.string.yes),
+                    secondaryButtonText = resources.getString(R.string.no)
+                )
+                dialog.isCancelable = false
+                dialog.setDialogListener(onActionButtonClicked = {
+                    showLoadingProgressbar(true)
+                    viewModel.getRouteInformation()
+                    dialog.dismiss()
+                }, onSecondaryButtonClicked = {
+                    dialog.dismiss()
+                    resetUiStateToDefault()
+                    viewModel.clearMockInformation(true)
+                })
+                dialog.show(supportFragmentManager, null)
+            }
+            // todo: we should have a capacity to retrying this action!
+            MockEditorViewModel.ACTION_SAVE_MOCK_INFORMATION -> {
+                // for now:
+                mockSaverDialog?.dismiss()
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_SHORT
+                )
+                resetUiStateToDefault()
+                viewModel.clearMockInformation(true)
+            }
+            MockEditorViewModel.ACTION_GET_MOCK_INFORMATION -> {
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_LONG
+                )
+                Handler(Looper.getMainLooper()).postDelayed({ this.finish() }, 3000)
+            }
+            else -> {
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_LONG
+                )
+            }
         }
-
-        showSnackBar(
-            message = message,
-            rootView = findViewById(R.id.mockEditorRootView),
-            duration = Snackbar.LENGTH_SHORT
-        )
     }
 
     private fun initLiveLocation() {
@@ -376,38 +370,14 @@ class MockEditorActivity : AppCompatActivity() {
             // we have origin and destination
             showSnackBar(
                 message = resources.getString(R.string.originDestinationProblem),
-                rootView = findViewById(R.id.mockEditorRootView),
+                rootView = binding.root,
                 duration = Snackbar.LENGTH_SHORT
             )
             return
         }
 
-        val marker = MarkerManager.createMarker(
-            location = latLng,
-            drawableRes = if (originMarker == null) R.drawable.ic_origin_marker
-            else R.drawable.ic_destination_marker,
-            elementId = if (originMarker == null) MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-            else MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
-            context = this
-        )
-        marker?.let {
-            markerLayer.add(marker)
-            binding.mapview.addMarker(it)
-        }
-
         showLoadingProgressbar(true)
         viewModel.getLocationInformation(latLng, originMarker == null)
-
-        if (originMarker != null) {
-            showLoadingProgressbar(true)
-            viewModel.getRouteInformation(
-                originLocation = MarkerManager.getMarkerFromLayer(
-                    markerLayer,
-                    MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-                )!!.latLng,
-                destinationLocation = latLng
-            )
-        }
     }
 
     @SuppressLint("MissingPermission")
@@ -451,7 +421,7 @@ class MockEditorActivity : AppCompatActivity() {
             } else {
                 showSnackBar(
                     message = resources.getString(R.string.pleaseTurnOnLocation),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_INDEFINITE,
                     actionText = resources.getString(R.string.iAccept)
                 ) {
@@ -466,7 +436,7 @@ class MockEditorActivity : AppCompatActivity() {
             if (shouldShowRelational) {
                 showSnackBar(
                     message = resources.getString(R.string.locationPermissionRational),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_INDEFINITE,
                     actionText = resources.getString(R.string.iAccept),
                 ) {
@@ -516,26 +486,19 @@ class MockEditorActivity : AppCompatActivity() {
         if (mockSaverDialog != null && !mockSaverDialog?.isDetached!!) {
             mockSaverDialog?.dismiss()
         }
-        val speed = viewModel.mockEditorState.value.mockInformation?.speed
-            ?: viewModel.mockEditorState.value.speed ?: Constant.DEFAULT_SPEED
+        val speed =
+            if (viewModel.mockEditorState.value.speed != 0) viewModel.mockEditorState.value.speed
+            else Constant.DEFAULT_SPEED
         mockSaverDialog = SaveMockBottomSheetDialogFragment.newInstance(
-            name = viewModel.mockEditorState.value.mockInformation?.mockName,
-            description = viewModel.mockEditorState.value.mockInformation?.mockDescription,
+            name = viewModel.mockEditorState.value.name?.getRawValue(),
+            description = viewModel.mockEditorState.value.description?.getRawValue(),
             speed = speed.toString()
         )
         mockSaverDialog?.let {
             it.onSaveClickListener { mockName, mockDescription, speed ->
                 viewModel.saveMockInformation(
-                    mockName = mockName,
-                    mockDescription = mockDescription ?: "No Description",
-                    originLocation = MarkerManager.getMarkerFromLayer(
-                        markerLayer,
-                        MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-                    )!!.latLng,
-                    destinationLocation = MarkerManager.getMarkerFromLayer(
-                        markerLayer,
-                        MarkerManager.ELEMENT_ID_DESTINATION_MARKER
-                    )!!.latLng,
+                    name = mockName,
+                    description = mockDescription ?: resources.getString(R.string.noDescription),
                     speed = speed
                 )
             }
@@ -557,7 +520,7 @@ class MockEditorActivity : AppCompatActivity() {
             }
             polylineLayer.clear()
             binding.saveExtendedFab.hide()
-            viewModel.clearTripInformation(false)
+            viewModel.clearMockInformation(false)
             binding.titleTextView.text = resources.getString(R.string.chooseDestinationLocation)
             binding.destinationTextView.visibility = View.GONE
         } else {

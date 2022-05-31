@@ -1,6 +1,8 @@
 package me.abolfazl.nmock.utils.response
 
-data class OneTimeEmitter<E>(
-    val exception: E? = null,
-    val message: String? = null,
+import androidx.annotation.StringRes
+
+data class OneTimeEmitter(
+    val actionId: String,
+    @StringRes val message: Int,
 )

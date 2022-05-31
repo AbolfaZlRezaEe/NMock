@@ -3,6 +3,8 @@ package me.abolfazl.nmock.repository.mock
 import android.os.SystemClock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import me.abolfazl.nmock.model.database.MockProvider
+import me.abolfazl.nmock.model.database.MockType
 import me.abolfazl.nmock.model.database.dao.MockDao
 import me.abolfazl.nmock.model.database.dao.PositionDao
 import me.abolfazl.nmock.model.database.models.MockEntity
@@ -12,9 +14,6 @@ import me.abolfazl.nmock.utils.locationFormat
 import me.abolfazl.nmock.utils.response.Failure
 import me.abolfazl.nmock.utils.response.Response
 import me.abolfazl.nmock.utils.response.Success
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_DATABASE_GETTING_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_INSERTION_ERROR
-import me.abolfazl.nmock.utils.response.exceptions.NMockException
 import org.neshan.common.model.LatLng
 import java.util.*
 import javax.inject.Inject
@@ -24,30 +23,108 @@ class MockRepositoryImpl @Inject constructor(
     private val positionDao: PositionDao,
 ) : MockRepository {
 
-    override fun saveMock(
-        mockDataClass: MockDataClass
-    ): Flow<Response<Long, NMockException>> = flow {
-        // when we want to update a mock:
-        mockDataClass.id?.let {
-            mockDao.updateMockInformation(
-                toMockEntity(
-                    mockDataClass = mockDataClass,
-                    updatedAt = getTime()
-                )
-            )
-            emit(Success(mockDataClass.id))
+    companion object {
+        const val DATABASE_INSERTION_EXCEPTION = 210
+        const val DATABASE_EMPTY_LINE_EXCEPTION = 211
+        const val LINE_VECTOR_NULL_EXCEPTION = 212
+    }
+
+    override fun saveMockInformation(
+        name: String,
+        description: String,
+        originLocation: LatLng,
+        destinationLocation: LatLng,
+        originAddress: String?,
+        destinationAddress: String?,
+        @MockType type: String,
+        speed: Int,
+        lineVector: ArrayList<List<LatLng>>?,
+        bearing: Float,
+        accuracy: Float,
+        @MockProvider provider: String,
+    ): Flow<Response<Long, Int>> = flow {
+        // check the lineVector doesn't null!
+        if (lineVector == null) {
+            emit(Failure(LINE_VECTOR_NULL_EXCEPTION))
             return@flow
         }
-
-        // when we want to insert a mock:
+        // todo: pass (Unknown) string in view...
+        // because we wanna use string resource in whole application
         val mockId = mockDao.insertMockInformation(
-            toMockEntity(mockDataClass)
+            MockEntity(
+                id = null,
+                type = type,
+                name = name,
+                description = description,
+                originLocation = originLocation.locationFormat(),
+                destinationLocation = destinationLocation.locationFormat(),
+                originAddress = originAddress ?: "Unknown",
+                destinationAddress = destinationAddress ?: "Unknown",
+                accuracy = accuracy,
+                bearing = bearing,
+                speed = speed,
+                createdAt = getTime(),
+                updatedAt = getTime(),
+                provider = provider,
+            )
         )
         if (mockId == -1L) {
-            emit(Failure(NMockException(type = EXCEPTION_INSERTION_ERROR)))
+            emit(Failure(DATABASE_INSERTION_EXCEPTION))
             return@flow
         }
-        mockDataClass.lineVector?.forEach { listOfLatLng ->
+        saveRoutingInformation(mockId, lineVector)
+        emit(Success(mockId))
+    }
+
+    override fun updateMockInformation(
+        id: Long,
+        name: String,
+        description: String,
+        originLocation: LatLng,
+        destinationLocation: LatLng,
+        originAddress: String,
+        destinationAddress: String,
+        @MockType type: String,
+        speed: Int,
+        lineVector: ArrayList<List<LatLng>>?,
+        bearing: Float,
+        accuracy: Float,
+        @MockProvider provider: String,
+        createdAt: String
+    ): Flow<Response<Long, Int>> =
+        flow {
+            // check the lineVector doesn't null!
+            if (lineVector == null) {
+                emit(Failure(LINE_VECTOR_NULL_EXCEPTION))
+                return@flow
+            }
+            mockDao.updateMockInformation(
+                MockEntity(
+                    id = id,
+                    type = type,
+                    name = name,
+                    description = description,
+                    originLocation = originLocation.locationFormat(),
+                    destinationLocation = destinationLocation.locationFormat(),
+                    originAddress = originAddress,
+                    destinationAddress = destinationAddress,
+                    accuracy = accuracy,
+                    bearing = bearing,
+                    speed = speed,
+                    createdAt = createdAt,
+                    updatedAt = getTime(),
+                    provider = provider
+                )
+            )
+            updateRoutingInformation(id, lineVector)
+            emit(Success(id))
+        }
+
+    private suspend fun saveRoutingInformation(
+        mockId: Long,
+        lineVector: ArrayList<List<LatLng>>
+    ) {
+        lineVector.forEach { listOfLatLng ->
             listOfLatLng.forEach { latLng ->
                 positionDao.insertMockPosition(
                     PositionEntity(
@@ -60,21 +137,38 @@ class MockRepositoryImpl @Inject constructor(
                 )
             }
         }
-        emit(Success(mockId))
     }
 
-    override suspend fun getMocks(): Flow<Response<List<MockDataClass>, NMockException>> = flow {
-        val mockList = mockDao.getAllMocks()
-        emit(Success(fromMockEntityList(mockList)))
+    private suspend fun updateRoutingInformation(
+        mockId: Long,
+        lineVector: ArrayList<List<LatLng>>
+    ) {
+        lineVector.forEach { listOfLatLng ->
+            listOfLatLng.forEach { latLng ->
+                positionDao.updateMockPosition(
+                    PositionEntity(
+                        mockId = mockId,
+                        latitude = latLng.latitude,
+                        longitude = latLng.longitude,
+                        time = System.currentTimeMillis(),
+                        elapsedRealTime = SystemClock.elapsedRealtimeNanos(),
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun getMocks(): List<MockDataClass> {
+        return fromMockEntityList(mockDao.getAllMocks())
     }
 
     override suspend fun getMock(
         mockId: Long
-    ): Flow<Response<MockDataClass, NMockException>> = flow {
+    ): Flow<Response<MockDataClass, Int>> = flow {
         val mockObject = mockDao.getMockFromId(mockId)
         val positionList = positionDao.getMockPositionListFromId(mockId)
         if (positionList.isEmpty()) {
-            emit(Failure(NMockException(type = EXCEPTION_DATABASE_GETTING_ERROR)))
+            emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
             return@flow
         }
         emit(Success(fromMockEntity(mockObject, createLineVector(positionList))))
@@ -84,32 +178,9 @@ class MockRepositoryImpl @Inject constructor(
         mockDao.deleteAllMocks()
     }
 
-    override suspend fun deleteMock(
-        mockDataClass: MockDataClass
-    ) {
-        mockDao.deleteMockEntity(mockDataClass.id!!)
-    }
-
-    private fun toMockEntity(
-        mockDataClass: MockDataClass,
-        updatedAt: String? = null
-    ): MockEntity {
-        return MockEntity(
-            id = mockDataClass.id,
-            mockType = mockDataClass.mockType,
-            mockName = mockDataClass.mockName,
-            description = mockDataClass.mockDescription,
-            originLocation = fromLatLng(mockDataClass.originLocation),
-            destinationLocation = fromLatLng(mockDataClass.destinationLocation),
-            originAddress = mockDataClass.originAddress,
-            destinationAddress = mockDataClass.destinationAddress,
-            accuracy = mockDataClass.accuracy,
-            bearing = mockDataClass.bearing,
-            speed = mockDataClass.speed,
-            createdAt = getTime(),
-            updatedAt = updatedAt ?: getTime(),
-            provider = mockDataClass.provider
-        )
+    override suspend fun deleteMock(id: Long?) {
+        if (id == null) return
+        mockDao.deleteMockEntity(id)
     }
 
     private fun fromMockEntity(
@@ -118,9 +189,9 @@ class MockRepositoryImpl @Inject constructor(
     ): MockDataClass {
         return MockDataClass(
             id = mockEntity.id!!,
-            mockName = mockEntity.mockName,
-            mockDescription = mockEntity.description,
-            mockType = mockEntity.mockType,
+            name = mockEntity.name,
+            description = mockEntity.description,
+            type = mockEntity.type,
             originLocation = mockEntity.originLocation.locationFormat(),
             destinationLocation = mockEntity.destinationLocation.locationFormat(),
             originAddress = mockEntity.originAddress,
@@ -155,12 +226,6 @@ class MockRepositoryImpl @Inject constructor(
             result.add(fromMockEntity(mockEntity))
         }
         return result
-    }
-
-    private fun fromLatLng(
-        latLng: LatLng
-    ): String {
-        return "${latLng.latitude},${latLng.longitude}"
     }
 
     private fun getTime(): String {

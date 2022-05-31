@@ -3,15 +3,18 @@ package me.abolfazl.nmock.view.player
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.repository.mock.MockRepository
+import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_UNKNOWN
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
 import me.abolfazl.nmock.utils.response.ifSuccessful
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,18 +22,29 @@ class MockPlayerViewModel @Inject constructor(
     private val mockRepository: MockRepository
 ) : ViewModel() {
 
+    companion object {
+        const val ACTION_UNKNOWN = "UNKNOWN_EXCEPTION"
+        const val ACTION_GET_MOCK_INFORMATION = "GET_MOCK_INFORMATION"
+        const val ACTION_UPDATE_MOCK_INFORMATION = "UPDATE_MOCK_INFORMATION"
+    }
+
     // for handling states
     private val _mockPlayerState = MutableStateFlow(MockPlayerState())
     val mockPlayerState = _mockPlayerState.asStateFlow()
 
     // for errors..
-    private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter<String>>()
+    private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter>()
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Timber.e("Exception thrown in MockPlayerViewModel: " + throwable.message)
+        Sentry.captureMessage("Exception thrown in MockPlayerViewModel: " + throwable.message)
         viewModelScope.launch {
-            _oneTimeEmitter.emit(OneTimeEmitter(exception = EXCEPTION_UNKNOWN))
+            _oneTimeEmitter.emit(
+                OneTimeEmitter(
+                    actionId = ACTION_UNKNOWN,
+                    message = actionMapper(0)
+                )
+            )
         }
     }
 
@@ -41,9 +55,13 @@ class MockPlayerViewModel @Inject constructor(
                     mockInformation = mockInformation
                 )
             }
-            response.ifNotSuccessful { exception ->
-                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
-                Timber.e(exception.type)
+            response.ifNotSuccessful { exceptionType ->
+                _oneTimeEmitter.emit(
+                    OneTimeEmitter(
+                        actionId = ACTION_GET_MOCK_INFORMATION,
+                        message = actionMapper(exceptionType)
+                    )
+                )
             }
         }
     }
@@ -54,10 +72,40 @@ class MockPlayerViewModel @Inject constructor(
         _mockPlayerState.value = _mockPlayerState.value.copy(
             mockInformation = mock
         )
-        mockRepository.saveMock(_mockPlayerState.value.mockInformation!!).collect { response ->
-            response.ifNotSuccessful { exception ->
-                _oneTimeEmitter.emit(OneTimeEmitter(exception = exception.type))
+        val mockData = _mockPlayerState.value.mockInformation!!
+        mockRepository.updateMockInformation(
+            id = mockData.id!!,
+            name = mockData.name,
+            description = mockData.description,
+            originLocation = mockData.originLocation,
+            destinationLocation = mockData.destinationLocation,
+            originAddress = mockData.originAddress,
+            destinationAddress = mockData.destinationAddress,
+            type = mockData.type,
+            speed = mockData.speed,
+            lineVector = mockData.lineVector,
+            bearing = mockData.bearing,
+            accuracy = mockData.bearing,
+            provider = mockData.provider,
+            createdAt = mockData.createdAt!!
+        ).collect { response ->
+            response.ifNotSuccessful { exceptionType ->
+                _oneTimeEmitter.emit(
+                    OneTimeEmitter(
+                        actionId = ACTION_UPDATE_MOCK_INFORMATION,
+                        message = actionMapper(exceptionType)
+                    )
+                )
             }
+        }
+    }
+
+    private fun actionMapper(exceptionType: Int): Int {
+        return when (exceptionType) {
+            MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
+            MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,
+            MockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockPlayerActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
+            else -> MockPlayerActivity.UNKNOWN_ERROR_MESSAGE
         }
     }
 }

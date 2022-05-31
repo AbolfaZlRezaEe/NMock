@@ -6,8 +6,8 @@ data class Success<out V>(val value: V) : Response<V, Nothing>()
 
 class ResponseUnboxed<V, E> {
 
-    internal var success: (V) -> Unit = {}
-    internal var failure: (E) -> Unit = {}
+    var success: (V) -> Unit = {}
+    var failure: (E) -> Unit = {}
 
     fun success(block: (V) -> Unit) {
         success = block
@@ -15,6 +15,24 @@ class ResponseUnboxed<V, E> {
 
     fun failure(block: (E) -> Unit) {
         failure = block
+    }
+}
+
+class SingleEvent<T> constructor(
+    private val value: T
+) {
+    private var isHandled: Boolean = false
+
+    fun ifNotHandled(callback: (T) -> Unit) {
+        if (isHandled) return
+        callback.invoke(value)
+        isHandled = true
+    }
+
+    // We can use it only when we want to get the value for some action.
+    // We don't use it into handling states in Activities or Fragments!
+    fun getRawValue(): T {
+        return value
     }
 }
 

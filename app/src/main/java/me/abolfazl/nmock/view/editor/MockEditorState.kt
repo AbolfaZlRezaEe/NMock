@@ -1,15 +1,18 @@
 package me.abolfazl.nmock.view.editor
 
-import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.utils.response.SingleEvent
 import org.neshan.common.model.LatLng
 
 data class MockEditorState(
-    val originAddress: String? = null,
-    val destinationAddress: String? = null,
-    val originLocation: LatLng? = null,
-    val destinationLocation: LatLng? = null,
-    val lineVector: ArrayList<List<LatLng>>? = null,
-    val speed: Int? = null,
-    val mockId: Long? = null,
-    val mockInformation: MockDataClass? = null
+    val id: SingleEvent<Long>? = null,
+    val name: SingleEvent<String>? = null,
+    val description: SingleEvent<String>? = null,
+    val originLocation: SingleEvent<LatLng>? = null,
+    val destinationLocation: SingleEvent<LatLng>? = null,
+    val originAddress: SingleEvent<String>? = null,
+    val destinationAddress: SingleEvent<String>? = null,
+    val lineVector: SingleEvent<ArrayList<List<LatLng>>>? = null,
+    var speed: Int = 0,
+    var createdAt: String? = null,
+    var updatedAt: String? = null
 )

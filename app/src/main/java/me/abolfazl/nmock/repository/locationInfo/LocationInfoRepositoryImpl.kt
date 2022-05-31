@@ -1,5 +1,6 @@
 package me.abolfazl.nmock.repository.locationInfo
 
+import io.sentry.Sentry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.model.apiService.RoutingApiService
@@ -8,28 +9,29 @@ import me.abolfazl.nmock.repository.models.LocationInfoDataclass
 import me.abolfazl.nmock.utils.response.Failure
 import me.abolfazl.nmock.utils.response.Response
 import me.abolfazl.nmock.utils.response.Success
-import me.abolfazl.nmock.utils.response.exceptions.EXCEPTION_UNKNOWN
-import me.abolfazl.nmock.utils.response.exceptions.ExceptionMapper
-import me.abolfazl.nmock.utils.response.exceptions.NMockException
 import javax.inject.Inject
 
 class LocationInfoRepositoryImpl @Inject constructor(
     private val apiService: RoutingApiService
 ) : LocationInfoRepository {
 
+    companion object {
+        const val UNKNOWN_EXCEPTION = 110
+    }
+
     override fun getLocationInformation(
         latitude: Double,
         longitude: Double
-    ): Flow<Response<LocationInfoDataclass, NMockException>> = flow {
+    ): Flow<Response<LocationInfoDataclass, Int>> = flow {
         val response = apiService.getLocationInformation(latitude, longitude)
         if (response.isSuccessful) {
             response.body()?.let { result ->
                 emit(Success(toLocationInfoDataclass(result)))
                 return@flow
             }
-            emit(Failure(NMockException(type = EXCEPTION_UNKNOWN)))
+            emit(Failure(UNKNOWN_EXCEPTION))
         } else {
-            emit(Failure(NMockException(type = ExceptionMapper.map(response.code()))))
+            Sentry.captureMessage("getLocationInformation failed! response code was-> ${response.code()}")
         }
     }
 

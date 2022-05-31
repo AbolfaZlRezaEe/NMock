@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockArchiveBinding
 import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.editor.MockEditorActivity
@@ -23,6 +24,11 @@ import me.abolfazl.nmock.view.player.MockPlayerService
 
 @AndroidEntryPoint
 class MockArchiveActivity : AppCompatActivity() {
+
+    companion object {
+        // error messages
+        const val UNKNOWN_ERROR_MESSAGE = R.string.unknownException
+    }
 
     private lateinit var binding: ActivityMockArchiveBinding
     private val viewModel: MockArchiveViewModel by viewModels()
@@ -62,7 +68,7 @@ class MockArchiveActivity : AppCompatActivity() {
             }
         }
         lifecycleScope.launchWhenStarted {
-            viewModel.oneTimeEmitter.collect { processAction() }
+            viewModel.oneTimeEmitter.collect { processAction(it) }
         }
     }
 
@@ -139,11 +145,11 @@ class MockArchiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun processAction() {
+    private fun processAction(response: OneTimeEmitter) {
         binding.loadingState.visibility = View.GONE
         showSnackBar(
-            message = resources.getString(R.string.unknownException),
-            rootView = findViewById(R.id.mockArchiveRootView),
+            message = resources.getString(response.message),
+            rootView = binding.root,
             Snackbar.LENGTH_SHORT
         )
     }
