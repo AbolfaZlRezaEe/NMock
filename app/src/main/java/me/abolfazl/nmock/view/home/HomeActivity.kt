@@ -1,7 +1,7 @@
 package me.abolfazl.nmock.view.home
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import me.abolfazl.nmock.databinding.ActivityHomeBinding
 
 class HomeActivity : AppCompatActivity() {

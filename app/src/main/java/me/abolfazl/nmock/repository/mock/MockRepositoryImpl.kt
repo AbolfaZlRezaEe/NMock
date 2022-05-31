@@ -142,7 +142,7 @@ class MockRepositoryImpl @Inject constructor(
     private suspend fun updateRoutingInformation(
         mockId: Long,
         lineVector: ArrayList<List<LatLng>>
-    ){
+    ) {
         lineVector.forEach { listOfLatLng ->
             listOfLatLng.forEach { latLng ->
                 positionDao.updateMockPosition(

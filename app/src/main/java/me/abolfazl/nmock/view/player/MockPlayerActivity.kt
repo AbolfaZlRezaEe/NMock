@@ -100,7 +100,6 @@ class MockPlayerActivity : AppCompatActivity() {
                     rootView = binding.root,
                     duration = Snackbar.LENGTH_LONG
                 )
-                // todo: stop the service!
                 Handler(Looper.getMainLooper()).postDelayed({
                     this.finish()
                 }, 3000)

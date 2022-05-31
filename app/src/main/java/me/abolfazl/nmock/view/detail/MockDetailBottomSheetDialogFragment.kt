@@ -9,7 +9,6 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentMockDetailBinding
 import me.abolfazl.nmock.model.database.MockProvider
 import me.abolfazl.nmock.model.database.MockType
-import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.changeStringTo
 
 class MockDetailBottomSheetDialogFragment : BottomSheetDialogFragment() {
