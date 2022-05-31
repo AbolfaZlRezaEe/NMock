@@ -58,8 +58,8 @@ class MockArchiveAdapter constructor(
     override fun onBindViewHolder(holder: MockArchiveViewHolder, position: Int) {
         val mockObject = list[position]
         holder.bind(
-            title = mockObject.mockName,
-            description = mockObject.mockDescription,
+            title = mockObject.name,
+            description = mockObject.description,
             mockProvider = mockObject.provider,
             speed = mockObject.speed
         )

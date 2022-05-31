@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentMockDetailBinding
 import me.abolfazl.nmock.model.database.MockProvider
 import me.abolfazl.nmock.model.database.MockType
@@ -85,8 +86,10 @@ class MockDetailBottomSheetDialogFragment : BottomSheetDialogFragment() {
             binding.descriptionTextView.text = description
             binding.providerTextView.text = provider
             binding.mockTypeTextView.text = type
-            binding.updatedAtTextView.text = updatedAt.changeStringTo(Constant.UPDATED_AT)
-            binding.createAtTextView.text = createdAt.changeStringTo(Constant.CREATED_AT)
+            binding.updatedAtTextView.text =
+                updatedAt.changeStringTo(resources.getString(R.string.updatedAt))
+            binding.createAtTextView.text =
+                createdAt.changeStringTo(resources.getString(R.string.createdAt))
         }
     }
 }

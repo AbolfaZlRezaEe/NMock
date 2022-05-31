@@ -64,6 +64,10 @@
     <string name="noDescription">No Description…</string>
     <string name="wouldYouLikeToTryAgain">Umm… We have a problem on getting information from server. would you like to try again?</string>
     <string name="wouldYouLikeToTryAgainForDatabase">Umm… We have a problem on saving mock. would you like to try again?</string>
+    <string name="from">From:</string>
+    <string name="to">To:</string>
+    <string name="createdAt">Created At:</string>
+    <string name="updatedAt">Updated At:</string>
 
     <!-- Exception messages -->
     <string name="unknownException">Unexpected Error occurred! Please try again…</string>

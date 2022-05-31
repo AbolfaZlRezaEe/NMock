@@ -25,12 +25,23 @@ interface MockRepository {
     ): Flow<Response<Long, Int>>
 
     fun updateMockInformation(
-        mockDataClass: MockDataClass
+        id: Long,
+        name: String,
+        description: String,
+        originLocation: LatLng,
+        destinationLocation: LatLng,
+        originAddress: String,
+        destinationAddress: String,
+        @MockType type: String,
+        speed: Int,
+        lineVector: ArrayList<List<LatLng>>?,
+        bearing: Float,
+        accuracy: Float,
+        @MockProvider provider: String,
+        createdAt: String
     ): Flow<Response<Long, Int>>
 
-    suspend fun deleteMock(
-        mockDataClass: MockDataClass
-    )
+    suspend fun deleteMock(id: Long?)
 
     suspend fun deleteAllMocks()
 

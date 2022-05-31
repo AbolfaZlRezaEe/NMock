@@ -76,25 +76,48 @@ class MockRepositoryImpl @Inject constructor(
         emit(Success(mockId))
     }
 
-    override fun updateMockInformation(mockDataClass: MockDataClass): Flow<Response<Long, Int>> =
+    override fun updateMockInformation(
+        id: Long,
+        name: String,
+        description: String,
+        originLocation: LatLng,
+        destinationLocation: LatLng,
+        originAddress: String,
+        destinationAddress: String,
+        @MockType type: String,
+        speed: Int,
+        lineVector: ArrayList<List<LatLng>>?,
+        bearing: Float,
+        accuracy: Float,
+        @MockProvider provider: String,
+        createdAt: String
+    ): Flow<Response<Long, Int>> =
         flow {
             // check the lineVector doesn't null!
-            if (mockDataClass.lineVector == null) {
+            if (lineVector == null) {
                 emit(Failure(LINE_VECTOR_NULL_EXCEPTION))
                 return@flow
             }
-            if (mockDataClass.id == null) {
-                emit(Failure(DATABASE_INSERTION_EXCEPTION))
-                return@flow
-            }
             mockDao.updateMockInformation(
-                toMockEntity(
-                    mockDataClass = mockDataClass,
-                    updatedAt = getTime()
+                MockEntity(
+                    id = id,
+                    type = type,
+                    name = name,
+                    description = description,
+                    originLocation = originLocation.locationFormat(),
+                    destinationLocation = destinationLocation.locationFormat(),
+                    originAddress = originAddress,
+                    destinationAddress = destinationAddress,
+                    accuracy = accuracy,
+                    bearing = bearing,
+                    speed = speed,
+                    createdAt = createdAt,
+                    updatedAt = getTime(),
+                    provider = provider
                 )
             )
-            saveRoutingInformation(mockDataClass.id, mockDataClass.lineVector)
-            emit(Success(mockDataClass.id))
+            saveRoutingInformation(id, lineVector)
+            emit(Success(id))
         }
 
     private suspend fun saveRoutingInformation(
@@ -136,32 +159,9 @@ class MockRepositoryImpl @Inject constructor(
         mockDao.deleteAllMocks()
     }
 
-    override suspend fun deleteMock(
-        mockDataClass: MockDataClass
-    ) {
-        mockDao.deleteMockEntity(mockDataClass.id!!)
-    }
-
-    private fun toMockEntity(
-        mockDataClass: MockDataClass,
-        updatedAt: String? = null
-    ): MockEntity {
-        return MockEntity(
-            id = mockDataClass.id,
-            type = mockDataClass.mockType,
-            name = mockDataClass.mockName,
-            description = mockDataClass.mockDescription,
-            originLocation = mockDataClass.originLocation.locationFormat(),
-            destinationLocation = mockDataClass.destinationLocation.locationFormat(),
-            originAddress = mockDataClass.originAddress,
-            destinationAddress = mockDataClass.destinationAddress,
-            accuracy = mockDataClass.accuracy,
-            bearing = mockDataClass.bearing,
-            speed = mockDataClass.speed,
-            createdAt = getTime(),
-            updatedAt = updatedAt ?: getTime(),
-            provider = mockDataClass.provider
-        )
+    override suspend fun deleteMock(id: Long?) {
+        if (id == null) return
+        mockDao.deleteMockEntity(id)
     }
 
     private fun fromMockEntity(
@@ -170,9 +170,9 @@ class MockRepositoryImpl @Inject constructor(
     ): MockDataClass {
         return MockDataClass(
             id = mockEntity.id!!,
-            mockName = mockEntity.name,
-            mockDescription = mockEntity.description,
-            mockType = mockEntity.type,
+            name = mockEntity.name,
+            description = mockEntity.description,
+            type = mockEntity.type,
             originLocation = mockEntity.originLocation.locationFormat(),
             destinationLocation = mockEntity.destinationLocation.locationFormat(),
             originAddress = mockEntity.originAddress,

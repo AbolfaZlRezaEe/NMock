@@ -190,11 +190,11 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private fun processMockInformation(mockInformation: MockDataClass) {
         showProgressbar(false)
-        binding.titleTextView.text = mockInformation.mockName
+        binding.titleTextView.text = mockInformation.name
         binding.originTextView.text =
-            mockInformation.originAddress.changeStringTo("From:")
+            mockInformation.originAddress.changeStringTo(resources.getString(R.string.from))
         binding.destinationTextView.text =
-            mockInformation.destinationAddress.changeStringTo("To:")
+            mockInformation.destinationAddress.changeStringTo(resources.getString(R.string.to))
         LineManager.drawLineOnMap(
             mapView = binding.mapview,
             polylineLayer = polylineLayer,
@@ -308,10 +308,10 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private fun onDetailClicked() {
         val detailDialog = MockDetailBottomSheetDialogFragment.newInstance(
-            title = viewModel.mockPlayerState.value.mockInformation?.mockName!!,
-            description = viewModel.mockPlayerState.value.mockInformation?.mockDescription!!,
+            title = viewModel.mockPlayerState.value.mockInformation?.name!!,
+            description = viewModel.mockPlayerState.value.mockInformation?.description!!,
             provider = viewModel.mockPlayerState.value.mockInformation?.provider!!,
-            type = viewModel.mockPlayerState.value.mockInformation?.mockType!!,
+            type = viewModel.mockPlayerState.value.mockInformation?.type!!,
             createdAt = viewModel.mockPlayerState.value.mockInformation?.createdAt!!,
             updatedAt = viewModel.mockPlayerState.value.mockInformation?.updatedAt!!
         )

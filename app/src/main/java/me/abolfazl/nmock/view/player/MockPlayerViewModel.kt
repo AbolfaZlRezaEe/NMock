@@ -42,7 +42,7 @@ class MockPlayerViewModel @Inject constructor(
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
                     actionId = ACTION_UNKNOWN,
-                    message = errorMapper(0)
+                    message = actionMapper(0)
                 )
             )
         }
@@ -59,7 +59,7 @@ class MockPlayerViewModel @Inject constructor(
                 _oneTimeEmitter.emit(
                     OneTimeEmitter(
                         actionId = ACTION_GET_MOCK_INFORMATION,
-                        message = errorMapper(exceptionType)
+                        message = actionMapper(exceptionType)
                     )
                 )
             }
@@ -72,20 +72,35 @@ class MockPlayerViewModel @Inject constructor(
         _mockPlayerState.value = _mockPlayerState.value.copy(
             mockInformation = mock
         )
-        mockRepository.updateMockInformation(_mockPlayerState.value.mockInformation!!)
-            .collect { response ->
-                response.ifNotSuccessful { exceptionType ->
-                    _oneTimeEmitter.emit(
-                        OneTimeEmitter(
-                            actionId = ACTION_UPDATE_MOCK_INFORMATION,
-                            message = errorMapper(exceptionType)
-                        )
+        val mockData = _mockPlayerState.value.mockInformation!!
+        mockRepository.updateMockInformation(
+            id = mockData.id!!,
+            name = mockData.name,
+            description = mockData.description,
+            originLocation = mockData.originLocation,
+            destinationLocation = mockData.destinationLocation,
+            originAddress = mockData.originAddress,
+            destinationAddress = mockData.destinationAddress,
+            type = mockData.type,
+            speed = mockData.speed,
+            lineVector = mockData.lineVector,
+            bearing = mockData.bearing,
+            accuracy = mockData.bearing,
+            provider = mockData.provider,
+            createdAt = mockData.createdAt!!
+        ).collect { response ->
+            response.ifNotSuccessful { exceptionType ->
+                _oneTimeEmitter.emit(
+                    OneTimeEmitter(
+                        actionId = ACTION_UPDATE_MOCK_INFORMATION,
+                        message = actionMapper(exceptionType)
                     )
-                }
+                )
             }
+        }
     }
 
-    private fun errorMapper(exceptionType: Int): Int {
+    private fun actionMapper(exceptionType: Int): Int {
         return when (exceptionType) {
             MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
             MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,

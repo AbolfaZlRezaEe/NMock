@@ -21,9 +21,6 @@ object Constant {
 
     const val DATABASE_NAME = "nmock_db"
 
-    const val CREATED_AT = "Created at:"
-    const val UPDATED_AT = "Updated at:"
-
     const val HEADER_API_KEY = "Api-Key"
     const val HEADER_VALUE_API_KEY = "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
 
@@ -35,7 +32,7 @@ object Constant {
     const val DEFAULT_SPEED = 30
 
     // Notification
-    const val NOTIFICATION_CHANNEL_NAME = "Mock_Provider"
+    const val NOTIFICATION_CHANNEL_NAME = "NMock Notification"
     const val NOTIFICATION_CHANNEL_ID = "NMOCK_NOTIFICATION_ID"
     const val NOTIFICATION_CHANNEL_DESCRIPTION =
         "This Notification used for Broadcasting Mock around the Android System!"
