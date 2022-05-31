@@ -97,7 +97,7 @@ class MockPlayerActivity : AppCompatActivity() {
             if (mockId == -1L) {
                 showSnackBar(
                     message = resources.getString(R.string.mockInformationProblem),
-                    rootView = findViewById(R.id.mockPlayerRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_LONG
                 )
                 // todo: stop the service!
@@ -244,7 +244,7 @@ class MockPlayerActivity : AppCompatActivity() {
             MockPlayerViewModel.ACTION_GET_MOCK_INFORMATION -> {
                 showSnackBar(
                     message = resources.getString(response.message),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_LONG
                 )
                 Handler(Looper.getMainLooper()).postDelayed({ this.finish() }, 3000)
@@ -252,14 +252,14 @@ class MockPlayerActivity : AppCompatActivity() {
             MockPlayerViewModel.ACTION_UPDATE_MOCK_INFORMATION -> {
                 showSnackBar(
                     message = resources.getString(R.string.updateSpeedWasFailed),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_LONG
                 )
             }
             MockPlayerService.ACTION_MOCK_IS_DONE -> {
                 showSnackBar(
                     message = resources.getString(response.message),
-                    rootView = findViewById(R.id.mockPlayerRootView),
+                    rootView = binding.root,
                     Snackbar.LENGTH_SHORT
                 )
                 binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
@@ -272,10 +272,21 @@ class MockPlayerActivity : AppCompatActivity() {
                     binding.mapview.removeMarker(it)
                 }
             }
+            MockPlayerService.ACTION_DEVELOPER_OPTION_PROBLEM -> {
+                showSnackBar(
+                    message = resources.getString(R.string.allowApplicationToMock),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_LONG,
+                    actionText = resources.getString(R.string.openIt),
+                ) {
+                    startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+                }
+                binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
+            }
             else -> {
                 showSnackBar(
                     message = resources.getString(response.message),
-                    rootView = findViewById(R.id.mockPlayerRootView),
+                    rootView = binding.root,
                     Snackbar.LENGTH_SHORT
                 )
             }
@@ -320,7 +331,6 @@ class MockPlayerActivity : AppCompatActivity() {
     }
 
     private fun onPlayPauseClicked() {
-        if (handleDeveloperSettingSection()) return
         if (mockPlayerService?.mockIsRunning()!!) {
             mockPlayerService?.pauseOrPlayMock()
             binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
@@ -339,33 +349,8 @@ class MockPlayerActivity : AppCompatActivity() {
         mockPlayerService?.initializeMockProvider()
     }
 
-    private fun handleDeveloperSettingSection(): Boolean {
-        val mustShowDeveloperOption = SharedManager.getBoolean(
-            sharedPreferences = sharedPreferences,
-            key = SHARED_MOCK_SETTING,
-            defaultValue = true
-        )
-        if (mustShowDeveloperOption) {
-            showSnackBar(
-                message = resources.getString(R.string.allowApplicationToMock),
-                rootView = findViewById(R.id.mockPlayerRootView),
-                duration = Snackbar.LENGTH_LONG,
-                actionText = resources.getString(R.string.openIt),
-            ) {
-                startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-            }
-            SharedManager.putBoolean(
-                sharedPreferences = sharedPreferences,
-                key = SHARED_MOCK_SETTING,
-                value = false
-            )
-            return true
-        }
-        return false
-    }
-
     private fun onStopClicked() {
-        if (!mockPlayerService?.mockIsRunning()!!) return
+        if (!MockPlayerService.SERVICE_IS_RUNNING) return
         mockPlayerService?.pauseOrPlayMock()
         mockPlayerService?.removeMockProvider()
         mockPlayerService?.resetResources()
@@ -380,7 +365,7 @@ class MockPlayerActivity : AppCompatActivity() {
         binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
         showSnackBar(
             message = resources.getString(R.string.mockPlayerServiceStoppedCompletely),
-            rootView = findViewById(R.id.mockPlayerRootView),
+            rootView = binding.root,
             duration = Snackbar.LENGTH_LONG
         )
     }

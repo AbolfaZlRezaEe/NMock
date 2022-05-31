@@ -16,6 +16,7 @@ import com.vividsolutions.jts.geom.Coordinate
 import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.LineString
 import com.vividsolutions.jts.linearref.LengthIndexedLine
+import io.sentry.Sentry
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
@@ -31,6 +32,7 @@ class MockPlayerService : Service(), LocationListener {
 
         // actions
         const val ACTION_MOCK_IS_DONE = "MOCK_IS_DONE"
+        const val ACTION_DEVELOPER_OPTION_PROBLEM = "DEVELOPER_OPTION_PROBLEM"
         const val ACTION_SPEED_PROBLEM = "SPEED_PROBLEM"
         const val ACTION_COORDINATES_PROBLEM = "COORDINATES_PROBLEM"
 
@@ -190,66 +192,76 @@ class MockPlayerService : Service(), LocationListener {
 
     private fun startCreatingMockLocations() {
         if (mockStillRunning) {
-            if (lengthIndexedLine == null) {
-                processLineVector()
-            }
-            if (speed == 0) {
-                locationListener?.invoke(
-                    null, OneTimeEmitter(
-                        actionId = ACTION_SPEED_PROBLEM,
-                        message = messageMapper(EXCEPTION_SPEED_PROBLEM)
-                    )
-                )
-                mockStillRunning = false
-                return
-            }
-            lengthIndexedLine?.let { line ->
-                val firstCoordinate: Coordinate?
-                val secondCoordinate: Coordinate?
-                if (line.isValidIndex(index)) {
-                    firstCoordinate = line.extractPoint(index)
-                    secondCoordinate = line.extractPoint(index + ratio)
-                    index += ratio
-                } else {
-                    locationListener?.invoke(
-                        null,
-                        OneTimeEmitter(
-                            actionId = ACTION_MOCK_IS_DONE,
-                            message = messageMapper(ACTION_MOCK_IS_DONE)
-                        )
-                    )
-                    resetResources()
-                    return
+            try {
+                if (lengthIndexedLine == null) {
+                    processLineVector()
                 }
-                if (firstCoordinate == null || secondCoordinate == null) {
+                if (speed == 0) {
                     locationListener?.invoke(
-                        null,
-                        OneTimeEmitter(
-                            actionId = ACTION_COORDINATES_PROBLEM,
-                            message = messageMapper(UNKNOWN_EXCEPTION)
+                        null, OneTimeEmitter(
+                            actionId = ACTION_SPEED_PROBLEM,
+                            message = actionMapper(EXCEPTION_SPEED_PROBLEM)
                         )
                     )
                     mockStillRunning = false
                     return
                 }
-                val distance: Double = distanceBetweenTwoCoordinates(
-                    first = LatLng(firstCoordinate.x, firstCoordinate.y),
-                    second = LatLng(secondCoordinate.x, secondCoordinate.y)
+                lengthIndexedLine?.let { line ->
+                    val firstCoordinate: Coordinate?
+                    val secondCoordinate: Coordinate?
+                    if (line.isValidIndex(index)) {
+                        firstCoordinate = line.extractPoint(index)
+                        secondCoordinate = line.extractPoint(index + ratio)
+                        index += ratio
+                    } else {
+                        locationListener?.invoke(
+                            null,
+                            OneTimeEmitter(
+                                actionId = ACTION_MOCK_IS_DONE,
+                                message = actionMapper(ACTION_MOCK_IS_DONE)
+                            )
+                        )
+                        resetResources()
+                        return
+                    }
+                    if (firstCoordinate == null || secondCoordinate == null) {
+                        locationListener?.invoke(
+                            null,
+                            OneTimeEmitter(
+                                actionId = ACTION_COORDINATES_PROBLEM,
+                                message = actionMapper(UNKNOWN_EXCEPTION)
+                            )
+                        )
+                        mockStillRunning = false
+                        return
+                    }
+                    val distance: Double = distanceBetweenTwoCoordinates(
+                        first = LatLng(firstCoordinate.x, firstCoordinate.y),
+                        second = LatLng(secondCoordinate.x, secondCoordinate.y)
+                    )
+                    val delay: Double = (distance / (speed / 3.6)) * 1000
+                    val location = Location(Constant.TYPE_GPS)
+                    location.speed = (speed / 3.6).toFloat()
+                    location.bearing = 0F
+                    location.latitude = firstCoordinate.x
+                    location.longitude = firstCoordinate.y
+                    location.accuracy = ratio.toFloat()
+                    location.time = System.currentTimeMillis()
+                    location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+                    locationManager?.setTestProviderLocation(Constant.TYPE_GPS, location)
+                    locationListener?.invoke(location, null)
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        startCreatingMockLocations()
+                    }, delay.toLong())
+                }
+            } catch (e: Exception) {
+                Sentry.captureException(e)
+                locationListener?.invoke(
+                    null, OneTimeEmitter(
+                        actionId = ACTION_DEVELOPER_OPTION_PROBLEM,
+                        message = actionMapper("")
+                    )
                 )
-                val delay: Double = (distance / (speed / 3.6)) * 1000
-                val location = Location(Constant.TYPE_GPS)
-                location.speed = (speed / 3.6).toFloat()
-                location.bearing = 0F
-                location.latitude = firstCoordinate.x
-                location.longitude = firstCoordinate.y
-                location.accuracy = ratio.toFloat()
-                location.time = System.currentTimeMillis()
-                location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
-                locationManager?.setTestProviderLocation(Constant.TYPE_GPS, location)
-                locationListener?.invoke(location, null)
-                Handler(Looper.getMainLooper()).postDelayed({
-                    startCreatingMockLocations()
-                }, delay.toLong())
             }
         }
     }
@@ -281,13 +293,15 @@ class MockPlayerService : Service(), LocationListener {
     }
 
     fun removeMockProvider() {
-        mockStillRunning = false
         try {
-            locationManager?.setTestProviderEnabled(Constant.TYPE_GPS, false)
-            locationManager?.removeTestProvider(Constant.TYPE_GPS)
+            if (mockStillRunning) {
+                locationManager?.setTestProviderEnabled(Constant.TYPE_GPS, false)
+                locationManager?.removeTestProvider(Constant.TYPE_GPS)
+            }
         } catch (exception: java.lang.IllegalArgumentException) {
             Timber.e(exception.message)
         }
+        mockStillRunning = false
     }
 
     fun resetResources() {
@@ -314,7 +328,7 @@ class MockPlayerService : Service(), LocationListener {
         removeMockProvider()
     }
 
-    private fun messageMapper(messageType: String): Int {
+    private fun actionMapper(messageType: String): Int {
         return when (messageType) {
             ACTION_MOCK_IS_DONE -> MockPlayerActivity.MOCK_IS_DONE_MESSAGE
             else -> MockPlayerActivity.UNKNOWN_ERROR_MESSAGE

@@ -149,7 +149,7 @@ class MockArchiveActivity : AppCompatActivity() {
         binding.loadingState.visibility = View.GONE
         showSnackBar(
             message = resources.getString(response.message),
-            rootView = findViewById(R.id.mockArchiveRootView),
+            rootView = binding.root,
             Snackbar.LENGTH_SHORT
         )
     }

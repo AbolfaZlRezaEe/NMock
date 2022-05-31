@@ -116,7 +116,7 @@ class MockRepositoryImpl @Inject constructor(
                     provider = provider
                 )
             )
-            saveRoutingInformation(id, lineVector)
+            updateRoutingInformation(id, lineVector)
             emit(Success(id))
         }
 
@@ -127,6 +127,25 @@ class MockRepositoryImpl @Inject constructor(
         lineVector.forEach { listOfLatLng ->
             listOfLatLng.forEach { latLng ->
                 positionDao.insertMockPosition(
+                    PositionEntity(
+                        mockId = mockId,
+                        latitude = latLng.latitude,
+                        longitude = latLng.longitude,
+                        time = System.currentTimeMillis(),
+                        elapsedRealTime = SystemClock.elapsedRealtimeNanos(),
+                    )
+                )
+            }
+        }
+    }
+
+    private suspend fun updateRoutingInformation(
+        mockId: Long,
+        lineVector: ArrayList<List<LatLng>>
+    ){
+        lineVector.forEach { listOfLatLng ->
+            listOfLatLng.forEach { latLng ->
+                positionDao.updateMockPosition(
                     PositionEntity(
                         mockId = mockId,
                         latitude = latLng.latitude,

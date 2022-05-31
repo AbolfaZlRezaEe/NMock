@@ -86,6 +86,7 @@ class MockEditorActivity : AppCompatActivity() {
         val mockId = intent.getLongExtra(KEY_MOCK_INFORMATION, -1)
         if (mockId != -1L) {
             viewModel.getMockInformationFromId(mockId)
+            binding.deleteMockImageView.visibility = View.VISIBLE
             return
         } else if (intent.data != null) {
             // Reading intent data from URI object:
@@ -108,7 +109,7 @@ class MockEditorActivity : AppCompatActivity() {
             if (originLocation == null || destinationLocation == null) {
                 showSnackBar(
                     message = resources.getString(R.string.linkProblemTitle),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_LONG
                 )
                 Handler(Looper.getMainLooper()).postDelayed({
@@ -306,7 +307,7 @@ class MockEditorActivity : AppCompatActivity() {
                 mockSaverDialog?.dismiss()
                 showSnackBar(
                     message = resources.getString(response.message),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_SHORT
                 )
                 resetUiStateToDefault()
@@ -315,7 +316,7 @@ class MockEditorActivity : AppCompatActivity() {
             MockEditorViewModel.ACTION_GET_MOCK_INFORMATION -> {
                 showSnackBar(
                     message = resources.getString(response.message),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_LONG
                 )
                 Handler(Looper.getMainLooper()).postDelayed({ this.finish() }, 3000)
@@ -323,7 +324,7 @@ class MockEditorActivity : AppCompatActivity() {
             else -> {
                 showSnackBar(
                     message = resources.getString(response.message),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_LONG
                 )
             }
@@ -369,7 +370,7 @@ class MockEditorActivity : AppCompatActivity() {
             // we have origin and destination
             showSnackBar(
                 message = resources.getString(R.string.originDestinationProblem),
-                rootView = findViewById(R.id.mockEditorRootView),
+                rootView = binding.root,
                 duration = Snackbar.LENGTH_SHORT
             )
             return
@@ -420,7 +421,7 @@ class MockEditorActivity : AppCompatActivity() {
             } else {
                 showSnackBar(
                     message = resources.getString(R.string.pleaseTurnOnLocation),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_INDEFINITE,
                     actionText = resources.getString(R.string.iAccept)
                 ) {
@@ -435,7 +436,7 @@ class MockEditorActivity : AppCompatActivity() {
             if (shouldShowRelational) {
                 showSnackBar(
                     message = resources.getString(R.string.locationPermissionRational),
-                    rootView = findViewById(R.id.mockEditorRootView),
+                    rootView = binding.root,
                     duration = Snackbar.LENGTH_INDEFINITE,
                     actionText = resources.getString(R.string.iAccept),
                 ) {

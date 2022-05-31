@@ -33,10 +33,10 @@ class HomeFragment : Fragment() {
 
         binding.versionCode.text = "v${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})"
 
-        initializeListeners(view)
+        initializeListeners()
     }
 
-    private fun initializeListeners(view: View) {
+    private fun initializeListeners() {
         binding.createMockMaterialButton.setOnClickListener {
             activity?.startActivity(Intent(activity, MockEditorActivity::class.java))
         }
@@ -48,7 +48,7 @@ class HomeFragment : Fragment() {
         binding.mockTrackerMaterialButton.setOnClickListener {
             showSnackBar(
                 message = resources.getString(R.string.comingSoon),
-                rootView = view.findViewById(R.id.homeFragmentRootView),
+                rootView = binding.root,
                 duration = Snackbar.LENGTH_LONG
             )
         }
@@ -56,7 +56,7 @@ class HomeFragment : Fragment() {
         binding.mockImportMaterialButton.setOnClickListener {
             showSnackBar(
                 message = resources.getString(R.string.comingSoon),
-                rootView = view.findViewById(R.id.homeFragmentRootView),
+                rootView = binding.root,
                 duration = Snackbar.LENGTH_LONG
             )
         }

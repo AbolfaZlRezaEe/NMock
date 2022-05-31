@@ -55,7 +55,7 @@ class MockArchiveViewModel @Inject constructor(
         )
     }
 
-    private fun actionMapper(errorType: Int): Int {
+    private fun actionMapper(actionType: Int): Int {
         return MockArchiveActivity.UNKNOWN_ERROR_MESSAGE
     }
 }
