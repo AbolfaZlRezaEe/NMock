@@ -222,7 +222,6 @@ class MockEditorActivity : AppCompatActivity() {
     private fun processAfterMockSaved() {
         mockSaverDialog?.dismiss()
         resetUiStateToDefault()
-        viewModel.clearMockInformation(true)
         if (MockPlayerService.SERVICE_IS_RUNNING) return
         val dialog = NMockDialog.newInstance(
             title = resources.getString(R.string.playingMockDialogTitle),
@@ -244,9 +243,11 @@ class MockEditorActivity : AppCompatActivity() {
                     })
                 dialog.dismiss()
                 this@MockEditorActivity.finish()
+                viewModel.clearMockInformation(true)
             },
             onSecondaryButtonClicked = {
                 dialog.dismiss()
+                viewModel.clearMockInformation(true)
             }
         )
         dialog.show(supportFragmentManager.beginTransaction(), null)
