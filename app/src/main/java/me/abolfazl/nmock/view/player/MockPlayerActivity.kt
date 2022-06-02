@@ -191,9 +191,11 @@ class MockPlayerActivity : AppCompatActivity() {
         showProgressbar(false)
         binding.titleTextView.text = mockInformation.name
         binding.originTextView.text =
-            mockInformation.originAddress.changeStringTo(resources.getString(R.string.from))
+            mockInformation.originAddress?.changeStringTo(resources.getString(R.string.from))
+                ?: resources.getString(R.string.unknownAddress)
         binding.destinationTextView.text =
-            mockInformation.destinationAddress.changeStringTo(resources.getString(R.string.to))
+            mockInformation.destinationAddress?.changeStringTo(resources.getString(R.string.to))
+                ?: resources.getString(R.string.unknownAddress)
         LineManager.drawLineOnMap(
             mapView = binding.mapview,
             polylineLayer = polylineLayer,

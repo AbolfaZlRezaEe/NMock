@@ -172,9 +172,10 @@ class MockEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun processOriginAddress(originAddress: String) {
+    private fun processOriginAddress(originAddress: String?) {
         binding.originTextView.text =
-            originAddress.changeStringTo(resources.getString(R.string.from))
+            originAddress?.changeStringTo(resources.getString(R.string.from))
+                ?: resources.getString(R.string.unknownAddress)
         binding.titleTextView.text =
             resources.getText(R.string.chooseDestinationLocation)
         binding.destinationTextView.visibility = View.VISIBLE
@@ -186,10 +187,11 @@ class MockEditorActivity : AppCompatActivity() {
         }, 3000)
     }
 
-    private fun processDestinationAddress(destinationAddress: String) {
+    private fun processDestinationAddress(destinationAddress: String?) {
         binding.destinationTextView.visibility = View.VISIBLE
         binding.destinationTextView.text =
-            destinationAddress.changeStringTo(resources.getString(R.string.to))
+            destinationAddress?.changeStringTo(resources.getString(R.string.to))
+                ?: resources.getString(R.string.unknownAddress)
 
         showLoadingProgressbar(true)
         viewModel.getRouteInformation()
