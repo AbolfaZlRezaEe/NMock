@@ -61,7 +61,7 @@
     <string name="youWantStopAndDeleteMock">Are you sure that you want to stop player and delete all Mocks?</string>
     <string name="allowApplicationToMock">For using application, you should set application as Mock application in developer setting!</string>
     <string name="openIt">Open it!</string>
-    <string name="noDescription">No Description…</string>
+    <string name="withoutDescription">Without description…</string>
     <string name="wouldYouLikeToTryAgain">Umm… We have a problem on getting information from server. would you like to try again?</string>
     <string name="wouldYouLikeToTryAgainForDatabase">Umm… We have a problem on saving mock. would you like to try again?</string>
     <string name="from">From:</string>
