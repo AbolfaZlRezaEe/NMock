@@ -24,9 +24,9 @@ data class MockEntity(
     @ColumnInfo(name = "destination_location")
     val destinationLocation: String,
     @ColumnInfo(name = "origin_address")
-    val originAddress: String,
+    val originAddress: String?,
     @ColumnInfo(name = "destination_address")
-    val destinationAddress: String,
+    val destinationAddress: String?,
     @ColumnInfo(name = "speed")
     val speed: Int,
     @ColumnInfo(name = "bearing")

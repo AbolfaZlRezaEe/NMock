@@ -68,6 +68,7 @@
     <string name="to">To:</string>
     <string name="createdAt">Created At:</string>
     <string name="updatedAt">Updated At:</string>
+    <string name="unknownAddress">Unknown Address…</string>
 
     <!-- Exception messages -->
     <string name="unknownException">Unexpected Error occurred! Please try again…</string>
