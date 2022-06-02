@@ -14,7 +14,7 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var _binding: FragmentSaveMockBinding? = null
     private val binding get() = _binding!!
 
-    private var callback: ((mockName: String, mockDescription: String?, speed: Int) -> Unit)? = null
+    private var callback: ((mockName: String, mockDescription: String, speed: Int) -> Unit)? = null
 
     companion object {
         private const val KEY_SAVE_MOCK_NAME = "KEY_MOCK_NAME"
@@ -37,7 +37,7 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     fun onSaveClickListener(
-        mockCallback: (mockName: String, mockDescription: String?, speed: Int) -> Unit
+        mockCallback: (mockName: String, mockDescription: String, speed: Int) -> Unit
     ) {
         this.callback = mockCallback
     }
@@ -101,9 +101,15 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
         binding.saveMaterialButton.text = ""
         binding.loadingProgressbar.visibility = View.VISIBLE
 
+        val description =
+            if (binding.mockDescriptionTextInputEditText.text?.toString() == null
+                || binding.mockDescriptionTextInputEditText.text?.isEmpty()!!)
+                resources.getString(R.string.withoutDescription)
+            else binding.mockDescriptionTextInputEditText.text?.toString()!!
+
         callback?.invoke(
             binding.mockNameTextInputEditText.text!!.toString(),
-            binding.mockDescriptionTextInputEditText.text?.toString()!!,
+            description,
             binding.speedTextInputEditText.text!!.toString().toInt()
         )
     }

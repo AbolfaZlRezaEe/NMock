@@ -500,7 +500,7 @@ class MockEditorActivity : AppCompatActivity() {
             it.onSaveClickListener { mockName, mockDescription, speed ->
                 viewModel.saveMockInformation(
                     name = mockName,
-                    description = mockDescription ?: resources.getString(R.string.noDescription),
+                    description = mockDescription,
                     speed = speed
                 )
             }
