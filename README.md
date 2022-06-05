@@ -75,7 +75,7 @@ an important thing that these Sharedflows can do is when an action receives from
 
 ## :bookmark_tabs: Tips that help you...
 
-for using this application, we have some tips that maybe can help you:
+for developing this application, we have some tips that maybe can help you:
 
 - Unfortunately, we can't show our **Neshan Map SDK** license to you in the application. so if you want to develop this application, you can send your information to Abolfazlrezaei.of@gmail.com.
 
