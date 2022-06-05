@@ -77,9 +77,6 @@ an important thing that these Sharedflows can do is when an action receives from
 
 for developing this application, we have some tips that maybe can help you:
 
-- Unfortunately, we can't show our **Neshan Map SDK** license to you in the application. so if you want to develop this application, you can send your information to Abolfazlrezaei.of@gmail.com.
-
-- Unfortunately, we can't show our **Neshan API** to you in the application. so if you want to develop this application, you can send your information to Abolfazlrezaei.of@gmail.com.
-
 - If you want to Contribute, before starting that, please create an issue and describe your idea and assign that to me. I will check that as soon as possible.
+- We publish this application in GooglePlay as soon as possible. so for now, you can install application from [release section](https://github.com/AbolfaZlRezaEe/NMock/releases) in repository.
 
