@@ -1,4 +1,4 @@
-![NMock Banner](https://user-images.githubusercontent.com/73066290/172045148-9b0a158b-3309-48e2-8372-1b2841607050.png)
+![NMock Banner](https://user-images.githubusercontent.com/73066290/172200086-faa0e353-eae4-4745-9454-3530560a54c3.png)
 
 > Maybe you think about how map android developers test their features and functionalities? should every person that wanna test the map applications have a car and go to the streets to test? actually, the answer is No! in Android, we have some applications that we call them "Mock", and these applications help us to generate fake locations or fake trips to test our Map application and for other purposes.
 
@@ -18,7 +18,7 @@ after some experience that I've taken in some private or public projects like **
 
 at the first, I use MVVM and a piece of MVI architecture in this project. so, the application can be summarized in the chart below:
 
-![architecture picture](https://user-images.githubusercontent.com/73066290/172048449-79093330-fe9c-42e7-8b2f-b137c7f83451.png)
+![architecture picture](https://user-images.githubusercontent.com/73066290/172200195-27916ce9-b467-42d3-b0f4-b650682bd1ea.png)
 
 as you can see, we have two sources for our data in the application. remote API and Database. with remote API, we can request location information(reverse Geocoding) and also routing information for our trip. and if we want to save our trip, the database does that for us.
 
@@ -26,7 +26,7 @@ as you can see, we have two sources for our data in the application. remote API 
 
 after that, we have three repositories that help us to manage these requests from **ViewModels**. this section is important because all of the processes make and control here. so, we receive data and convert that to a model that **ViewModels** can use and parse it for **Views**. in the picture below, you can see the difference between the two of them:
 
-![architecture models](https://user-images.githubusercontent.com/73066290/172048925-73237922-f821-4a3e-926c-83e3be45af85.png)
+![architecture models](https://user-images.githubusercontent.com/73066290/172200304-0e7baeb1-7ae0-462c-97a8-cea06299aee0.png)
 
 > the left model represents the data that we receive from the server. and the right picture represents the data that we need for our view.
 
@@ -71,7 +71,7 @@ private fun initObservers() {
 
 an important thing that these Sharedflows can do is when an action receives from viewModel, it can be parsed and do an action to undo a thing in view. for example we call a function that requests receiving information from the server, and this request will be failed. for that, we send an action to view and cancel some stuff that we turned on before. you can see an example of that below:
 
-![error architecture](https://user-images.githubusercontent.com/73066290/172049338-799a255c-c8ca-468a-8853-865d280c85f5.png)
+![error architecture](https://user-images.githubusercontent.com/73066290/172200355-c851739b-7dbd-4ce2-a419-22a66a0b2bf3.png)
 
 ## :bookmark_tabs: Tips that help you...
 
