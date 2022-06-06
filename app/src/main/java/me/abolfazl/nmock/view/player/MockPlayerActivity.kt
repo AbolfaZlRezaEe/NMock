@@ -15,6 +15,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.carto.core.ScreenPos
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import io.sentry.Sentry
+import io.sentry.SentryLevel
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockPlayerBinding
@@ -274,13 +276,29 @@ class MockPlayerActivity : AppCompatActivity() {
                 }
             }
             MockPlayerService.ACTION_DEVELOPER_OPTION_PROBLEM -> {
-                showSnackBar(
-                    message = resources.getString(R.string.allowApplicationToMock),
-                    rootView = binding.root,
-                    duration = Snackbar.LENGTH_LONG,
-                    actionText = resources.getString(R.string.openIt),
-                ) {
+                val dialog = NMockDialog.newInstance(
+                    title = resources.getString(R.string.allowApplicationToMock),
+                    actionButtonText = resources.getString(R.string.openIt),
+                    secondaryButtonText = resources.getString(R.string.closeMockPlayer)
+                )
+                dialog.isCancelable = false
+                dialog.setDialogListener(onActionButtonClicked = {
                     startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+                    dialog.dismiss()
+                }, onSecondaryButtonClicked = {
+                    dialog.dismiss()
+                    this.finish()
+                })
+                dialog.show(supportFragmentManager, null)
+                try {
+                    if (mockPlayerService?.mockIsRunning()!!) {
+                        mockPlayerService?.pauseOrPlayMock()
+                    }
+                } catch (exception: Exception) {
+                    Sentry.captureMessage(
+                        "we have problem to stopping service in Developer option action",
+                        SentryLevel.INFO
+                    )
                 }
                 binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
             }

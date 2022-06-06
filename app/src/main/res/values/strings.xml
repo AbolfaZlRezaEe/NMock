@@ -1,9 +1,14 @@
 <resources>
     <string name="app_name">NMock</string>
+    <string name="nmock">N M o c k</string>
+    <string name="nmockDescription">Hello to FAKE things…</string>
+    <string name="splashDescription">just a second for showing my logo =))</string>
     <string name="versionName">v0.0.1</string>
-    <string name="newTrip">New Mock</string>
+    <string name="createMock">Create Mock</string>
+    <string name="mockList">Mock List</string>
+    <string name="trackYourMock">Track Your Mock</string>
+    <string name="importYourMock">Import Your Mock</string>
     <string name="mockArchive">Mock Archive</string>
-    <string name="mockPlayer">Mock Player</string>
     <string name="requestLocationPermissionRelational">We should have (Location Permissions) for working correctly!</string>
     <string name="iAccept">I Accept!</string>
     <string name="locationIsOff">Your location provider is OFF!</string>
@@ -69,6 +74,7 @@
     <string name="createdAt">Created At:</string>
     <string name="updatedAt">Updated At:</string>
     <string name="unknownAddress">Unknown Address…</string>
+    <string name="closeMockPlayer">Close player</string>
 
     <!-- Exception messages -->
     <string name="unknownException">Unexpected Error occurred! Please try again…</string>

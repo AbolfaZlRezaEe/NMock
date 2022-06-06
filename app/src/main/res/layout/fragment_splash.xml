@@ -7,32 +7,48 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:orientation="vertical">
 
         <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/nmock_logo"
+            android:layout_gravity="center_horizontal|top"
             android:adjustViewBounds="true"
-            android:layout_gravity="center_horizontal|top"/>
+            android:src="@drawable/nmock_logo" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:fontFamily="@font/roboto_bold"
-            android:textColor="@color/colorSecondary"
-            android:textSize="32sp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/roboto_bold"
+            android:text="@string/app_name"
+            android:textColor="@color/colorSecondary"
+            android:textSize="32sp" />
 
     </LinearLayout>
 
-    <ProgressBar
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="16dp"/>
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorSecondary"
+            android:text="@string/splashDescription"
+            android:layout_gravity="center_horizontal"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

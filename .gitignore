@@ -15,3 +15,5 @@
 local.properties
 /Key/nmockReleaseKey.jks
 /.idea/
+/release/
+/attachment/
