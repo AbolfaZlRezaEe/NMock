@@ -11,6 +11,7 @@ import me.abolfazl.nmock.model.database.models.MockEntity
 import me.abolfazl.nmock.model.database.models.PositionEntity
 import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.locationFormat
+import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.Failure
 import me.abolfazl.nmock.utils.response.Response
 import me.abolfazl.nmock.utils.response.Success
@@ -21,12 +22,17 @@ import javax.inject.Inject
 class MockRepositoryImpl @Inject constructor(
     private val mockDao: MockDao,
     private val positionDao: PositionDao,
+    private val logger: NMockLogger
 ) : MockRepository {
 
     companion object {
         const val DATABASE_INSERTION_EXCEPTION = 210
         const val DATABASE_EMPTY_LINE_EXCEPTION = 211
         const val LINE_VECTOR_NULL_EXCEPTION = 212
+    }
+
+    init {
+        logger.disableLogHeaderForThisClass()
     }
 
     override fun saveMockInformation(
@@ -45,11 +51,10 @@ class MockRepositoryImpl @Inject constructor(
     ): Flow<Response<Long, Int>> = flow {
         // check the lineVector doesn't null!
         if (lineVector == null) {
+            logger.writeLog(value = "saveMockInformation was failed. lineVector is null!")
             emit(Failure(LINE_VECTOR_NULL_EXCEPTION))
             return@flow
         }
-        // todo: pass (Unknown) string in view...
-        // because we wanna use string resource in whole application
         val mockId = mockDao.insertMockInformation(
             MockEntity(
                 id = null,
@@ -69,6 +74,7 @@ class MockRepositoryImpl @Inject constructor(
             )
         )
         if (mockId == -1L) {
+            logger.writeLog(value = "saveMockInformation was failed. mockId was -1!")
             emit(Failure(DATABASE_INSERTION_EXCEPTION))
             return@flow
         }
@@ -95,6 +101,7 @@ class MockRepositoryImpl @Inject constructor(
         flow {
             // check the lineVector doesn't null!
             if (lineVector == null) {
+                logger.writeLog(value = "updateMockInformation was failed. lineVector is null!")
                 emit(Failure(LINE_VECTOR_NULL_EXCEPTION))
                 return@flow
             }
@@ -168,6 +175,7 @@ class MockRepositoryImpl @Inject constructor(
         val mockObject = mockDao.getMockFromId(mockId)
         val positionList = positionDao.getMockPositionListFromId(mockId)
         if (positionList.isEmpty()) {
+            logger.writeLog(value = "getMock was failed. position list is empty!")
             emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
             return@flow
         }
