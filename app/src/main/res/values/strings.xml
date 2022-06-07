@@ -54,7 +54,7 @@
     <string name="databaseInsertionException">Database has a Problem! Please try again…</string>
     <string name="databaseGettingException">Information of your Mock had a Problem! Please add this Mock again…</string>
     <string name="comingSoon">This feature will be in app as soon as possible :)</string>
-    <string name="playerDialogTitle">You want to stop Mock service?</string>
+    <string name="playerDialogTitle">Do you want to stop Mock service?</string>
     <string name="stopMockService">Stop mock service</string>
     <string name="justLeave">Just leave</string>
     <string name="mockPlayerServiceStoppedCompletely">Mock player stopped!</string>
@@ -81,5 +81,5 @@
     <string name="locationInformationException">Sorry, we could not get the location information from server.</string>
     <string name="routeInformationException">Sorry, we could not get the route information from server.</string>
     <string name="mockProblemException">We have a problem on Mock information. please add your mock again…</string>
-    <string name="updateSpeedWasFailed">Umm… we have a problem on changing Mock speed. please try again...</string>
+    <string name="updateSpeedWasFailed">Umm… we have a problem on changing Mock speed. please try again…</string>
 </resources>
