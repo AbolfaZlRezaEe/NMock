@@ -11,12 +11,14 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.repository.mock.MockRepository
+import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import javax.inject.Inject
 
 @HiltViewModel
 class MockArchiveViewModel @Inject constructor(
-    private val mockRepository: MockRepository
+    private val mockRepository: MockRepository,
+    private val logger: NMockLogger
 ) : ViewModel() {
 
     companion object {
@@ -30,7 +32,8 @@ class MockArchiveViewModel @Inject constructor(
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Sentry.captureMessage("Exception thrown in MockArchiveViewModel: " + throwable.message)
+        logger.writeLog(value = "Exception thrown in MockArchiveViewModel: ${throwable.message}")
+        Sentry.captureMessage("Exception thrown in MockArchiveViewModel: ${throwable.message}")
         viewModelScope.launch {
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
@@ -39,6 +42,11 @@ class MockArchiveViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    init {
+        logger.disableLogHeaderForThisClass()
+        logger.setClassInformationForEveryLog(javaClass.simpleName)
     }
 
     fun getMocks() = viewModelScope.launch(exceptionHandler) {

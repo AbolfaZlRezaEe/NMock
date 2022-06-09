@@ -54,7 +54,8 @@ class MockEditorViewModel @Inject constructor(
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Sentry.captureMessage("Exception thrown in MockEditorViewModel: " + throwable.message)
+        logger.writeLog(value = "Exception thrown in MockEditorViewModel: ${throwable.message}")
+        Sentry.captureMessage("Exception thrown in MockEditorViewModel: ${throwable.message}")
         viewModelScope.launch {
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
@@ -67,6 +68,7 @@ class MockEditorViewModel @Inject constructor(
 
     init {
         logger.disableLogHeaderForThisClass()
+        logger.setClassInformationForEveryLog(javaClass.simpleName)
     }
 
     fun getLocationInformation(
@@ -302,7 +304,7 @@ class MockEditorViewModel @Inject constructor(
         speed: String
     ) = viewModelScope.launch {
         logger.writeLog(
-            value = "start to loading mock information from bundle." +
+            value = "start to loading mock information from share link." +
                     " originLocation: $originLocation," +
                     " destinationLocation: $destinationLocation," +
                     " speed: $speed"

@@ -5,16 +5,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentMockDetailBinding
 import me.abolfazl.nmock.model.database.MockProvider
 import me.abolfazl.nmock.model.database.MockType
 import me.abolfazl.nmock.utils.changeStringTo
+import me.abolfazl.nmock.utils.logger.NMockLogger
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MockDetailBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private var _binding: FragmentMockDetailBinding? = null
     private val binding get() = _binding!!
+
+    @Inject
+    lateinit var logger: NMockLogger
 
     companion object {
         private const val KEY_MOCK_INFORMATION_TITLE = "MOCK_TITLE"
@@ -56,6 +63,10 @@ class MockDetailBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        logger.disableLogHeaderForThisClass()
+        logger.setClassInformationForEveryLog(javaClass.simpleName)
+
         initViewFromBundleInformation()
 
         binding.closeAppCompatImageView.setOnClickListener { dismiss() }
@@ -77,6 +88,15 @@ class MockDetailBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 || createdAt == null
                 || updatedAt == null
             ) {
+                logger.writeLog(value = "one of the mock information was null!")
+                logger.writeLog(
+                    value = "title-> $title," +
+                            " description-> $description," +
+                            " provider-> $provider," +
+                            " type-> $type," +
+                            " createdAt-> $createdAt," +
+                            " updatedAt-> $updatedAt"
+                )
                 this.dismiss()
                 return
             }

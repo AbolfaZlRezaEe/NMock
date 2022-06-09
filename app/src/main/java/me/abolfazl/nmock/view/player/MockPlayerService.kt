@@ -16,14 +16,18 @@ import com.vividsolutions.jts.geom.Coordinate
 import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.LineString
 import com.vividsolutions.jts.linearref.LengthIndexedLine
+import dagger.hilt.android.AndroidEntryPoint
 import io.sentry.Sentry
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.utils.Constant
+import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import org.neshan.common.model.LatLng
 import timber.log.Timber
+import javax.inject.Inject
 import kotlin.math.*
 
+@AndroidEntryPoint
 class MockPlayerService : Service(), LocationListener {
 
     companion object {
@@ -41,6 +45,9 @@ class MockPlayerService : Service(), LocationListener {
         const val UNKNOWN_EXCEPTION = "UNKNOWN_EXCEPTION"
     }
 
+    @Inject
+    lateinit var logger: NMockLogger
+
     private val nMockBinder = MockPlayerBinder()
     private var lineVector: List<LatLng>? = null
     private var lengthIndexedLine: LengthIndexedLine? = null
@@ -55,6 +62,8 @@ class MockPlayerService : Service(), LocationListener {
 
     override fun onCreate() {
         super.onCreate()
+        logger.disableLogHeaderForThisClass()
+        logger.setClassInformationForEveryLog(javaClass.simpleName)
         startForegroundService()
     }
 
@@ -78,8 +87,10 @@ class MockPlayerService : Service(), LocationListener {
                 manager.setTestProviderEnabled(Constant.TYPE_GPS, true)
                 manager.requestLocationUpdates(Constant.TYPE_GPS, 0L, 0F, this)
             } catch (exception: IllegalArgumentException) {
+                logger.writeLog(value = "We have a problem on initializeProvider! exception-> ${exception.message}")
                 Timber.e(exception.message)
             } catch (exception: SecurityException) {
+                logger.writeLog(value = "We have SecurityException! exception-> ${exception.message}")
                 Timber.e(exception.message)
             }
         }
@@ -139,6 +150,7 @@ class MockPlayerService : Service(), LocationListener {
         val mustBeKilled = intent.getBooleanExtra(KILL_SERVICE, false)
         if (!mustBeKilled) return
         if (!mockStillRunning) return
+        logger.writeLog(value = "Service going to be kill!")
         removeMockProvider()
         resetResources()
         stopIdleService()
@@ -197,6 +209,7 @@ class MockPlayerService : Service(), LocationListener {
                     processLineVector()
                 }
                 if (speed == 0) {
+                    logger.writeLog(value = "We couldn't start mock service. speed is 0!")
                     locationListener?.invoke(
                         null, OneTimeEmitter(
                             actionId = ACTION_SPEED_PROBLEM,
@@ -214,6 +227,7 @@ class MockPlayerService : Service(), LocationListener {
                         secondCoordinate = line.extractPoint(index + ratio)
                         index += ratio
                     } else {
+                        logger.writeLog(value = "Mock is done. this is a good log =)))")
                         locationListener?.invoke(
                             null,
                             OneTimeEmitter(
@@ -225,6 +239,7 @@ class MockPlayerService : Service(), LocationListener {
                         return
                     }
                     if (firstCoordinate == null || secondCoordinate == null) {
+                        logger.writeLog(value = "one of the coordinates is null! We are going to stop service!")
                         locationListener?.invoke(
                             null,
                             OneTimeEmitter(
@@ -255,6 +270,7 @@ class MockPlayerService : Service(), LocationListener {
                     }, delay.toLong())
                 }
             } catch (e: Exception) {
+                logger.writeLog(value = "We have a problem on processing mock location! exception-> ${e.message}")
                 Sentry.captureException(e)
                 locationListener?.invoke(
                     null, OneTimeEmitter(
@@ -294,17 +310,20 @@ class MockPlayerService : Service(), LocationListener {
 
     fun removeMockProvider() {
         try {
+            logger.writeLog(value = "Mock service try to remove mock provider")
             if (mockStillRunning) {
                 locationManager?.setTestProviderEnabled(Constant.TYPE_GPS, false)
                 locationManager?.removeTestProvider(Constant.TYPE_GPS)
             }
         } catch (exception: java.lang.IllegalArgumentException) {
+            logger.writeLog(value = "We had a problem on removing mock provider! exception-> ${exception.message}")
             Timber.e(exception.message)
         }
         mockStillRunning = false
     }
 
     fun resetResources() {
+        logger.writeLog(value = "Mock service reset its resources...")
         SERVICE_IS_RUNNING = false
         lineVector = null
         speed = 0
@@ -323,9 +342,10 @@ class MockPlayerService : Service(), LocationListener {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        logger.writeLog(value = "Mock service will be down...")
         SERVICE_IS_RUNNING = false
         removeMockProvider()
+        super.onDestroy()
     }
 
     private fun actionMapper(messageType: String): Int {

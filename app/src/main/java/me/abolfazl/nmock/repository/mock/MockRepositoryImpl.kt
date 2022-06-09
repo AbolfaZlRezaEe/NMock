@@ -33,6 +33,7 @@ class MockRepositoryImpl @Inject constructor(
 
     init {
         logger.disableLogHeaderForThisClass()
+        logger.setClassInformationForEveryLog(javaClass.simpleName)
     }
 
     override fun saveMockInformation(

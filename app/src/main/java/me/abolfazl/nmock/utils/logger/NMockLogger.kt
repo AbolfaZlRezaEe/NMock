@@ -12,7 +12,7 @@ class NMockLogger constructor(
 ) {
     companion object {
         private const val DIRECTORY_NAME = "NDH" // NMock-Debugger-Helper
-        private const val TIME_PATTERN = "yyyy.MMMMM.dd hh:mm:ss aaa"
+        private const val TIME_PATTERN = "yyyy.MMMMM.dd hh:mm:ssaaa"
         private const val START_TIME_TITLE_KEY = "START time/data"
         private const val END_TIME_TITLE_KEY = "END time/data"
         private const val TIME_SEPARATOR =
@@ -23,17 +23,22 @@ class NMockLogger constructor(
     private val directoryPath: String =
         context.filesDir.toString() + File.separator + DIRECTORY_NAME
     private val filePath = directoryPath + File.separator + "${this.fileName}.txt"
+
     private var file: File? = null
+
     private var dataFormat: SimpleDateFormat = SimpleDateFormat(TIME_PATTERN, Locale.US)
 
     private var loggerAttached = false
     private var attachingProcessDisabled = false
+
+    private var className: String? = null
 
     init {
         try {
             createDirectoryIfNotExist()
             file = createFileIfNotExist()
         } catch (exception: Exception) {
+            // todo: try to reinitialize that...
             Sentry.captureMessage("we couldn't create file/directory. message was-> ${exception.message}")
         }
     }
@@ -63,7 +68,8 @@ class NMockLogger constructor(
         file?.let { nonNullFile ->
             var message = if (key != null) "${key}: $value" else value
             message = if (setTime) "${getRealTime()}-> $message" else message
-            nonNullFile.appendText("{${message}}\n")
+            message = if (className != null) "$className: $message" else message
+            nonNullFile.appendText("${message}\n")
         }
     }
 
@@ -72,9 +78,9 @@ class NMockLogger constructor(
             throw IllegalStateException("Attaching logger to class was failed. why you are trying to attach this class when you disabled the logger header?")
         }
         loggerAttached = true
-        writeLog(value = createLogTitle(className))
-        writeLog(key = START_TIME_TITLE_KEY, value = getRealTime())
-        writeLog(value = TIME_SEPARATOR)
+        writeLog(value = createLogTitle(className), setTime = false)
+        writeLog(key = START_TIME_TITLE_KEY, value = getRealTime(), setTime = false)
+        writeLog(value = TIME_SEPARATOR, setTime = false)
     }
 
     fun detachLogger() {
@@ -82,20 +88,23 @@ class NMockLogger constructor(
             throw IllegalStateException("Detaching logger from class was failed. why you are trying to detach this class when you disabled the logger header?")
         }
         loggerAttached = false
-        writeLog(value = TIME_SEPARATOR)
-        writeLog(key = END_TIME_TITLE_KEY, value = getRealTime())
+        writeLog(value = TIME_SEPARATOR, setTime = false)
+        writeLog(key = END_TIME_TITLE_KEY, value = getRealTime(), setTime = false)
     }
 
     fun disableLogHeaderForThisClass() {
         attachingProcessDisabled = true
     }
 
+    fun setClassInformationForEveryLog(className: String) {
+        if (!attachingProcessDisabled) {
+            throw IllegalStateException("You already attach this class to Logger! why you want to add class name for every log?")
+        }
+        this.className = className
+    }
+
     private fun getRealTime() = dataFormat.format(Calendar.getInstance().time)
 
     private fun createLogTitle(className: String) =
         "------------------------------ $className ------------------------------"
-}
-
-fun main() {
-    println(SimpleDateFormat("yyyy.MMMMM.dd hh:mm:ssaaa", Locale.US).format(Calendar.getInstance().time))
 }

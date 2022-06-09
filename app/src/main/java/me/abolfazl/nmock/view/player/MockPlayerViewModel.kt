@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.repository.mock.MockRepository
 import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
+import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
 import me.abolfazl.nmock.utils.response.ifSuccessful
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MockPlayerViewModel @Inject constructor(
-    private val mockRepository: MockRepository
+    private val mockRepository: MockRepository,
+    private val logger: NMockLogger
 ) : ViewModel() {
 
     companion object {
@@ -37,7 +39,8 @@ class MockPlayerViewModel @Inject constructor(
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Sentry.captureMessage("Exception thrown in MockPlayerViewModel: " + throwable.message)
+        logger.writeLog(value = "Exception thrown in MockPlayerViewModel: ${throwable.message}")
+        Sentry.captureMessage("Exception thrown in MockPlayerViewModel: ${throwable.message}")
         viewModelScope.launch {
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
@@ -46,6 +49,11 @@ class MockPlayerViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    init {
+        logger.disableLogHeaderForThisClass()
+        logger.setClassInformationForEveryLog(javaClass.simpleName)
     }
 
     fun getMockInformation(mockId: Long) = viewModelScope.launch(exceptionHandler) {

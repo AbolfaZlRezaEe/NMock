@@ -22,6 +22,7 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockPlayerBinding
 import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.*
+import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.*
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.view.detail.MockDetailBottomSheetDialogFragment
@@ -38,6 +39,9 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMockPlayerBinding
     private val viewModel: MockPlayerViewModel by viewModels()
+
+    @Inject
+    lateinit var logger: NMockLogger
 
     @Inject
     lateinit var sharedPreferences: SharedPreferences
@@ -65,11 +69,16 @@ class MockPlayerActivity : AppCompatActivity() {
         binding = ActivityMockPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        logger.disableLogHeaderForThisClass()
+        logger.setClassInformationForEveryLog(javaClass.simpleName)
+
         if (!isServiceStillRunning(MockPlayerService::class.java)) {
+            logger.writeLog(value = "Service is off! We are going to turn it on.")
             startService(Intent(this, MockPlayerService::class.java))
         }
 
         Intent(this@MockPlayerActivity, MockPlayerService::class.java).also { intent ->
+            logger.writeLog(value = "We are going to bind player service!")
             bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
         }
 
@@ -83,6 +92,7 @@ class MockPlayerActivity : AppCompatActivity() {
     private fun handlingIntent() {
         val serviceMustReset = intent.getBooleanExtra(RESET_COMMAND, false)
         if (!serviceMustReset) return
+        logger.writeLog(value = "We received RESET_COMMAND")
         mockPlayerService?.removeMockProvider()
         mockPlayerService?.resetResources()
     }
@@ -90,6 +100,7 @@ class MockPlayerActivity : AppCompatActivity() {
     private fun initViewsFromBundle() {
         var mockId = intent.getLongExtra(KEY_MOCK_ID_PLAYER, -1)
         if (mockId == -1L) {
+            logger.writeLog(value = "We couldn't find mock id for loading information of that!")
             mockId = SharedManager.getLong(
                 sharedPreferences = sharedPreferences,
                 key = SHARED_MOCK_ID,
@@ -97,6 +108,7 @@ class MockPlayerActivity : AppCompatActivity() {
             )
             fromNotificationOpened = true
             if (mockId == -1L) {
+                logger.writeLog(value = "We don't have mock id even in Shared! :/")
                 showSnackBar(
                     message = resources.getString(R.string.mockInformationProblem),
                     rootView = binding.root,
@@ -114,6 +126,7 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(component: ComponentName?, binder: IBinder?) {
+            logger.writeLog(value = "Service connected to Activity!")
             serviceIsRunning = true
             val mockPlayerBinder = binder as MockPlayerService.MockPlayerBinder
             mockPlayerService = mockPlayerBinder.getService()
@@ -130,6 +143,7 @@ class MockPlayerActivity : AppCompatActivity() {
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
+            logger.writeLog(value = "Service disconnected to Activity!")
             serviceIsRunning = false
         }
     }
@@ -169,8 +183,10 @@ class MockPlayerActivity : AppCompatActivity() {
         super.onStop()
         if (!serviceIsRunning) return
         if (mockPlayerService?.mockIsRunning()!!) {
+            logger.writeLog(value = "Service is running and we just unbind from it.")
             unbindService(serviceConnection)
         } else {
+            logger.writeLog(value = "Service is idle. we are going to stop it!")
             mockPlayerService?.stopIdleService()
         }
         serviceIsRunning = false
@@ -190,6 +206,7 @@ class MockPlayerActivity : AppCompatActivity() {
     }
 
     private fun processMockInformation(mockInformation: MockDataClass) {
+        logger.writeLog(value = "Mock information received!")
         showProgressbar(false)
         binding.titleTextView.text = mockInformation.name
         binding.originTextView.text =
@@ -292,9 +309,11 @@ class MockPlayerActivity : AppCompatActivity() {
                 dialog.show(supportFragmentManager, null)
                 try {
                     if (mockPlayerService?.mockIsRunning()!!) {
+                        logger.writeLog(value = "We are going to stop service because we don't have developer option permission!")
                         mockPlayerService?.pauseOrPlayMock()
                     }
                 } catch (exception: Exception) {
+                    logger.writeLog(value = "exception thrown while stopping service. exception-> ${exception.message}")
                     Sentry.captureMessage(
                         "we have problem to stopping service in Developer option action",
                         SentryLevel.INFO
@@ -408,6 +427,7 @@ class MockPlayerActivity : AppCompatActivity() {
     }
 
     private fun onShareClicked() {
+        logger.writeLog(value = "User clicked on Share button!")
         val uri = UriManager.createShareUri(
             origin = viewModel.mockPlayerState.value.mockInformation?.originLocation!!,
             destination = viewModel.mockPlayerState.value.mockInformation?.destinationLocation!!,
@@ -422,6 +442,7 @@ class MockPlayerActivity : AppCompatActivity() {
     }
 
     private fun onNavigationClicked() {
+        logger.writeLog(value = "User clicked on Navigation button!")
         startActivity(
             Intent(
                 Intent.ACTION_VIEW,
@@ -439,6 +460,7 @@ class MockPlayerActivity : AppCompatActivity() {
         dialog.isCancelable = true
         dialog.setDialogListener(
             onActionButtonClicked = {
+                logger.writeLog(value = "User stop his/her mock!")
                 mockPlayerService?.stopIdleService()
                 SharedManager.deleteLong(
                     sharedPreferences = sharedPreferences,
