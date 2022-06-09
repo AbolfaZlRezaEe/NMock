@@ -228,7 +228,7 @@ class MockEditorActivity : AppCompatActivity() {
             actionButtonText = resources.getString(R.string.yes),
             secondaryButtonText = resources.getString(R.string.no)
         )
-        dialog.isCancelable = true
+        dialog.isCancelable = false
         dialog.setDialogListener(
             onActionButtonClicked = {
                 startActivity(
