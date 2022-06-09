@@ -2,18 +2,21 @@ package me.abolfazl.nmock.utils.logger
 
 import android.content.Context
 import io.sentry.Sentry
+import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 class NMockLogger constructor(
     fileName: String,
-    context: Context
+    context: Context,
+    private val androidId: String
 ) {
     companion object {
         private const val DIRECTORY_NAME = "NDH" // NMock-Debugger-Helper
         private const val TIME_PATTERN = "yyyy.MMMMM.dd hh:mm:ssaaa"
         private const val START_TIME_TITLE_KEY = "START time/data"
+        private const val ANDROID_ID_KEY = "Android-Id"
         private const val END_TIME_TITLE_KEY = "END time/data"
         private const val TIME_SEPARATOR =
             "***************************************************************************"
@@ -40,6 +43,7 @@ class NMockLogger constructor(
         } catch (exception: Exception) {
             // todo: try to reinitialize that...
             Sentry.captureMessage("we couldn't create file/directory. message was-> ${exception.message}")
+            exception.printStackTrace()
         }
     }
 
@@ -70,6 +74,7 @@ class NMockLogger constructor(
             message = if (setTime) "${getRealTime()}-> $message" else message
             message = if (className != null) "$className: $message" else message
             nonNullFile.appendText("${message}\n")
+            Timber.i(message)
         }
     }
 
@@ -80,6 +85,7 @@ class NMockLogger constructor(
         loggerAttached = true
         writeLog(value = createLogTitle(className), setTime = false)
         writeLog(key = START_TIME_TITLE_KEY, value = getRealTime(), setTime = false)
+        writeLog(key = ANDROID_ID_KEY, value = androidId, setTime = false)
         writeLog(value = TIME_SEPARATOR, setTime = false)
     }
 
@@ -101,6 +107,10 @@ class NMockLogger constructor(
             throw IllegalStateException("You already attach this class to Logger! why you want to add class name for every log?")
         }
         this.className = className
+    }
+
+    fun getFilePath(): String {
+        return filePath
     }
 
     private fun getRealTime() = dataFormat.format(Calendar.getInstance().time)
