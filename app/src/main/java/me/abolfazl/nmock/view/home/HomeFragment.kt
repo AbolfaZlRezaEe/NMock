@@ -29,9 +29,6 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var logger: NMockLogger
 
-    @Inject
-    lateinit var androidId: String
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -76,13 +73,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.reportLogsMaterialButton.setOnClickListener {
-            Sentry.configureScope {
-                it.addAttachment(Attachment(logger.getFilePath()))
-            }
-            Sentry.captureMessage("Log Reports from $androidId", SentryLevel.INFO)
-            Sentry.configureScope {
-                it.clearAttachments()
-            }
+            logger.sendLogsFile()
             showSnackBar(
                 message = resources.getString(R.string.thankYouForYourHelp),
                 rootView = binding.root,

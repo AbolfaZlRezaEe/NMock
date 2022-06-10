@@ -42,12 +42,4 @@ object DatabaseModule {
     fun provideMockDao(
         database: NMockDataBase
     ): MockDao = database.getMockDao()
-
-    @Singleton
-    @Provides
-    fun provideMockShared(
-        @ApplicationContext context: Context
-    ): SharedPreferences {
-        return context.getSharedPreferences(Constant.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
-    }
 }

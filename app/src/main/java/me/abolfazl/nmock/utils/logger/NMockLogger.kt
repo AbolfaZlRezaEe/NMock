@@ -1,20 +1,29 @@
 package me.abolfazl.nmock.utils.logger
 
 import android.content.Context
+import android.content.SharedPreferences
+import io.sentry.Attachment
 import io.sentry.Sentry
+import io.sentry.SentryLevel
+import me.abolfazl.nmock.utils.SHARED_LOG_TIME
+import me.abolfazl.nmock.utils.managers.SharedManager
 import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 class NMockLogger constructor(
+    private val androidId: String,
+    private val sharedPreferences: SharedPreferences,
     fileName: String,
     context: Context,
-    private val androidId: String
 ) {
     companion object {
         private const val DIRECTORY_NAME = "NDH" // NMock-Debugger-Helper
+
+        private const val SHARED_TIME_PATTERN = "hh:mm a"
         private const val TIME_PATTERN = "yyyy.MMMMM.dd hh:mm:ssaaa"
+
         private const val START_TIME_TITLE_KEY = "START time/data"
         private const val ANDROID_ID_KEY = "Android-Id"
         private const val END_TIME_TITLE_KEY = "END time/data"
@@ -30,6 +39,7 @@ class NMockLogger constructor(
     private var file: File? = null
 
     private var dataFormat: SimpleDateFormat = SimpleDateFormat(TIME_PATTERN, Locale.US)
+    private val calendar = Calendar.getInstance()
 
     private var loggerAttached = false
     private var attachingProcessDisabled = false
@@ -113,7 +123,59 @@ class NMockLogger constructor(
         return filePath
     }
 
-    private fun getRealTime() = dataFormat.format(Calendar.getInstance().time)
+    fun sendLogsFile() {
+        if (!logCanSend()) return
+        Sentry.configureScope {
+            it.addAttachment(Attachment(getFilePath()))
+        }
+        Sentry.captureMessage("Log Reports from $androidId", SentryLevel.INFO)
+        Sentry.configureScope {
+            it.clearAttachments()
+        }
+    }
+
+    private fun logCanSend(): Boolean {
+        val simpleDateFormat = SimpleDateFormat(SHARED_TIME_PATTERN)
+        val startTime = SharedManager.getString(
+            sharedPreferences = sharedPreferences,
+            key = SHARED_LOG_TIME,
+            defaultValue = null
+        )
+        if (startTime == null) {
+            SharedManager.putString(
+                sharedPreferences = sharedPreferences,
+                key = SHARED_LOG_TIME,
+                value = simpleDateFormat.format(calendar.time)
+            )
+            return true
+        }
+        val result = calculateTimes(
+            data1 = simpleDateFormat.parse(startTime),
+            data2 = simpleDateFormat.parse(simpleDateFormat.format(calendar.time))
+        )
+        if (result >= 1) {
+            // Save new time to shared...
+            SharedManager.putString(
+                sharedPreferences = sharedPreferences,
+                key = SHARED_LOG_TIME,
+                value = simpleDateFormat.format(calendar.time)
+            )
+        }
+        return result >= 1 // User can send report every one hour(avoiding to spam!)
+    }
+
+    private fun calculateTimes(
+        data1: Date?,
+        data2: Date?
+    ): Int {
+        if (data1 == null || data2 == null) return -1
+        val difference = data2.time - data1.time
+        val days = (difference / (1000 * 60 * 60 * 24)).toInt()
+        val hours = ((difference - (1000 * 60 * 60 * 24 * days)) / (1000 * 60 * 60)).toInt()
+        return if (hours < 0) -hours else hours
+    }
+
+    private fun getRealTime() = dataFormat.format(calendar.time)
 
     private fun createLogTitle(className: String) =
         "------------------------------ $className ------------------------------"
