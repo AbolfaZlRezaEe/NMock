@@ -18,14 +18,14 @@ object MarkerManager {
     const val ELEMENT_ID_DESTINATION_MARKER = "DESTINATION_MARKER"
     const val ELEMENT_ID_CURRENT_LOCATION_MARKER = "CURRENT_LOCATION_MARKER"
 
-    const val CURRENT_LOCATION_MARKER_SIZE = 85F
+    private const val NORMAL_MARKER_SIZE = 32F
 
     fun createMarker(
         @NonNull location: LatLng,
         @DrawableRes drawableRes: Int,
         @Nullable context: Context?,
         @Nullable elementId: String? = null,
-        markerSize: Float = 32f
+        markerSize: Float = NORMAL_MARKER_SIZE
     ): Marker? {
         val markerBitmap = getBitmapFromResourceId(drawableRes, context) ?: return null
         val markerStyle = createMarkerStyle(bitmap = markerBitmap, markerSize = markerSize)

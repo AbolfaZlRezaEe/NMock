@@ -432,7 +432,6 @@ class MockEditorActivity : AppCompatActivity() {
                             drawableRes = R.drawable.current_location_marker,
                             context = this,
                             elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
-                            markerSize = MarkerManager.CURRENT_LOCATION_MARKER_SIZE
                         )
                         marker?.let {
                             markerLayer.add(marker)
