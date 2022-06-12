@@ -3,8 +3,6 @@ package me.abolfazl.nmock
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 import io.sentry.Sentry
-import io.sentry.SentryEvent
-import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
 import io.sentry.protocol.User
 import me.abolfazl.nmock.utils.Constant

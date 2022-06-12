@@ -8,9 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import io.sentry.Attachment
-import io.sentry.Sentry
-import io.sentry.SentryLevel
 import me.abolfazl.nmock.BuildConfig
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentHomeBinding
