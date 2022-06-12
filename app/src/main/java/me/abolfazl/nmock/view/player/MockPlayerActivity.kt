@@ -143,7 +143,7 @@ class MockPlayerActivity : AppCompatActivity() {
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
-            logger.writeLog(value = "Service disconnected to Activity!")
+            logger.writeLog(value = "Service disconnected from Activity!")
             serviceIsRunning = false
         }
     }
@@ -460,7 +460,7 @@ class MockPlayerActivity : AppCompatActivity() {
         dialog.isCancelable = true
         dialog.setDialogListener(
             onActionButtonClicked = {
-                logger.writeLog(value = "User stop his/her mock!")
+                logger.writeLog(value = "User stop the mock!")
                 mockPlayerService?.stopIdleService()
                 SharedManager.deleteLong(
                     sharedPreferences = sharedPreferences,

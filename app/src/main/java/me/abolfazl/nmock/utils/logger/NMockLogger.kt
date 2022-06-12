@@ -121,7 +121,7 @@ class NMockLogger constructor(
     }
 
     fun setClassInformationForEveryLog(className: String) {
-        if (!attachingProcessDisabled) {
+        if (loggerAttached || !attachingProcessDisabled) {
             throw IllegalStateException("You already attach this class to Logger! why you want to add class name for every log?")
         }
         this.className = className

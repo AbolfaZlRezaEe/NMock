@@ -303,12 +303,6 @@ class MockEditorViewModel @Inject constructor(
         destinationLocation: String,
         speed: String
     ) = viewModelScope.launch {
-        logger.writeLog(
-            value = "start to loading mock information from share link." +
-                    " originLocation: $originLocation," +
-                    " destinationLocation: $destinationLocation," +
-                    " speed: $speed"
-        )
         val realOrigin = originLocation.locationFormat()
         val realDestination = destinationLocation.locationFormat()
         val realSpeed = speed.toInt()
