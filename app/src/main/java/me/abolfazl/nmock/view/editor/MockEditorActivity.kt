@@ -23,6 +23,7 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockEditorBinding
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.changeStringTo
+import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.*
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.showSnackBar
@@ -35,6 +36,7 @@ import me.abolfazl.nmock.view.saverDialog.SaveMockBottomSheetDialogFragment
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MockEditorActivity : AppCompatActivity() {
@@ -51,6 +53,9 @@ class MockEditorActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMockEditorBinding
     private val viewModel: MockEditorViewModel by viewModels()
+
+    @Inject
+    lateinit var logger: NMockLogger
 
     // Layers
     private val markerLayer = ArrayList<Marker>()
@@ -70,6 +75,9 @@ class MockEditorActivity : AppCompatActivity() {
         setContentView(binding.root)
         window.statusBarColor = ContextCompat.getColor(this, R.color.colorSecondary)
 
+        logger.disableLogHeaderForThisClass()
+        logger.setClassInformationForEveryLog(javaClass.simpleName)
+
         handlingIntent()
 
         initListeners()
@@ -85,6 +93,7 @@ class MockEditorActivity : AppCompatActivity() {
         // Reading intent data from Extras:
         val mockId = intent.getLongExtra(KEY_MOCK_INFORMATION, -1)
         if (mockId != -1L) {
+            logger.writeLog(value = "User would like to edit the mock. start loading mock information...")
             viewModel.getMockInformationFromId(mockId)
             binding.deleteMockImageView.visibility = View.VISIBLE
             return
@@ -103,10 +112,18 @@ class MockEditorActivity : AppCompatActivity() {
                     }
                 }
             }
+            logger.writeLog(value = "User use NMock share link to opening NMock!")
+            logger.writeLog(
+                value = "Mock information is-> originLocation: $originLocation," +
+                        " destinationLocation: $destinationLocation," +
+                        " speed: $speed"
+            )
             if (speed == null) {
+                logger.writeLog(value = "Speed of share link was null...")
                 speed = Constant.DEFAULT_SPEED.toString()
             }
             if (originLocation == null || destinationLocation == null) {
+                logger.writeLog(value = "origin or destination location of share link was null...")
                 showSnackBar(
                     message = resources.getString(R.string.linkProblemTitle),
                     rootView = binding.root,
@@ -173,6 +190,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun processOriginAddress(originAddress: String?) {
+        logger.writeLog(value = "We receive origin address! address-> $originAddress")
         binding.originTextView.text =
             originAddress?.changeStringTo(resources.getString(R.string.from))
                 ?: resources.getString(R.string.unknownAddress)
@@ -188,6 +206,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun processDestinationAddress(destinationAddress: String?) {
+        logger.writeLog(value = "We receive destination address! address-> $destinationAddress")
         binding.destinationTextView.visibility = View.VISIBLE
         binding.destinationTextView.text =
             destinationAddress?.changeStringTo(resources.getString(R.string.to))
@@ -198,6 +217,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun processLineVector(lineVector: ArrayList<List<LatLng>>) {
+        logger.writeLog(value = "We receive route information!")
         LineManager.drawLineOnMap(
             mapView = binding.mapview,
             polylineLayer = polylineLayer,
@@ -222,7 +242,9 @@ class MockEditorActivity : AppCompatActivity() {
     private fun processAfterMockSaved() {
         mockSaverDialog?.dismiss()
         resetUiStateToDefault()
+        logger.writeLog(value = "Mock information saved successfully!")
         if (MockPlayerService.SERVICE_IS_RUNNING) return
+        logger.writeLog(value = "We are going to show play dialog to user.")
         val dialog = NMockDialog.newInstance(
             title = resources.getString(R.string.playingMockDialogTitle),
             actionButtonText = resources.getString(R.string.yes),
@@ -257,6 +279,7 @@ class MockEditorActivity : AppCompatActivity() {
         isOrigin: Boolean,
         location: LatLng
     ) {
+        logger.writeLog(value = "We are going to show marker on the map.")
         val markerFromMap = MarkerManager.getMarkerFromLayer(
             markerLayer,
             if (isOrigin) MarkerManager.ELEMENT_ID_ORIGIN_MARKER else MarkerManager.ELEMENT_ID_DESTINATION_MARKER
@@ -361,6 +384,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onMapLongClicked(latLng: LatLng) {
+        logger.writeLog(value = "User long pressed on map!")
         val originMarker = MarkerManager.getMarkerFromLayer(
             layer = markerLayer,
             id = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
@@ -370,6 +394,10 @@ class MockEditorActivity : AppCompatActivity() {
             id = MarkerManager.ELEMENT_ID_DESTINATION_MARKER
         )
         if (originMarker != null && destinationMarker != null) {
+            logger.writeLog(
+                value = "User has origin and destination Marker. " +
+                        "we are going to show an error to user!"
+            )
             // we have origin and destination
             showSnackBar(
                 message = resources.getString(R.string.originDestinationProblem),
@@ -389,6 +417,7 @@ class MockEditorActivity : AppCompatActivity() {
             if (PermissionManager.locationIsEnabled(this)) {
                 fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                     if (location == null) {
+                        logger.writeLog(value = "the location that fused give us is null! we are going to initLiveLocation!")
                         initLiveLocation()
                         return@addOnSuccessListener
                     }
@@ -422,6 +451,7 @@ class MockEditorActivity : AppCompatActivity() {
                     }
                 }
             } else {
+                logger.writeLog(value = "User should be turn on the location in phone!")
                 showSnackBar(
                     message = resources.getString(R.string.pleaseTurnOnLocation),
                     rootView = binding.root,
@@ -432,6 +462,7 @@ class MockEditorActivity : AppCompatActivity() {
                 }
             }
         } else {
+            logger.writeLog(value = "User doesn't allow location permission for app!")
             val permission = Manifest.permission.ACCESS_FINE_LOCATION
             val shouldShowRelational = ActivityCompat.shouldShowRequestPermissionRationale(
                 this, permission
@@ -552,6 +583,7 @@ class MockEditorActivity : AppCompatActivity() {
         dialog.isCancelable = false
         dialog.setDialogListener(
             onActionButtonClicked = {
+                logger.writeLog(value = "We are going to destroy the Mock that user choose!")
                 viewModel.deleteMock()
                 resetUiStateToDefault()
                 dialog.dismiss()

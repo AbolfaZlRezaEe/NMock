@@ -1,6 +1,7 @@
 package me.abolfazl.nmock.repository.routingInfo
 
 import io.sentry.Sentry
+import io.sentry.SentryLevel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.model.apiService.RoutingApiService
@@ -12,17 +13,24 @@ import me.abolfazl.nmock.repository.models.routingInfo.LegDataclass
 import me.abolfazl.nmock.repository.models.routingInfo.RouteDataclass
 import me.abolfazl.nmock.repository.models.routingInfo.RoutingInfoDataclass
 import me.abolfazl.nmock.repository.models.routingInfo.StepDataclass
+import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.Failure
 import me.abolfazl.nmock.utils.response.Response
 import me.abolfazl.nmock.utils.response.Success
 import javax.inject.Inject
 
 class RoutingInfoRepositoryImpl @Inject constructor(
-    private val apiService: RoutingApiService
+    private val apiService: RoutingApiService,
+    private val logger: NMockLogger
 ) : RoutingInfoRepository {
 
     companion object {
         const val UNKNOWN_EXCEPTION = 310
+    }
+
+    init {
+        logger.disableLogHeaderForThisClass()
+        logger.setClassInformationForEveryLog(javaClass.simpleName)
     }
 
     override suspend fun getRoutingInformation(
@@ -38,9 +46,18 @@ class RoutingInfoRepositoryImpl @Inject constructor(
                 emit(Success(toRoutingInfoDataclass(it)))
                 return@flow
             }
+            logger.writeLog(
+                value = "getRoutingInformation was failed. response is successful but body is null!"
+            )
             emit(Failure(UNKNOWN_EXCEPTION))
         } else {
-            Sentry.captureMessage("getRoutingInformation failed! response code was-> ${response.code()}")
+            logger.writeLog(
+                value = "getRoutingInformation was failed. response code is-> ${response.code()}"
+            )
+            Sentry.captureMessage(
+                "getRoutingInformation failed! response code is-> ${response.code()}",
+                SentryLevel.FATAL
+            )
         }
     }
 

@@ -1,8 +1,6 @@
 package me.abolfazl.nmock.di
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -42,12 +40,4 @@ object DatabaseModule {
     fun provideMockDao(
         database: NMockDataBase
     ): MockDao = database.getMockDao()
-
-    @Singleton
-    @Provides
-    fun provideMockShared(
-        @ApplicationContext context: Context
-    ): SharedPreferences {
-        return context.getSharedPreferences(Constant.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
-    }
 }

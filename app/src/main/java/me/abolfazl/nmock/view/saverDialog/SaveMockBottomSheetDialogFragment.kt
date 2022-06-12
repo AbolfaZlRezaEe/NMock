@@ -103,7 +103,8 @@ class SaveMockBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         val description =
             if (binding.mockDescriptionTextInputEditText.text?.toString() == null
-                || binding.mockDescriptionTextInputEditText.text?.isEmpty()!!)
+                || binding.mockDescriptionTextInputEditText.text?.isEmpty()!!
+            )
                 resources.getString(R.string.withoutDescription)
             else binding.mockDescriptionTextInputEditText.text?.toString()!!
 

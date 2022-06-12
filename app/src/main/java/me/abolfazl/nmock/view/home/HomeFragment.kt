@@ -7,17 +7,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import me.abolfazl.nmock.BuildConfig
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentHomeBinding
+import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.archive.MockArchiveActivity
 import me.abolfazl.nmock.view.editor.MockEditorActivity
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+
+    @Inject
+    lateinit var logger: NMockLogger
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,7 +38,8 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.versionCode.text = "v${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})"
+        binding.versionCode.text =
+            "${resources.getString(R.string.release)} ${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})"
 
         initializeListeners()
     }
@@ -58,6 +66,15 @@ class HomeFragment : Fragment() {
                 message = resources.getString(R.string.comingSoon),
                 rootView = binding.root,
                 duration = Snackbar.LENGTH_LONG
+            )
+        }
+
+        binding.reportLogsMaterialButton.setOnClickListener {
+            logger.sendLogsFile()
+            showSnackBar(
+                message = resources.getString(R.string.thankYouForYourHelp),
+                rootView = binding.root,
+                duration = Snackbar.LENGTH_SHORT
             )
         }
     }

@@ -20,6 +20,7 @@ import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepository
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepositoryImpl
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.locationFormat
+import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.SingleEvent
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
@@ -32,6 +33,7 @@ class MockEditorViewModel @Inject constructor(
     private val locationInfoRepository: LocationInfoRepository,
     private val routingInfoRepository: RoutingInfoRepository,
     private val mockRepository: MockRepository,
+    private val logger: NMockLogger
 ) : ViewModel() {
 
     companion object {
@@ -52,7 +54,8 @@ class MockEditorViewModel @Inject constructor(
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Sentry.captureMessage("Exception thrown in MockEditorViewModel: " + throwable.message)
+        logger.writeLog(value = "Exception thrown in MockEditorViewModel: ${throwable.message}")
+        Sentry.captureMessage("Exception thrown in MockEditorViewModel: ${throwable.message}")
         viewModelScope.launch {
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
@@ -63,15 +66,31 @@ class MockEditorViewModel @Inject constructor(
         }
     }
 
+    init {
+        logger.disableLogHeaderForThisClass()
+        logger.setClassInformationForEveryLog(javaClass.simpleName)
+    }
+
     fun getLocationInformation(
         location: LatLng,
         isOrigin: Boolean
     ) = viewModelScope.launch(exceptionHandler) {
+        logger.writeLog(
+            value = "getLocationInformation function called!" +
+                    " isOrigin: $isOrigin," +
+                    " latitude: ${location.latitude}," +
+                    " longitude: ${location.longitude}"
+        )
         locationInfoRepository.getLocationInformation(
             location.latitude,
             location.longitude
         ).collect { response ->
             response.ifSuccessful { result ->
+                logger.writeLog(
+                    value = "locationInformationReceived!" +
+                            "isOrigin: $isOrigin," +
+                            "address: ${result.fullAddress}"
+                )
                 if (isOrigin) {
                     _mockEditorState.value = _mockEditorState.value.copy(
                         originAddress = SingleEvent(result.fullAddress),
@@ -99,6 +118,9 @@ class MockEditorViewModel @Inject constructor(
         val originLocation = _mockEditorState.value.originLocation?.getRawValue()
         val destinationLocation = _mockEditorState.value.destinationLocation?.getRawValue()
         if (originLocation == null || destinationLocation == null) {
+            logger.writeLog(
+                value = "getRouteInformation was failed. origin or destination location was null!"
+            )
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
                     actionId = ACTION_ROUTE_INFORMATION,
@@ -112,6 +134,9 @@ class MockEditorViewModel @Inject constructor(
             destination = destinationLocation.locationFormat()
         ).collect { response ->
             response.ifSuccessful { result ->
+                logger.writeLog(
+                    value = "getRouteInformation was successful!"
+                )
                 _mockEditorState.value = _mockEditorState.value.copy(
                     lineVector = SingleEvent(result.routeModels[0].getRouteLineVector())
                 )
@@ -136,6 +161,9 @@ class MockEditorViewModel @Inject constructor(
         val destinationLocation = _mockEditorState.value.destinationLocation?.getRawValue()
         val id = _mockEditorState.value.id?.getRawValue()
         if (originLocation == null || destinationLocation == null) {
+            logger.writeLog(
+                value = "saveMockInformation was failed. origin or destination location was null!"
+            )
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
                     actionId = ACTION_ROUTE_INFORMATION,
@@ -213,6 +241,9 @@ class MockEditorViewModel @Inject constructor(
     fun clearMockInformation(
         clearOrigin: Boolean
     ) {
+        logger.writeLog(
+            value = "clearMockInformation called. clearOrigin: $clearOrigin"
+        )
         if (clearOrigin) {
             _mockEditorState.value = _mockEditorState.value.copy(
                 destinationAddress = null,

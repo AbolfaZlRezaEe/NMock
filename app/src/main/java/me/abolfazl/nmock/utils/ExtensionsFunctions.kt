@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import org.neshan.common.model.LatLng
+import java.io.File
 import kotlin.math.ceil
 
 fun <T : RecyclerView.ViewHolder> T.setupListeners(
@@ -76,3 +77,7 @@ fun String.locationFormat(): LatLng {
 fun Int.toPixel(context: Context): Int {
     return ceil(this * context.resources.displayMetrics.density).toInt()
 }
+
+val File.size get() = if (!exists()) 0.0 else length().toDouble()
+val File.sizeInKb get() = size / 1024
+val File.sizeInMb get() = sizeInKb / 1024

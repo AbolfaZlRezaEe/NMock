@@ -24,6 +24,44 @@ object SharedManager {
         return sharedPreferences.getLong(key, defaultValue)
     }
 
+    fun getInt(
+        sharedPreferences: SharedPreferences,
+        @SharedParametersType key: String,
+        defaultValue: Int
+    ): Int {
+        return sharedPreferences.getInt(key, defaultValue)
+    }
+
+    fun putInt(
+        sharedPreferences: SharedPreferences,
+        @SharedParametersType key: String,
+        value: Int
+    ) {
+        sharedPreferences
+            .edit()
+            .putInt(key, value)
+            .apply()
+    }
+
+    fun putString(
+        sharedPreferences: SharedPreferences,
+        @SharedParametersType key: String,
+        value: String?
+    ) {
+        sharedPreferences
+            .edit()
+            .putString(key, value)
+            .apply()
+    }
+
+    fun getString(
+        sharedPreferences: SharedPreferences,
+        @SharedParametersType key: String,
+        defaultValue: String?
+    ): String? {
+        return sharedPreferences.getString(key, defaultValue)
+    }
+
     fun deleteLong(
         sharedPreferences: SharedPreferences,
         @SharedParametersType key: String
