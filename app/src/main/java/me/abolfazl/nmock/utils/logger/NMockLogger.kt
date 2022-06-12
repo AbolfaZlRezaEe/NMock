@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import io.sentry.Attachment
 import io.sentry.Sentry
 import io.sentry.SentryLevel
+import me.abolfazl.nmock.utils.SHARED_LOG_CODE
 import me.abolfazl.nmock.utils.SHARED_LOG_TIME
 import me.abolfazl.nmock.utils.managers.SharedManager
 import timber.log.Timber
@@ -93,10 +94,17 @@ class NMockLogger constructor(
             throw IllegalStateException("Attaching logger to class was failed. why you are trying to attach this class when you disabled the logger header?")
         }
         loggerAttached = true
-        writeLog(value = createLogTitle(className), setTime = false)
+
+        writeLog(value = createLogTitle(className, getLogCode()), setTime = false)
         writeLog(key = START_TIME_TITLE_KEY, value = getRealTime(), setTime = false)
         writeLog(key = ANDROID_ID_KEY, value = androidId, setTime = false)
         writeLog(value = TIME_SEPARATOR, setTime = false)
+
+        SharedManager.putInt(
+            sharedPreferences = sharedPreferences,
+            key = SHARED_LOG_CODE,
+            value = getLogCode() + 1
+        )
     }
 
     fun detachLogger() {
@@ -119,14 +127,10 @@ class NMockLogger constructor(
         this.className = className
     }
 
-    fun getFilePath(): String {
-        return filePath
-    }
-
     fun sendLogsFile() {
         if (!logCanSend()) return
         Sentry.configureScope {
-            it.addAttachment(Attachment(getFilePath()))
+            it.addAttachment(Attachment(filePath))
         }
         Sentry.captureMessage("Log Reports from $androidId", SentryLevel.INFO)
         Sentry.configureScope {
@@ -177,6 +181,14 @@ class NMockLogger constructor(
 
     private fun getRealTime() = dataFormat.format(calendar.time)
 
-    private fun createLogTitle(className: String) =
-        "------------------------------ $className ------------------------------"
+    private fun getLogCode() = SharedManager.getInt(
+        sharedPreferences = sharedPreferences,
+        key = SHARED_LOG_CODE,
+        defaultValue = 0
+    )
+
+    private fun createLogTitle(
+        className: String,
+        code: Int
+    ) = "code$code----------------------- $className ------------------------------"
 }

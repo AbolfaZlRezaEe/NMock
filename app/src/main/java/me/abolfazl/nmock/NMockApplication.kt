@@ -25,9 +25,9 @@ class NMockApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        logger.attachLogger(javaClass.simpleName)
-
         Timber.plant(Timber.DebugTree())
+
+        logger.attachLogger(javaClass.simpleName)
 
         initializeSentry()
     }
