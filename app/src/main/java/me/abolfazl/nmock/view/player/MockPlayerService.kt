@@ -121,7 +121,8 @@ class MockPlayerService : Service(), LocationListener {
                 Constant.NOTIFICATION_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_NONE
             )
-            notificationChannel.description = resources.getString(R.string.notificationChannelDescription)
+            notificationChannel.description =
+                resources.getString(R.string.notificationChannelDescription)
             notificationManager.createNotificationChannel(notificationChannel)
         }
 

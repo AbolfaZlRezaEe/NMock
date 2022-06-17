@@ -1,6 +1,9 @@
 package me.abolfazl.nmock.model.database.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import me.abolfazl.nmock.model.database.models.PositionEntity
 
 @Dao

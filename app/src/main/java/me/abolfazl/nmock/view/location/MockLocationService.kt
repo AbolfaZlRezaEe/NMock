@@ -72,6 +72,7 @@ class MockLocationService : Service() {
         }
 
         startForeground(Constant.NOTIFICATION_ID, notification)
+        logger.writeLog(value = "location service started!")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -128,14 +129,17 @@ class MockLocationService : Service() {
     }
 
     fun stopProvidingLocation() {
+        logger.writeLog(value = "stop providing location from service")
         detachLocationCallback()
     }
 
     fun startProvidingLocation() {
+        logger.writeLog(value = "start providing location from service")
         attachLocationCallback()
     }
 
     fun stopLocationService() {
+        logger.writeLog(value = "location service will be down soon...")
         stopForeground(true)
         stopSelf()
     }
