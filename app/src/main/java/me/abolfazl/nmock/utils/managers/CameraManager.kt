@@ -35,7 +35,7 @@ object CameraManager {
         location: LatLng,
         zoom: Float = 15F
     ) {
-        mapView.moveCamera(location, 0F)
-        mapView.setZoom(zoom, 0.15F)
+        mapView.moveCamera(location, 0.5F)
+        mapView.setZoom(zoom, 0.5F)
     }
 }
