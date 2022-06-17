@@ -73,7 +73,7 @@ class MockPlayerActivity : AppCompatActivity() {
         logger.setClassInformationForEveryLog(javaClass.simpleName)
 
         if (!isServiceStillRunning(MockPlayerService::class.java)) {
-            logger.writeLog(value = "Service is off! We are going to turn it on.")
+            logger.writeLog(value = "Player service is off! We are going to turn it on.")
             startService(Intent(this, MockPlayerService::class.java))
         }
 
@@ -126,7 +126,7 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(component: ComponentName?, binder: IBinder?) {
-            logger.writeLog(value = "Service connected to Activity!")
+            logger.writeLog(value = "Player service connected to Activity!")
             serviceIsRunning = true
             val mockPlayerBinder = binder as MockPlayerService.MockPlayerBinder
             mockPlayerService = mockPlayerBinder.getService()
@@ -143,7 +143,7 @@ class MockPlayerActivity : AppCompatActivity() {
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
-            logger.writeLog(value = "Service disconnected from Activity!")
+            logger.writeLog(value = "Player service disconnected from Activity!")
             serviceIsRunning = false
         }
     }

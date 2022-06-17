@@ -1,10 +1,14 @@
 package me.abolfazl.nmock.view.editor
 
 import android.Manifest
-import android.annotation.SuppressLint
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
+import android.location.Location
 import android.os.Bundle
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.view.View
 import androidx.activity.viewModels
@@ -15,21 +19,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.carto.core.ScreenPos
-import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockEditorBinding
-import me.abolfazl.nmock.utils.Constant
-import me.abolfazl.nmock.utils.changeStringTo
+import me.abolfazl.nmock.utils.*
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.*
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import me.abolfazl.nmock.utils.showSnackBar
-import me.abolfazl.nmock.utils.toPixel
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.home.HomeActivity
+import me.abolfazl.nmock.view.location.MockLocationService
 import me.abolfazl.nmock.view.player.MockPlayerActivity
 import me.abolfazl.nmock.view.player.MockPlayerService
 import me.abolfazl.nmock.view.saverDialog.SaveMockBottomSheetDialogFragment
@@ -61,10 +62,8 @@ class MockEditorActivity : AppCompatActivity() {
     private val markerLayer = ArrayList<Marker>()
     private val polylineLayer = ArrayList<Polyline>()
 
-    // Location
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private lateinit var locationCallback: LocationCallback
-    private var locationRequest: LocationRequest? = null
+    private var mockLocationService: MockLocationService? = null
+    private var locationServiceIsAlive: Boolean = false
 
     private var mockSaverDialog: SaveMockBottomSheetDialogFragment? = null
     private var fromImplicitIntent = false
@@ -78,13 +77,99 @@ class MockEditorActivity : AppCompatActivity() {
         logger.disableLogHeaderForThisClass()
         logger.setClassInformationForEveryLog(javaClass.simpleName)
 
+        attachToLocationService()
+
         handlingIntent()
 
         initListeners()
 
         initObservers()
+    }
 
-        initLiveLocation()
+    private fun attachToLocationService() {
+        if (!managePermissions()) return
+        if (!isServiceStillRunning(MockLocationService::class.java)) {
+            logger.writeLog(value = "location service is off! We are going to turn it on.")
+            startService(Intent(this, MockLocationService::class.java))
+        }
+
+        Intent(this, MockLocationService::class.java).also { intent ->
+            logger.writeLog(value = "We are going to bind location service!")
+            bindService(intent, locationServiceConnection, Context.BIND_AUTO_CREATE)
+        }
+    }
+
+    private val locationServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(component: ComponentName?, binder: IBinder?) {
+            logger.writeLog(value = "Location service connected to Activity!")
+
+            val locationBinder = binder as MockLocationService.LocationBinder
+            mockLocationService = locationBinder.getService()
+
+            locationServiceIsAlive = true
+            mockLocationService?.setServiceCallback { location, oneTimeEmitter ->
+                onCurrentLocationChanged(location, oneTimeEmitter)
+            }
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            logger.writeLog(value = "Location service disconnected from Activity!")
+            mockLocationService = null
+            locationServiceIsAlive = false
+        }
+    }
+
+    private fun onCurrentLocationChanged(
+        location: Location?,
+        oneTimeEmitter: OneTimeEmitter?
+    ) {
+        location?.let { currentLocation -> processUserCurrentLocation(currentLocation) }
+    }
+
+    private fun managePermissions(): Boolean {
+        if (PermissionManager.permissionsIsGranted(this)) {
+            return if (PermissionManager.locationIsEnabled(this)) {
+                true
+            } else {
+                logger.writeLog(value = "User should be turn on the location in phone!")
+                showSnackBar(
+                    message = resources.getString(R.string.pleaseTurnOnLocation),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_INDEFINITE,
+                    actionText = resources.getString(R.string.iAccept)
+                ) {
+                    startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                }
+                false
+            }
+        } else {
+            logger.writeLog(value = "User doesn't allow location permission for app!")
+            val permission = Manifest.permission.ACCESS_FINE_LOCATION
+            val shouldShowRelational = ActivityCompat.shouldShowRequestPermissionRationale(
+                this, permission
+            )
+            if (shouldShowRelational) {
+                showSnackBar(
+                    message = resources.getString(R.string.locationPermissionRational),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_INDEFINITE,
+                    actionText = resources.getString(R.string.iAccept),
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        PermissionManager.getPermissionList().toTypedArray(),
+                        Constant.LOCATION_REQUEST
+                    )
+                }
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    PermissionManager.getPermissionList().toTypedArray(),
+                    Constant.LOCATION_REQUEST
+                )
+            }
+            return false
+        }
     }
 
     private fun handlingIntent() {
@@ -357,32 +442,6 @@ class MockEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun initLiveLocation() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        locationRequest = LocationRequest.create()?.apply {
-            interval = Constant.LOCATION_INTERVAL
-            fastestInterval = Constant.LOCATION_FASTEST_INTERVAL
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                super.onLocationResult(locationResult)
-            }
-        }
-        requestForLocationUpdate()
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun requestForLocationUpdate() {
-        if (PermissionManager.permissionsIsGranted(this)) {
-            fusedLocationProviderClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.getMainLooper()
-            )
-        }
-    }
-
     private fun onMapLongClicked(latLng: LatLng) {
         logger.writeLog(value = "User long pressed on map!")
         val originMarker = MarkerManager.getMarkerFromLayer(
@@ -411,81 +470,39 @@ class MockEditorActivity : AppCompatActivity() {
         viewModel.getLocationInformation(latLng, originMarker == null)
     }
 
-    @SuppressLint("MissingPermission")
     private fun onCurrentLocationClicked() {
-        if (PermissionManager.permissionsIsGranted(this)) {
-            if (PermissionManager.locationIsEnabled(this)) {
-                fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                    if (location == null) {
-                        logger.writeLog(value = "the location that fused give us is null! we are going to initLiveLocation!")
-                        initLiveLocation()
-                        return@addOnSuccessListener
-                    }
-                    val oldMarker = MarkerManager.getMarkerFromLayer(
-                        markerLayer,
-                        MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
-                    )
-                    val latLngLocation = LatLng(location.latitude, location.longitude)
-                    if (oldMarker == null) {
-                        val marker = MarkerManager.createMarker(
-                            location = latLngLocation,
-                            drawableRes = R.drawable.current_location_marker,
-                            context = this,
-                            elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
-                        )
-                        marker?.let {
-                            markerLayer.add(marker)
-                            binding.mapview.addMarker(marker)
-                            CameraManager.focusOnUserLocation(
-                                mapView = binding.mapview,
-                                location = latLngLocation
-                            )
-                        }
-                    } else {
-                        oldMarker.latLng = latLngLocation
-                        CameraManager.focusOnUserLocation(
-                            mapView = binding.mapview,
-                            location = latLngLocation
-                        )
-                    }
-                }
-            } else {
-                logger.writeLog(value = "User should be turn on the location in phone!")
-                showSnackBar(
-                    message = resources.getString(R.string.pleaseTurnOnLocation),
-                    rootView = binding.root,
-                    duration = Snackbar.LENGTH_INDEFINITE,
-                    actionText = resources.getString(R.string.iAccept)
-                ) {
-                    startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                }
-            }
-        } else {
-            logger.writeLog(value = "User doesn't allow location permission for app!")
-            val permission = Manifest.permission.ACCESS_FINE_LOCATION
-            val shouldShowRelational = ActivityCompat.shouldShowRequestPermissionRationale(
-                this, permission
-            )
-            if (shouldShowRelational) {
-                showSnackBar(
-                    message = resources.getString(R.string.locationPermissionRational),
-                    rootView = binding.root,
-                    duration = Snackbar.LENGTH_INDEFINITE,
-                    actionText = resources.getString(R.string.iAccept),
-                ) {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        PermissionManager.getPermissionList().toTypedArray(),
-                        Constant.LOCATION_REQUEST
-                    )
-                }
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    PermissionManager.getPermissionList().toTypedArray(),
-                    Constant.LOCATION_REQUEST
+        if (locationServiceIsAlive && mockLocationService != null) {
+            CameraManager.focusOnUserLocation(
+                mapView = binding.mapview,
+                location = LatLng(
+                    mockLocationService?.getLastLocation()?.latitude!!,
+                    mockLocationService?.getLastLocation()?.longitude!!
                 )
-            }
+            )
+        } else {
+            attachToLocationService()
+        }
+    }
+
+    private fun processUserCurrentLocation(location: Location) {
+        val oldMarker = MarkerManager.getMarkerFromLayer(
+            markerLayer,
+            MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+        )
+        val latLngLocation = LatLng(location.latitude, location.longitude)
+        if (oldMarker != null) {
+            oldMarker.latLng = latLngLocation
+            return
+        }
+        val marker = MarkerManager.createMarker(
+            location = latLngLocation,
+            drawableRes = R.drawable.current_location_marker,
+            context = this,
+            elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
+        )
+        marker?.let {
+            markerLayer.add(marker)
+            binding.mapview.addMarker(marker)
         }
     }
 
@@ -622,12 +639,16 @@ class MockEditorActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        requestForLocationUpdate()
+        if (locationServiceIsAlive) {
+            mockLocationService?.startProvidingLocation()
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+        if (locationServiceIsAlive) {
+            mockLocationService?.stopProvidingLocation()
+        }
     }
 
     override fun onBackPressed() {
