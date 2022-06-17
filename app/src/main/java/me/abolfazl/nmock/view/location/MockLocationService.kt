@@ -46,7 +46,7 @@ class MockLocationService : Service() {
 
     private fun startForegroundService() {
         val notification = NotificationCompat.Builder(this, Constant.NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.current_location_marker)
+            .setSmallIcon(R.drawable.ic_location_service)
             .setContentTitle(resources.getString(R.string.weHaveYourLocation))
             .setStyle(
                 NotificationCompat.BigTextStyle()
@@ -107,7 +107,7 @@ class MockLocationService : Service() {
         }
     }
 
-    private fun detachLocationCallback(){
+    private fun detachLocationCallback() {
         fusedLocationProviderClient?.removeLocationUpdates(locationCallback)
     }
 
@@ -133,6 +133,11 @@ class MockLocationService : Service() {
 
     fun startProvidingLocation() {
         attachLocationCallback()
+    }
+
+    fun stopLocationService() {
+        stopForeground(true)
+        stopSelf()
     }
 
     inner class LocationBinder : Binder() {

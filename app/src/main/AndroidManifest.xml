@@ -53,6 +53,10 @@
             android:name=".view.player.MockPlayerService"
             android:foregroundServiceType="location" />
 
+        <service
+            android:name=".view.location.MockLocationService"
+            android:foregroundServiceType="location" />
+
         <!-- Sentry meta-data -->
         <meta-data android:name="io.sentry.auto-init" android:value="false" />
 

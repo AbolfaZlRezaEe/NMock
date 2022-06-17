@@ -472,6 +472,7 @@ class MockEditorActivity : AppCompatActivity() {
 
     private fun onCurrentLocationClicked() {
         if (locationServiceIsAlive && mockLocationService != null) {
+            if (mockLocationService?.getLastLocation() == null) return
             CameraManager.focusOnUserLocation(
                 mapView = binding.mapview,
                 location = LatLng(
@@ -638,17 +639,26 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        super.onResume()
         if (locationServiceIsAlive) {
             mockLocationService?.startProvidingLocation()
+        } else {
+            attachToLocationService()
         }
+        super.onResume()
     }
 
     override fun onPause() {
-        super.onPause()
         if (locationServiceIsAlive) {
             mockLocationService?.stopProvidingLocation()
         }
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        if (locationServiceIsAlive) {
+            mockLocationService?.stopLocationService()
+        }
+        super.onDestroy()
     }
 
     override fun onBackPressed() {
