@@ -13,8 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
-/Key/nmockReleaseKey.jks
 /.idea/
 /release/
 /attachment/
 /app/google-services.json
+/Key/NMockKey.jks
+/Key/

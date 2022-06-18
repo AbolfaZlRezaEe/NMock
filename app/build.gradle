@@ -27,16 +27,6 @@ android {
         }
     }
 
-
-    signingConfigs {
-        release {
-            keyAlias 'key0'
-            keyPassword 'nmock.neshan.org'
-            storeFile file('D:\\ProgrammingSection\\Android\\Work\\NMock\\Key\\nmockReleaseKey.jks')
-            storePassword 'nmock.neshan.org'
-        }
-    }
-
     buildTypes {
         release {
             signingConfig signingConfigs.release
