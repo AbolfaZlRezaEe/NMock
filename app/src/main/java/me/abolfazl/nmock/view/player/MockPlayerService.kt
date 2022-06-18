@@ -101,7 +101,7 @@ class MockPlayerService : Service(), LocationListener {
     private fun startForegroundService() {
         val notification = NotificationCompat.Builder(this, Constant.NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.nmock_logo_notifcation)
-            .setContentIntent(getNMockIntent())
+            .setContentIntent(getNMockPlayerIntent())
             .setContentTitle(resources.getString(R.string.notificationTitle))
             .setStyle(
                 NotificationCompat.BigTextStyle()
@@ -121,7 +121,8 @@ class MockPlayerService : Service(), LocationListener {
                 Constant.NOTIFICATION_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_NONE
             )
-            notificationChannel.description = Constant.NOTIFICATION_CHANNEL_DESCRIPTION
+            notificationChannel.description =
+                resources.getString(R.string.notificationChannelDescription)
             notificationManager.createNotificationChannel(notificationChannel)
         }
 
@@ -129,7 +130,7 @@ class MockPlayerService : Service(), LocationListener {
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")
-    private fun getNMockIntent(): PendingIntent {
+    private fun getNMockPlayerIntent(): PendingIntent {
         return Intent(this, MockPlayerActivity::class.java).let { notificationIntent ->
             PendingIntent.getActivity(
                 this,

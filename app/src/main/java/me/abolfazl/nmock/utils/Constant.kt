@@ -36,8 +36,6 @@ object Constant {
     // Notification
     const val NOTIFICATION_CHANNEL_NAME = "NMock Notification"
     const val NOTIFICATION_CHANNEL_ID = "NMOCK_NOTIFICATION_ID"
-    const val NOTIFICATION_CHANNEL_DESCRIPTION =
-        "This Notification used for Broadcasting Mock around the Android System!"
     const val NOTIFICATION_ID = 15435
 
     // Shared
