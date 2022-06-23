@@ -48,13 +48,19 @@ class NMockLogger constructor(
 
     private var loggerAttached = false
     private var attachingProcessDisabled = false
+    private var logsRemoved = false
 
     private var className: String? = null
 
     init {
+        initializeLoggerPlace()
+    }
+
+    private fun initializeLoggerPlace() {
         try {
             createDirectoryIfNotExist()
             file = createFileIfNotExist()
+            if (logsRemoved) logsRemoved = false
         } catch (exception: Exception) {
             // todo: try to reinitialize that...
             Sentry.captureMessage("we couldn't create file/directory. message was-> ${exception.message}")
@@ -81,6 +87,9 @@ class NMockLogger constructor(
         value: String,
         setTime: Boolean = true
     ) {
+        if (logsRemoved) {
+            initializeLoggerPlace()
+        }
         if (!loggerAttached && !attachingProcessDisabled) {
             throw IllegalStateException("Writing log into file was failed. you should attach logger to this class or you should disable log header!")
         }
@@ -144,10 +153,12 @@ class NMockLogger constructor(
     }
 
     fun clearLogsFile() {
-        // todo
+        file?.delete()
+        logsRemoved = true
     }
 
     private fun logCanSend(): Boolean {
+        if (logsRemoved) return false
         val simpleDateFormat = SimpleDateFormat(SHARED_TIME_PATTERN)
         val startTime = SharedManager.getString(
             sharedPreferences = sharedPreferences,
