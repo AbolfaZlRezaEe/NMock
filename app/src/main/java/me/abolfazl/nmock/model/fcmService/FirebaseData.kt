@@ -8,19 +8,20 @@ class FirebaseData constructor(
 
     companion object {
         // Primary keys
-        private const val FIRE_KEY_COMMAND_DATA = "COMMAND_DATA"
-        private const val FIRE_KEY_NOTIFICATION_DATA = "NOTIFICATION_DATA"
+        private const val FIRE_KEY_COMMAND_DATA = "Command_data"
+        private const val FIRE_KEY_NOTIFICATION_DATA = "notification_data"
 
         // Notification data keys
-        private const val NOTIFICATION_TITLE_KEY = "NOTIFICATION_TITLE"
-        private const val NOTIFICATION_DESCRIPTION_KEY = "NOTIFICATION_DESCRIPTION"
-        private const val NOTIFICATION_TARGET_KEY = "NOTIFICATION_TARGET"
-        private const val NOTIFICATION_IMAGE_KEY = "NOTIFICATION_IMAGE"
-        private const val NOTIFICATION_METADATA_KEY = "NOTIFICATION_METADATA"
+        private const val NOTIFICATION_TITLE_KEY = "notification_title"
+        private const val NOTIFICATION_DESCRIPTION_KEY = "notification_description"
+        private const val NOTIFICATION_TARGET_KEY = "notification_target"
+        private const val NOTIFICATION_SMALL_ICON_KEY = "notification_small_icon"
+        private const val NOTIFICATION_METADATA_KEY = "notification_metadata"
+        private const val NOTIFICATION_SILENT_KEY = "notification_silent_state"
 
         // Command data keys
-        private const val COMMAND_DATA_KEY = "COMMAND_DATA"
-        private const val COMMAND_METADATA_KEY = "COMMAND_METADATA"
+        private const val COMMAND_DATA_KEY = "command_data"
+        private const val COMMAND_METADATA_KEY = "command_metadata"
     }
 
     // Command data
@@ -33,7 +34,8 @@ class FirebaseData constructor(
     var notificationTarget: String? = null
     var notificationTitle: String? = null
     var notificationDescription: String? = null
-    var notificationImage: String? = null
+    var notificationSmallIcon: String? = null
+    var notificationIsSilent: Boolean = false
     var notificationMetaData: String? = null
 
     init {
@@ -44,7 +46,6 @@ class FirebaseData constructor(
         parseNotificationData(notificationData)
     }
 
-    // Notification data should be json!
     private fun parseNotificationData(notificationData: String?) {
         if (notificationData == null) return
 
@@ -52,8 +53,9 @@ class FirebaseData constructor(
         notificationTitle = jsonObject.get(NOTIFICATION_TITLE_KEY).toString()
         notificationDescription = jsonObject.get(NOTIFICATION_DESCRIPTION_KEY).toString()
         notificationTarget = jsonObject.get(NOTIFICATION_TARGET_KEY).toString()
-        notificationImage = jsonObject.get(NOTIFICATION_IMAGE_KEY).toString()
+        notificationSmallIcon = jsonObject.get(NOTIFICATION_SMALL_ICON_KEY).toString()
         notificationMetaData = jsonObject.get(NOTIFICATION_METADATA_KEY).toString()
+        notificationIsSilent = jsonObject.get(NOTIFICATION_SILENT_KEY).toString().toBoolean()
     }
 
     private fun parseCommandData(commandData: String?) {

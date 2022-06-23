@@ -143,6 +143,10 @@ class NMockLogger constructor(
         }
     }
 
+    fun clearLogsFile() {
+        // todo
+    }
+
     private fun logCanSend(): Boolean {
         val simpleDateFormat = SimpleDateFormat(SHARED_TIME_PATTERN)
         val startTime = SharedManager.getString(

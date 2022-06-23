@@ -34,8 +34,10 @@ object Constant {
     const val DEFAULT_SPEED = 30
 
     // Notification
-    const val NOTIFICATION_CHANNEL_NAME = "NMock Notification"
-    const val NOTIFICATION_ID = 15435
+    const val APPLICATION_NOTIFICATION_CHANNEL_NAME = "NMock Notification"
+    const val PUSH_NOTIFICATION_CHANNEL_NAME = "Push Notification"
+    const val APPLICATION_NOTIFICATION_ID = 15435
+    const val PUSH_NOTIFICATION_ID = 15436
 
     // Shared
     const val SHARED_PREFERENCES_NAME = "mock_shared"

@@ -1,16 +1,11 @@
 package me.abolfazl.nmock.view.location
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
 import android.os.Looper
-import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.*
 import dagger.hilt.android.AndroidEntryPoint
 import me.abolfazl.nmock.R
@@ -45,36 +40,19 @@ class MockLocationService : Service() {
     }
 
     private fun startForegroundService() {
-        val notification = NotificationCompat.Builder(
-            this,
-            resources.getString(R.string.notificationChannelId)
-        )
-            .setSmallIcon(R.drawable.ic_location_service)
-            .setContentTitle(resources.getString(R.string.weHaveYourLocation))
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(resources.getString(R.string.locationServiceDescription))
+        val notification = me.abolfazl.nmock.utils.managers.NotificationManager
+            .createForegroundNotification(
+                context = this,
+                channelId = resources.getString(R.string.applicationNotificationChannelId),
+                channelDescription = resources.getString(R.string.applicationNotificationChannelDescription),
+                smallIcon = R.drawable.ic_location_service,
+                title = resources.getString(R.string.weHaveYourLocation),
+                description = resources.getString(R.string.locationServiceDescription),
+                onGoing = true,
+                autoCancel = false
             )
-            .setOngoing(true)
-            .setAutoCancel(false)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .build()
 
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(
-                resources.getString(R.string.notificationChannelId),
-                Constant.NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_NONE
-            )
-            notificationChannel.description =
-                resources.getString(R.string.notificationChannelDescription)
-            notificationManager.createNotificationChannel(notificationChannel)
-        }
-
-        startForeground(Constant.NOTIFICATION_ID, notification)
+        startForeground(Constant.APPLICATION_NOTIFICATION_ID, notification)
         logger.writeLog(value = "location service started!")
     }
 

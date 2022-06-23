@@ -1,0 +1,14 @@
+// Structure of COMMAND_DATA key in firebase:
+{
+	command_data: "Our command",
+	command_metadata: "Our json meta-data" // this section is not implemented yet!
+}
+// Structure of NOTIFICATION_DATA key in firebase:
+{
+	notification_title: "our title",
+	notification_description: "our description",
+	notification_target: "our target",
+	notification_small_icon: "our image",
+	notification_silent_state: true
+	notification_metadata: "our json metadata" // this section is not implemented yet!
+}
