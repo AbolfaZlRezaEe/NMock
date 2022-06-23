@@ -45,7 +45,10 @@ class MockLocationService : Service() {
     }
 
     private fun startForegroundService() {
-        val notification = NotificationCompat.Builder(this, Constant.NOTIFICATION_CHANNEL_ID)
+        val notification = NotificationCompat.Builder(
+            this,
+            resources.getString(R.string.notificationChannelId)
+        )
             .setSmallIcon(R.drawable.ic_location_service)
             .setContentTitle(resources.getString(R.string.weHaveYourLocation))
             .setStyle(
@@ -62,7 +65,7 @@ class MockLocationService : Service() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
-                Constant.NOTIFICATION_CHANNEL_ID,
+                resources.getString(R.string.notificationChannelId),
                 Constant.NOTIFICATION_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_NONE
             )

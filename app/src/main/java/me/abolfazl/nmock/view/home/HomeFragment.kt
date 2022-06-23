@@ -38,10 +38,17 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.versionCode.text =
-            "${resources.getString(R.string.release)} ${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})"
+        initializeVersionName()
 
         initializeListeners()
+    }
+
+    private fun initializeVersionName(){
+        val beforeVersionText =
+            if (BuildConfig.DEBUG) resources.getString(R.string.debug) else resources.getString(R.string.release)
+
+        binding.versionCode.text =
+            "$beforeVersionText ${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})"
     }
 
     private fun initializeListeners() {

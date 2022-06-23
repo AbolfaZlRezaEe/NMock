@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import io.sentry.Attachment
 import io.sentry.Sentry
 import io.sentry.SentryLevel
+import me.abolfazl.nmock.utils.SHARED_FIREBASE_TOKEN
 import me.abolfazl.nmock.utils.SHARED_LOG_CODE
 import me.abolfazl.nmock.utils.SHARED_LOG_TIME
 import me.abolfazl.nmock.utils.managers.SharedManager
@@ -25,9 +26,12 @@ class NMockLogger constructor(
         private const val SHARED_TIME_PATTERN = "hh:mm a"
         private const val TIME_PATTERN = "yyyy.MMMMM.dd hh:mm:ssaaa"
 
-        private const val START_TIME_TITLE_KEY = "START time/data"
-        private const val ANDROID_ID_KEY = "Android-Id"
-        private const val END_TIME_TITLE_KEY = "END time/data"
+        // Log keys
+        private const val KEY_LOG_START_TIME_TITLE = "START time/data"
+        private const val KEY_LOG_ANDROID_ID = "Android-Id"
+        private const val KEY_LOG_END_TIME_TITLE = "END time/data"
+        private const val KEY_LOG_FIREBASE_TOKEN = "Firebase Token"
+
         private const val TIME_SEPARATOR =
             "***************************************************************************"
     }
@@ -96,8 +100,9 @@ class NMockLogger constructor(
         loggerAttached = true
 
         writeLog(value = createLogTitle(className, getLogCode()), setTime = false)
-        writeLog(key = START_TIME_TITLE_KEY, value = getRealTime(), setTime = false)
-        writeLog(key = ANDROID_ID_KEY, value = androidId, setTime = false)
+        writeLog(key = KEY_LOG_START_TIME_TITLE, value = getRealTime(), setTime = false)
+        writeLog(key = KEY_LOG_ANDROID_ID, value = androidId, setTime = false)
+        writeLog(key = KEY_LOG_FIREBASE_TOKEN, value = getFirebaseToken()!!, setTime = false)
         writeLog(value = TIME_SEPARATOR, setTime = false)
 
         SharedManager.putInt(
@@ -113,7 +118,7 @@ class NMockLogger constructor(
         }
         loggerAttached = false
         writeLog(value = TIME_SEPARATOR, setTime = false)
-        writeLog(key = END_TIME_TITLE_KEY, value = getRealTime(), setTime = false)
+        writeLog(key = KEY_LOG_END_TIME_TITLE, value = getRealTime(), setTime = false)
     }
 
     fun disableLogHeaderForThisClass() {
@@ -185,6 +190,12 @@ class NMockLogger constructor(
         sharedPreferences = sharedPreferences,
         key = SHARED_LOG_CODE,
         defaultValue = 0
+    )
+
+    private fun getFirebaseToken(): String? = SharedManager.getString(
+        sharedPreferences = sharedPreferences,
+        key = SHARED_FIREBASE_TOKEN,
+        defaultValue = "NoN"
     )
 
     private fun createLogTitle(

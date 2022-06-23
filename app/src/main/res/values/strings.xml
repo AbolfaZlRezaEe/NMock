@@ -78,10 +78,12 @@
     <string name="reportLogs">Report Logs</string>
     <string name="thankYouForYourHelp">Thank you for your help…</string>
     <string name="release">Release</string>
+    <string name="debug">Debug</string>
     <string name="reportLogHelper">If you click on Report Logs, you help us to improve functionalities and fix bugs in the future…</string>
     <string name="weHaveYourLocation">We have your location!</string>
     <string name="locationServiceDescription">We are tracking your location to show that in application…</string>
     <string name="notificationChannelDescription">With this notifications, We show you all jobs that we start in application.</string>
+    <string name="notificationChannelId">NMOCK_NOTIFICATION_ID</string>
 
     <!-- Exception messages -->
     <string name="unknownException">Unexpected Error occurred! Please try again…</string>
