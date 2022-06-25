@@ -107,7 +107,7 @@ class MockPlayerService : Service(), LocationListener {
                 onGoing = true,
                 autoCancel = false
             )
-
+        notification.contentIntent = getNMockPlayerIntent()
         startForeground(Constant.APPLICATION_NOTIFICATION_ID, notification)
     }
 

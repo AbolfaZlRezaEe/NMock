@@ -39,16 +39,16 @@
         <ProgressBar
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorSecondary"
-            android:text="@string/splashDescription"
             android:layout_gravity="center_horizontal"
-            android:textSize="12sp"
-            android:layout_marginTop="4dp"/>
+            android:layout_marginTop="4dp"
+            android:text="@string/splashDescription"
+            android:textColor="@color/colorSecondary"
+            android:textSize="12sp" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
