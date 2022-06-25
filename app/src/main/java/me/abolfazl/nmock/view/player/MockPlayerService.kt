@@ -1,8 +1,6 @@
 package me.abolfazl.nmock.view.player
 
 import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
@@ -11,7 +9,6 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.*
-import androidx.core.app.NotificationCompat
 import com.vividsolutions.jts.geom.Coordinate
 import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.LineString
@@ -99,34 +96,19 @@ class MockPlayerService : Service(), LocationListener {
     }
 
     private fun startForegroundService() {
-        val notification = NotificationCompat.Builder(this, Constant.NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.nmock_logo_notifcation)
-            .setContentIntent(getNMockPlayerIntent())
-            .setContentTitle(resources.getString(R.string.notificationTitle))
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(resources.getString(R.string.notificationDescription))
+        val notification = me.abolfazl.nmock.utils.managers.NotificationManager
+            .createForegroundNotification(
+                context = this,
+                channelId = resources.getString(R.string.applicationNotificationChannelId),
+                channelDescription = resources.getString(R.string.applicationNotificationChannelDescription),
+                smallIcon = R.drawable.nmock_logo_notifcation,
+                title = resources.getString(R.string.notificationTitle),
+                description = resources.getString(R.string.mockPlayerNotificationDescription),
+                onGoing = true,
+                autoCancel = false
             )
-            .setOngoing(true)
-            .setAutoCancel(false)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .build()
 
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(
-                Constant.NOTIFICATION_CHANNEL_ID,
-                Constant.NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_NONE
-            )
-            notificationChannel.description =
-                resources.getString(R.string.notificationChannelDescription)
-            notificationManager.createNotificationChannel(notificationChannel)
-        }
-
-        startForeground(Constant.NOTIFICATION_ID, notification)
+        startForeground(Constant.APPLICATION_NOTIFICATION_ID, notification)
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")

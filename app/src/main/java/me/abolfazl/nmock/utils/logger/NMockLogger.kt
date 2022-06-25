@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import io.sentry.Attachment
 import io.sentry.Sentry
 import io.sentry.SentryLevel
+import me.abolfazl.nmock.utils.SHARED_FIREBASE_TOKEN
 import me.abolfazl.nmock.utils.SHARED_LOG_CODE
 import me.abolfazl.nmock.utils.SHARED_LOG_TIME
 import me.abolfazl.nmock.utils.managers.SharedManager
@@ -25,9 +26,12 @@ class NMockLogger constructor(
         private const val SHARED_TIME_PATTERN = "hh:mm a"
         private const val TIME_PATTERN = "yyyy.MMMMM.dd hh:mm:ssaaa"
 
-        private const val START_TIME_TITLE_KEY = "START time/data"
-        private const val ANDROID_ID_KEY = "Android-Id"
-        private const val END_TIME_TITLE_KEY = "END time/data"
+        // Log keys
+        private const val KEY_LOG_START_TIME_TITLE = "START time/data"
+        private const val KEY_LOG_ANDROID_ID = "Android-Id"
+        private const val KEY_LOG_END_TIME_TITLE = "END time/data"
+        private const val KEY_LOG_FIREBASE_TOKEN = "Firebase Token"
+
         private const val TIME_SEPARATOR =
             "***************************************************************************"
     }
@@ -44,13 +48,19 @@ class NMockLogger constructor(
 
     private var loggerAttached = false
     private var attachingProcessDisabled = false
+    private var logsRemoved = false
 
     private var className: String? = null
 
     init {
+        initializeLoggerPlace()
+    }
+
+    private fun initializeLoggerPlace() {
         try {
             createDirectoryIfNotExist()
             file = createFileIfNotExist()
+            if (logsRemoved) logsRemoved = false
         } catch (exception: Exception) {
             // todo: try to reinitialize that...
             Sentry.captureMessage("we couldn't create file/directory. message was-> ${exception.message}")
@@ -75,30 +85,64 @@ class NMockLogger constructor(
     fun writeLog(
         key: String? = null,
         value: String,
-        setTime: Boolean = true
+        setTime: Boolean = true,
+        setClassName: Boolean = true
     ) {
+        if (logsRemoved) {
+            initializeLoggerPlace()
+            className?.let { name ->
+                attachLogger(name, true)
+            }
+        }
         if (!loggerAttached && !attachingProcessDisabled) {
             throw IllegalStateException("Writing log into file was failed. you should attach logger to this class or you should disable log header!")
         }
         file?.let { nonNullFile ->
             var message = if (key != null) "${key}: $value" else value
             message = if (setTime) "${getRealTime()}-> $message" else message
-            message = if (className != null) "$className: $message" else message
+            message = if (className != null && setClassName) "$className: $message" else message
             nonNullFile.appendText("${message}\n")
             Timber.i(message)
         }
     }
 
-    fun attachLogger(className: String) {
-        if (attachingProcessDisabled) {
+    private fun attachLogger(
+        className: String,
+        forceAttach: Boolean
+    ) {
+        if (attachingProcessDisabled && !forceAttach) {
             throw IllegalStateException("Attaching logger to class was failed. why you are trying to attach this class when you disabled the logger header?")
         }
         loggerAttached = true
+        this.className = className
 
-        writeLog(value = createLogTitle(className, getLogCode()), setTime = false)
-        writeLog(key = START_TIME_TITLE_KEY, value = getRealTime(), setTime = false)
-        writeLog(key = ANDROID_ID_KEY, value = androidId, setTime = false)
-        writeLog(value = TIME_SEPARATOR, setTime = false)
+        writeLog(
+            value = createLogTitle(getLogCode()),
+            setTime = false,
+            setClassName = false
+        )
+        writeLog(
+            key = KEY_LOG_START_TIME_TITLE, value = getRealTime(),
+            setTime = false,
+            setClassName = false
+        )
+        writeLog(
+            key = KEY_LOG_ANDROID_ID,
+            value = androidId,
+            setTime = false,
+            setClassName = false
+        )
+        writeLog(
+            key = KEY_LOG_FIREBASE_TOKEN,
+            value = getFirebaseToken()!!,
+            setTime = false,
+            setClassName = false
+        )
+        writeLog(
+            value = TIME_SEPARATOR,
+            setTime = false,
+            setClassName = false
+        )
 
         SharedManager.putInt(
             sharedPreferences = sharedPreferences,
@@ -107,13 +151,17 @@ class NMockLogger constructor(
         )
     }
 
+    fun attachLogger(className: String) {
+        attachLogger(className, false)
+    }
+
     fun detachLogger() {
         if (attachingProcessDisabled) {
             throw IllegalStateException("Detaching logger from class was failed. why you are trying to detach this class when you disabled the logger header?")
         }
         loggerAttached = false
         writeLog(value = TIME_SEPARATOR, setTime = false)
-        writeLog(key = END_TIME_TITLE_KEY, value = getRealTime(), setTime = false)
+        writeLog(key = KEY_LOG_END_TIME_TITLE, value = getRealTime(), setTime = false)
     }
 
     fun disableLogHeaderForThisClass() {
@@ -127,18 +175,26 @@ class NMockLogger constructor(
         this.className = className
     }
 
-    fun sendLogsFile() {
-        if (!logCanSend()) return
-        Sentry.configureScope {
-            it.addAttachment(Attachment(filePath))
-        }
-        Sentry.captureMessage("Log Reports from $androidId", SentryLevel.INFO)
-        Sentry.configureScope {
-            it.clearAttachments()
+    fun sendLogsFile(fromPush: Boolean) {
+        if (fromPush || logCanSend()) {
+            Sentry.configureScope {
+                it.addAttachment(Attachment(filePath))
+            }
+            Sentry.captureMessage("Log Reports from $androidId", SentryLevel.INFO)
+            Sentry.configureScope {
+                it.clearAttachments()
+            }
         }
     }
 
+    fun clearLogsFile() {
+        file?.delete()
+        file = null
+        logsRemoved = true
+    }
+
     private fun logCanSend(): Boolean {
+        if (logsRemoved || file == null) return false
         val simpleDateFormat = SimpleDateFormat(SHARED_TIME_PATTERN)
         val startTime = SharedManager.getString(
             sharedPreferences = sharedPreferences,
@@ -187,8 +243,12 @@ class NMockLogger constructor(
         defaultValue = 0
     )
 
-    private fun createLogTitle(
-        className: String,
-        code: Int
-    ) = "code$code----------------------- $className ------------------------------"
+    private fun getFirebaseToken(): String? = SharedManager.getString(
+        sharedPreferences = sharedPreferences,
+        key = SHARED_FIREBASE_TOKEN,
+        defaultValue = "NoN"
+    )
+
+    private fun createLogTitle(code: Int) =
+        "code$code---------------------------------------------------------------------"
 }
