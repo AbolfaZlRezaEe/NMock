@@ -43,7 +43,7 @@ class HomeFragment : Fragment() {
         initializeListeners()
     }
 
-    private fun initializeVersionName(){
+    private fun initializeVersionName() {
         val beforeVersionText =
             if (BuildConfig.DEBUG) resources.getString(R.string.debug) else resources.getString(R.string.release)
 

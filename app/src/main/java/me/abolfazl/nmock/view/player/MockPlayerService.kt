@@ -103,7 +103,7 @@ class MockPlayerService : Service(), LocationListener {
                 channelDescription = resources.getString(R.string.applicationNotificationChannelDescription),
                 smallIcon = R.drawable.nmock_logo_notifcation,
                 title = resources.getString(R.string.notificationTitle),
-                description = resources.getString(R.string.notificationDescription),
+                description = resources.getString(R.string.mockPlayerNotificationDescription),
                 onGoing = true,
                 autoCancel = false
             )

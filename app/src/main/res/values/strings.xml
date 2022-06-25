@@ -49,7 +49,7 @@
     <string name="navigate">Navigate</string>
     <string name="share">Share</string>
     <string name="notificationTitle">Mock is running!</string>
-    <string name="notificationDescription">Your mock trip was started and you should get the Mock location from other apps</string>
+    <string name="mockPlayerNotificationDescription">Your mock trip was started and you should get the Mock location from other apps</string>
     <string name="limitRequestsException">Our Service has a Problem, We hope to fix it as soon as possible!</string>
     <string name="databaseInsertionException">Database has a Problem! Please try again…</string>
     <string name="databaseGettingException">Information of your Mock had a Problem! Please add this Mock again…</string>
@@ -87,6 +87,8 @@
     <string name="applicationNotificationChannelId">NMOCK_NOTIFICATION_ID</string>
     <string name="pushNotificationChannelId">PUSH_NOTIFICATION_ID</string>
     <string name="silentPushNotificationChannelId">SILENT_PUSH_NOTIFICATION_ID</string>
+    <string name="applicationNotificationChannelName">NMock Notification</string>
+    <string name="pushNotificationChannelName">Push Notification</string>
 
     <!-- Exception messages -->
     <string name="unknownException">Unexpected Error occurred! Please try again…</string>

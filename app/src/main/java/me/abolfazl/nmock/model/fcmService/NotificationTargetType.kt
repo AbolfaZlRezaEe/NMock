@@ -11,4 +11,4 @@ const val TARGET_ARCHIVE_FRAGMENT = "ARCHIVE_FRAGMENT"
     TARGET_EDIT_FRAGMENT,
     TARGET_ARCHIVE_FRAGMENT
 )
-annotation class NotificationTargetType()
+annotation class NotificationTargetType

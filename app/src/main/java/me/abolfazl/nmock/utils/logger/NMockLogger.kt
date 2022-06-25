@@ -194,7 +194,7 @@ class NMockLogger constructor(
     }
 
     private fun logCanSend(): Boolean {
-        if (logsRemoved) return false
+        if (logsRemoved || file == null) return false
         val simpleDateFormat = SimpleDateFormat(SHARED_TIME_PATTERN)
         val startTime = SharedManager.getString(
             sharedPreferences = sharedPreferences,

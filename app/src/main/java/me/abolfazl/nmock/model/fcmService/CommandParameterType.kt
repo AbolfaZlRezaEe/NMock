@@ -11,5 +11,4 @@ const val COMMAND_KEY_SHOW_NOTIFICATION = "SHOW_NOTIFICATION"
     COMMAND_KEY_CLEAR_LOGS,
     COMMAND_KEY_SHOW_NOTIFICATION
 )
-annotation class CommandParameterType {
-}
+annotation class CommandParameterType

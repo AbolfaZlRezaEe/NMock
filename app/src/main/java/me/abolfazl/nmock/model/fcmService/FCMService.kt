@@ -72,15 +72,15 @@ class FCMService : FirebaseMessagingService() {
             if (data.notificationTitle == null || data.notificationTarget == null) return // We can't show notification without title!
             val notificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
-            val notificationChannelId = NotificationManager.createNotificationChannel(
+            val notificationChannelId = NotificationManager.createPushNotificationChannel(
                 context = this,
                 silentChannel = data.notificationIsSilent,
-                channelName = Constant.PUSH_NOTIFICATION_CHANNEL_NAME,
+                channelName = resources.getString(R.string.pushNotificationChannelName),
                 description = resources.getString(R.string.pushNotificationChannelDescription)
             )
             val notification = NotificationManager.createPushNotification(
                 context = this,
-                notificationChannelId = notificationChannelId,
+                channelId = notificationChannelId,
                 title = data.notificationTitle!!,
                 description = data.notificationDescription,
                 smallIcon = NotificationManager.getSmallIconFromNotificationData(

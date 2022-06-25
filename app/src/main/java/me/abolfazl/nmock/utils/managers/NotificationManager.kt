@@ -9,7 +9,6 @@ import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.core.app.NotificationCompat
 import me.abolfazl.nmock.R
-import me.abolfazl.nmock.utils.Constant
 
 object NotificationManager {
 
@@ -40,11 +39,10 @@ object NotificationManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
                 channelId,
-                Constant.APPLICATION_NOTIFICATION_CHANNEL_NAME,
+                context.resources.getString(R.string.applicationNotificationChannelName),
                 NotificationManager.IMPORTANCE_NONE
             )
-            notificationChannel.description =
-                channelDescription
+            notificationChannel.description = channelDescription
             notificationManager.createNotificationChannel(notificationChannel)
         }
         return notification
@@ -52,12 +50,12 @@ object NotificationManager {
 
     fun createPushNotification(
         context: Context,
-        notificationChannelId: String,
+        channelId: String,
         title: String,
         description: String?,
         @DrawableRes smallIcon: Int
     ): Notification {
-        val notificationBuilder = NotificationCompat.Builder(context, notificationChannelId)
+        val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setContentTitle(title)
             .setSmallIcon(smallIcon)
 
@@ -67,7 +65,7 @@ object NotificationManager {
         return notificationBuilder.build()
     }
 
-    fun createNotificationChannel(
+    fun createPushNotificationChannel(
         context: Context,
         silentChannel: Boolean,
         channelName: String,
@@ -96,6 +94,7 @@ object NotificationManager {
                 notificationChannel.lightColor = Color.YELLOW
             }
             notificationManager.createNotificationChannel(notificationChannel)
+            return notificationChannel.id
         }
         return context.resources.getString(R.string.pushNotificationChannelId)
     }
