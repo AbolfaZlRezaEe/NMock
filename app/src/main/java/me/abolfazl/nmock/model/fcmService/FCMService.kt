@@ -52,7 +52,7 @@ class FCMService : FirebaseMessagingService() {
         command?.let { cmd ->
             when (cmd) {
                 COMMAND_KEY_SEND_LOGS -> {
-                    logger.sendLogsFile()
+                    logger.sendLogsFile(true)
                 }
                 COMMAND_KEY_CLEAR_LOGS -> {
                     logger.clearLogsFile()
@@ -69,7 +69,7 @@ class FCMService : FirebaseMessagingService() {
 
     private fun processNotificationData() {
         firebaseData?.let { data ->
-            if (data.notificationTitle == null) return // We can't show notification without title!
+            if (data.notificationTitle == null || data.notificationTarget == null) return // We can't show notification without title!
             val notificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
             val notificationChannelId = NotificationManager.createNotificationChannel(

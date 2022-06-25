@@ -8,7 +8,7 @@ class FirebaseData constructor(
 
     companion object {
         // Primary keys
-        private const val FIRE_KEY_COMMAND_DATA = "Command_data"
+        private const val FIRE_KEY_COMMAND_DATA = "command_data"
         private const val FIRE_KEY_NOTIFICATION_DATA = "notification_data"
 
         // Notification data keys
@@ -39,23 +39,35 @@ class FirebaseData constructor(
     var notificationMetaData: String? = null
 
     init {
-        val commandData = firebaseMetaData[FIRE_KEY_COMMAND_DATA]
         val notificationData = firebaseMetaData[FIRE_KEY_NOTIFICATION_DATA]
+        val commandData = firebaseMetaData[FIRE_KEY_COMMAND_DATA]
 
-        parseCommandData(commandData)
         parseNotificationData(notificationData)
+        parseCommandData(commandData)
     }
 
     private fun parseNotificationData(notificationData: String?) {
         if (notificationData == null) return
 
         val jsonObject = JSONObject(notificationData)
-        notificationTitle = jsonObject.get(NOTIFICATION_TITLE_KEY).toString()
-        notificationDescription = jsonObject.get(NOTIFICATION_DESCRIPTION_KEY).toString()
-        notificationTarget = jsonObject.get(NOTIFICATION_TARGET_KEY).toString()
-        notificationSmallIcon = jsonObject.get(NOTIFICATION_SMALL_ICON_KEY).toString()
-        notificationMetaData = jsonObject.get(NOTIFICATION_METADATA_KEY).toString()
-        notificationIsSilent = jsonObject.get(NOTIFICATION_SILENT_KEY).toString().toBoolean()
+        if (jsonObject.has(NOTIFICATION_TITLE_KEY)
+            && jsonObject.has(NOTIFICATION_DESCRIPTION_KEY)
+            && jsonObject.has(NOTIFICATION_TARGET_KEY)
+        ) {
+            notificationTitle = jsonObject.get(NOTIFICATION_TITLE_KEY).toString()
+            notificationDescription = jsonObject.get(NOTIFICATION_DESCRIPTION_KEY).toString()
+            notificationTarget = jsonObject.get(NOTIFICATION_TARGET_KEY).toString()
+            if (jsonObject.has(NOTIFICATION_SMALL_ICON_KEY)) {
+                notificationSmallIcon = jsonObject.get(NOTIFICATION_SMALL_ICON_KEY).toString()
+            }
+            if (jsonObject.has(NOTIFICATION_METADATA_KEY)) {
+                notificationMetaData = jsonObject.get(NOTIFICATION_METADATA_KEY).toString()
+            }
+            if (jsonObject.has(NOTIFICATION_SILENT_KEY)) {
+                notificationIsSilent =
+                    jsonObject.get(NOTIFICATION_SILENT_KEY).toString().toBoolean()
+            }
+        }
     }
 
     private fun parseCommandData(commandData: String?) {
@@ -63,6 +75,8 @@ class FirebaseData constructor(
 
         val jsonObject = JSONObject(commandData)
         command = jsonObject.get(COMMAND_DATA_KEY).toString()
-        commandMateData = jsonObject.get(COMMAND_METADATA_KEY).toString()
+        if (jsonObject.has(COMMAND_METADATA_KEY)) {
+            commandMateData = jsonObject.get(COMMAND_METADATA_KEY).toString()
+        }
     }
 }

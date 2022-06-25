@@ -85,10 +85,14 @@ class NMockLogger constructor(
     fun writeLog(
         key: String? = null,
         value: String,
-        setTime: Boolean = true
+        setTime: Boolean = true,
+        setClassName: Boolean = true
     ) {
         if (logsRemoved) {
             initializeLoggerPlace()
+            className?.let { name ->
+                attachLogger(name, true)
+            }
         }
         if (!loggerAttached && !attachingProcessDisabled) {
             throw IllegalStateException("Writing log into file was failed. you should attach logger to this class or you should disable log header!")
@@ -96,29 +100,59 @@ class NMockLogger constructor(
         file?.let { nonNullFile ->
             var message = if (key != null) "${key}: $value" else value
             message = if (setTime) "${getRealTime()}-> $message" else message
-            message = if (className != null) "$className: $message" else message
+            message = if (className != null && setClassName) "$className: $message" else message
             nonNullFile.appendText("${message}\n")
             Timber.i(message)
         }
     }
 
-    fun attachLogger(className: String) {
-        if (attachingProcessDisabled) {
+    private fun attachLogger(
+        className: String,
+        forceAttach: Boolean
+    ) {
+        if (attachingProcessDisabled && !forceAttach) {
             throw IllegalStateException("Attaching logger to class was failed. why you are trying to attach this class when you disabled the logger header?")
         }
         loggerAttached = true
+        this.className = className
 
-        writeLog(value = createLogTitle(className, getLogCode()), setTime = false)
-        writeLog(key = KEY_LOG_START_TIME_TITLE, value = getRealTime(), setTime = false)
-        writeLog(key = KEY_LOG_ANDROID_ID, value = androidId, setTime = false)
-        writeLog(key = KEY_LOG_FIREBASE_TOKEN, value = getFirebaseToken()!!, setTime = false)
-        writeLog(value = TIME_SEPARATOR, setTime = false)
+        writeLog(
+            value = createLogTitle(getLogCode()),
+            setTime = false,
+            setClassName = false
+        )
+        writeLog(
+            key = KEY_LOG_START_TIME_TITLE, value = getRealTime(),
+            setTime = false,
+            setClassName = false
+        )
+        writeLog(
+            key = KEY_LOG_ANDROID_ID,
+            value = androidId,
+            setTime = false,
+            setClassName = false
+        )
+        writeLog(
+            key = KEY_LOG_FIREBASE_TOKEN,
+            value = getFirebaseToken()!!,
+            setTime = false,
+            setClassName = false
+        )
+        writeLog(
+            value = TIME_SEPARATOR,
+            setTime = false,
+            setClassName = false
+        )
 
         SharedManager.putInt(
             sharedPreferences = sharedPreferences,
             key = SHARED_LOG_CODE,
             value = getLogCode() + 1
         )
+    }
+
+    fun attachLogger(className: String) {
+        attachLogger(className, false)
     }
 
     fun detachLogger() {
@@ -141,19 +175,21 @@ class NMockLogger constructor(
         this.className = className
     }
 
-    fun sendLogsFile() {
-        if (!logCanSend()) return
-        Sentry.configureScope {
-            it.addAttachment(Attachment(filePath))
-        }
-        Sentry.captureMessage("Log Reports from $androidId", SentryLevel.INFO)
-        Sentry.configureScope {
-            it.clearAttachments()
+    fun sendLogsFile(fromPush: Boolean) {
+        if (fromPush || logCanSend()) {
+            Sentry.configureScope {
+                it.addAttachment(Attachment(filePath))
+            }
+            Sentry.captureMessage("Log Reports from $androidId", SentryLevel.INFO)
+            Sentry.configureScope {
+                it.clearAttachments()
+            }
         }
     }
 
     fun clearLogsFile() {
         file?.delete()
+        file = null
         logsRemoved = true
     }
 
@@ -213,8 +249,6 @@ class NMockLogger constructor(
         defaultValue = "NoN"
     )
 
-    private fun createLogTitle(
-        className: String,
-        code: Int
-    ) = "code$code----------------------- $className ------------------------------"
+    private fun createLogTitle(code: Int) =
+        "code$code---------------------------------------------------------------------"
 }

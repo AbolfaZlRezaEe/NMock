@@ -77,7 +77,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.reportLogsMaterialButton.setOnClickListener {
-            logger.sendLogsFile()
+            logger.sendLogsFile(false)
             showSnackBar(
                 message = resources.getString(R.string.thankYouForYourHelp),
                 rootView = binding.root,
