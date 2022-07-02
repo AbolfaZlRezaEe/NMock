@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentAuthWelcomeBinding
 
 class AuthWelcomeFragment : Fragment() {
@@ -19,5 +21,21 @@ class AuthWelcomeFragment : Fragment() {
     ): View {
         _binding = FragmentAuthWelcomeBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initializeListeners()
+    }
+
+    private fun initializeListeners() {
+        binding.signInMaterialButton.setOnClickListener {
+            findNavController().navigate(R.id.action_authWelcomeFragment_to_signInFragment)
+        }
+
+        binding.signUpMaterialButton.setOnClickListener {
+            findNavController().navigate(R.id.action_authWelcomeFragment_to_signUpFragment)
+        }
     }
 }
