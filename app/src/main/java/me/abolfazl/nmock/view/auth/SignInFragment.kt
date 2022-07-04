@@ -13,6 +13,10 @@ class SignInFragment : Fragment() {
 
     companion object {
         private const val MINIMUM_PASSWORD_LENGTH = 8
+
+        // Error Messages
+        const val EMAIL_OR_PASSWORD_IS_NOT_VALID_MESSAGE = 10
+        const val SIGNIN_PROCESS_FAILED_MESSAGE = 11
     }
 
     private var _binding: FragmentSignInBinding? = null

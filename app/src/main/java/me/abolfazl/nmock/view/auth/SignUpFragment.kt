@@ -13,6 +13,9 @@ class SignUpFragment : Fragment() {
 
     companion object {
         private const val MINIMUM_PASSWORD_LENGTH = 8
+
+        // Error messages
+        const val SIGNUP_PROCESS_FAILED_MESSAGE = 15
     }
 
     private var _binding: FragmentSignUpBinding? = null
