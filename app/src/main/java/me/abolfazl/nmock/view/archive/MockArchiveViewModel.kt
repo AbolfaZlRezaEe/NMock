@@ -3,7 +3,7 @@ package me.abolfazl.nmock.view.archive
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.sentry.Sentry
+import io.sentry.SentryLevel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +33,11 @@ class MockArchiveViewModel @Inject constructor(
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         logger.writeLog(value = "Exception thrown in MockArchiveViewModel: ${throwable.message}")
-        Sentry.captureMessage("Exception thrown in MockArchiveViewModel: ${throwable.message}")
+        logger.sendLogsFile(
+            fromExceptionHandler = true,
+            message = "Exception thrown in MockArchiveViewModel: ${throwable.message}",
+            sentryEventLevel = SentryLevel.ERROR
+        )
         viewModelScope.launch {
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
