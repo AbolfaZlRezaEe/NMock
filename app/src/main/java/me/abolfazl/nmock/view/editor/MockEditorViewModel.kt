@@ -3,7 +3,7 @@ package me.abolfazl.nmock.view.editor
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.sentry.Sentry
+import io.sentry.SentryLevel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -55,7 +55,11 @@ class MockEditorViewModel @Inject constructor(
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         logger.writeLog(value = "Exception thrown in MockEditorViewModel: ${throwable.message}")
-        Sentry.captureMessage("Exception thrown in MockEditorViewModel: ${throwable.message}")
+        logger.sendLogsFile(
+            fromExceptionHandler = true,
+            message = "Exception thrown in MockEditorViewModel: ${throwable.message}",
+            sentryEventLevel = SentryLevel.ERROR
+        )
         viewModelScope.launch {
             _oneTimeEmitter.emit(
                 OneTimeEmitter(

@@ -175,12 +175,22 @@ class NMockLogger constructor(
         this.className = className
     }
 
-    fun sendLogsFile(fromPush: Boolean) {
-        if (fromPush || logCanSend()) {
+    fun sendLogsFile(
+        fromExceptionHandler: Boolean = false,
+        fromPush: Boolean = false,
+        message: String? = null,
+        sentryEventLevel: SentryLevel = SentryLevel.INFO
+    ) {
+        if (fromExceptionHandler || fromPush || logCanSend()) {
             Sentry.configureScope {
                 it.addAttachment(Attachment(filePath))
             }
-            Sentry.captureMessage("Log Reports from $androidId", SentryLevel.INFO)
+            if (fromPush) {
+                Sentry.captureMessage("Logs sent from Push", sentryEventLevel)
+            } else {
+                val eventMessage = message ?: "Logs Reported from $androidId"
+                Sentry.captureMessage(eventMessage, sentryEventLevel)
+            }
             Sentry.configureScope {
                 it.clearAttachments()
             }
