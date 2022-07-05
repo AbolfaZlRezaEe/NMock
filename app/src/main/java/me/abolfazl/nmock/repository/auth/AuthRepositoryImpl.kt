@@ -1,17 +1,20 @@
 package me.abolfazl.nmock.repository.auth
 
+import android.content.SharedPreferences
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.model.apiService.AuthApiService
 import me.abolfazl.nmock.repository.models.SignUpDataclass
+import me.abolfazl.nmock.utils.SHARED_AUTH_TOKEN
 import me.abolfazl.nmock.utils.isValidEmail
 import me.abolfazl.nmock.utils.logger.NMockLogger
+import me.abolfazl.nmock.utils.managers.SharedManager
 import me.abolfazl.nmock.utils.response.*
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val authApiService: AuthApiService,
+    private val sharedPreferences: SharedPreferences,
     private val logger: NMockLogger
 ) : AuthRepository {
 
@@ -43,8 +46,12 @@ class AuthRepositoryImpl @Inject constructor(
             password = password
         )
         if (response.isSuccessful) {
-            response.body()?.let {
-                // todo: save the token!
+            response.body()?.let { result ->
+                SharedManager.putString(
+                    sharedPreferences = sharedPreferences,
+                    key = SHARED_AUTH_TOKEN,
+                    value = result.token
+                )
                 emit(Success(true))
             }
         } else {
@@ -71,18 +78,17 @@ class AuthRepositoryImpl @Inject constructor(
                 email = signUpDataclass.email,
                 password = signUpDataclass.password
             ).collect { response ->
-                response.ifSuccessful { _ ->
+                response.ifSuccessful {
                     emit(Success(true))
                     return@collect
                 }
 
-                response.ifNotSuccessful { _ ->
+                response.ifNotSuccessful {
                     emit(Failure(SIGNUP_PROCESS_FAILED_EXCEPTION))
                     return@collect
                 }
             }
         } else {
-            // todo: we should check the http code if needed!
             emit(Failure(SIGNUP_PROCESS_FAILED_EXCEPTION))
         }
     }

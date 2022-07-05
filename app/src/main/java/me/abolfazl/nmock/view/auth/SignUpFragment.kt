@@ -5,21 +5,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentSignUpBinding
 import me.abolfazl.nmock.utils.isValidEmail
+import me.abolfazl.nmock.utils.response.OneTimeEmitter
+import me.abolfazl.nmock.utils.showSnackBar
 
+@AndroidEntryPoint
 class SignUpFragment : Fragment() {
 
     companion object {
         private const val MINIMUM_PASSWORD_LENGTH = 8
 
         // Error messages
-        const val SIGNUP_PROCESS_FAILED_MESSAGE = 15
+        const val SIGNUP_PROCESS_FAILED_MESSAGE = R.string.authExceptionMessage
     }
 
     private var _binding: FragmentSignUpBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: AuthViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,6 +44,38 @@ class SignUpFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initializeListeners()
+
+        initObservers()
+    }
+
+    private fun initObservers() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.oneTimeEmitter.collect { processAction(it) }
+        }
+    }
+
+    private fun processAction(response: OneTimeEmitter) {
+        // todo: turn of the loading
+
+        when (response.actionId) {
+            AuthViewModel.ACTION_AUTH_FAILED -> {
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_LONG
+                )
+            }
+            AuthViewModel.ACTION_AUTH_SUCCESSFULLY -> {
+                findNavController().navigate(R.id.action_signUpFragment_to_authSuccessFragment)
+            }
+            else -> {
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_LONG
+                )
+            }
+        }
     }
 
     private fun initializeListeners() {
@@ -66,6 +108,11 @@ class SignUpFragment : Fragment() {
             return
         }
 
-        //todo: process...
+        viewModel.signUp(
+            firstName = binding.firstNameTextInputEditText.text?.toString()!!,
+            lastName = binding.lastNameTextInputEditText.text?.toString() ?: "",
+            email = binding.emailTextInputEditText.text?.toString()!!,
+            password = binding.passwordTextInputEditText.text?.toString()!!
+        )
     }
 }
