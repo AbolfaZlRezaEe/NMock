@@ -39,6 +39,7 @@ class AuthRepositoryImpl @Inject constructor(
     ): Flow<Response<Boolean, Int>> = flow {
         if (email.isEmpty() || password.isEmpty() || !email.isValidEmail()) {
             emit(Failure(EMAIL_OR_PASSWORD_IS_NOT_VALID_EXCEPTION))
+            logger.writeLog(value = "validation of sigIn was failed! email-> $email, password-> $password")
             return@flow
         }
         val response = authApiService.signIn(
@@ -52,12 +53,15 @@ class AuthRepositoryImpl @Inject constructor(
                     key = SHARED_AUTH_TOKEN,
                     value = result.token
                 )
+                logger.writeLog(value = "token successfully received! we are going to save it!")
                 emit(Success(true))
             }
         } else {
             if (response.code() == LOGIN_FAILED_HTTP_CODE) {
                 emit(Failure(SIGNIN_PROCESS_FAILED_EXCEPTION))
+                logger.writeLog(value = "email or password is wrong!")
             } else {
+                logger.writeLog(value = "unknown exception thrown from server for signIn. exception-> ${response.errorBody()}")
                 emit(Failure(UNKNOWN_EXCEPTION))
             }
         }
@@ -74,6 +78,7 @@ class AuthRepositoryImpl @Inject constructor(
             lastName = signUpDataclass.lastName
         )
         if (response.isSuccessful) {
+            logger.writeLog(value = "user successfully registered")
             signIn(
                 email = signUpDataclass.email,
                 password = signUpDataclass.password
@@ -90,6 +95,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
         } else {
             emit(Failure(SIGNUP_PROCESS_FAILED_EXCEPTION))
+            logger.writeLog(value = "unknown exception thrown from server for signUp. exception-> ${response.errorBody()}")
         }
     }
 }
