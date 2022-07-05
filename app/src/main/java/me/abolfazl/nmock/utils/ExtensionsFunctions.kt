@@ -2,6 +2,7 @@ package me.abolfazl.nmock.utils
 
 import android.app.ActivityManager
 import android.content.Context
+import android.util.Patterns
 import android.view.View
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
@@ -77,6 +78,9 @@ fun String.locationFormat(): LatLng {
 fun Int.toPixel(context: Context): Int {
     return ceil(this * context.resources.displayMetrics.density).toInt()
 }
+
+fun CharSequence.isValidEmail() =
+    !isNullOrEmpty() && Patterns.EMAIL_ADDRESS.matcher(this).matches()
 
 val File.size get() = if (!exists()) 0.0 else length().toDouble()
 val File.sizeInKb get() = size / 1024

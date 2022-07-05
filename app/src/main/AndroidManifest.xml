@@ -20,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NMock">
         <activity
+            android:name=".view.auth.AuthActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.player.MockPlayerActivity"
             android:exported="false"
             android:launchMode="singleInstance" />
@@ -52,11 +55,9 @@
         <service
             android:name=".view.player.MockPlayerService"
             android:foregroundServiceType="location" />
-
         <service
             android:name=".view.location.MockLocationService"
             android:foregroundServiceType="location" />
-
         <service
             android:name=".model.fcmService.FCMService"
             android:exported="false">
@@ -67,12 +68,10 @@
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="@string/pushNotificationChannelId" />
-
-        <!-- Sentry meta-data -->
-        <meta-data android:name="io.sentry.auto-init" android:value="false" />
-
+            android:value="@string/pushNotificationChannelId" /> <!-- Sentry meta-data -->
+        <meta-data
+            android:name="io.sentry.auto-init"
+            android:value="false" />
     </application>
-
 
 </manifest>

@@ -4,6 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import me.abolfazl.nmock.repository.auth.AuthRepository
+import me.abolfazl.nmock.repository.auth.AuthRepositoryImpl
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepository
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepositoryImpl
 import me.abolfazl.nmock.repository.mock.MockRepository
@@ -33,4 +35,10 @@ abstract class RepositoryModule {
     abstract fun bindMockRepository(
         mockRepositoryImpl: MockRepositoryImpl
     ): MockRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindAuthRepository(
+        authRepositoryImpl: AuthRepositoryImpl
+    ): AuthRepository
 }
