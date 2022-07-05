@@ -9,7 +9,7 @@ import me.abolfazl.nmock.model.database.models.PositionEntity
 
 @Database(
     entities = [MockEntity::class, PositionEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class NMockDataBase : RoomDatabase() {

@@ -18,7 +18,7 @@ data class PositionEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Long? = null,
-    @ColumnInfo(name = "mock_id")
+    @ColumnInfo(name = "mock_id", index = true)
     val mockId: Long,
     @ColumnInfo(name = "lat")
     val latitude: Double,

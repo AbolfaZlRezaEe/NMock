@@ -107,8 +107,8 @@ class MockEditorActivity : AppCompatActivity() {
             mockLocationService = locationBinder.getService()
 
             locationServiceIsAlive = true
-            mockLocationService?.setServiceCallback { location, oneTimeEmitter ->
-                onCurrentLocationChanged(location, oneTimeEmitter)
+            mockLocationService?.setServiceCallback { location, _ ->
+                onCurrentLocationChanged(location)
             }
         }
 
@@ -120,8 +120,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onCurrentLocationChanged(
-        location: Location?,
-        oneTimeEmitter: OneTimeEmitter?
+        location: Location?
     ) {
         location?.let { currentLocation -> processUserCurrentLocation(currentLocation) }
     }
