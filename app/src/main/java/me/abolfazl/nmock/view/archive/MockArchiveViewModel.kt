@@ -42,7 +42,7 @@ class MockArchiveViewModel @Inject constructor(
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
                     actionId = ACTION_UNKNOWN,
-                    message = actionMapper(0)
+                    message = actionMapper()
                 )
             )
         }
@@ -67,7 +67,7 @@ class MockArchiveViewModel @Inject constructor(
         )
     }
 
-    private fun actionMapper(actionType: Int): Int {
+    private fun actionMapper(): Int {
         return MockArchiveActivity.UNKNOWN_ERROR_MESSAGE
     }
 }
