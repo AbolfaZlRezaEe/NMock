@@ -89,6 +89,11 @@
     <string name="silentPushNotificationChannelId">SILENT_PUSH_NOTIFICATION_ID</string>
     <string name="applicationNotificationChannelName">NMock Notification</string>
     <string name="pushNotificationChannelName">Push Notification</string>
+    <string name="importTitle">Import</string>
+    <string name="importFromFile">Import mock file</string>
+    <string name="importFromLink">Import mock from link</string>
+    <string name="importFromOriginAndDestination">Import mock from locations</string>
+    <string name="storagePermissionRational">For importing mock files, you should give storage permission to the application.</string>
 
     <!-- Exception messages -->
     <string name="unknownException">Unexpected Error occurred! Please try again…</string>

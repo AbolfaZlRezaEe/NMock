@@ -26,8 +26,11 @@ object Constant {
     const val HEADER_API_KEY = "Api-Key"
     const val HEADER_VALUE_API_KEY = "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
 
-    // Location
+    // Permissions
     const val LOCATION_REQUEST = 1005
+    const val STORAGE_REQUEST = 1006
+
+    // Location
     const val LOCATION_INTERVAL: Long = 1000
     const val LOCATION_FASTEST_INTERVAL: Long = 500
     const val DEFAULT_RATIO = 0.00006

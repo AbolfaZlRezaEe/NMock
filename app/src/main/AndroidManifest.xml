@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <uses-permission
         android:name="android.permission.ACCESS_MOCK_LOCATION"
         tools:ignore="MockLocation,ProtectedPermissions" />
@@ -19,6 +21,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.NMock">
+        <activity
+            android:name=".view.mockImport.ImportActivity"
+            android:exported="false" />
         <activity
             android:name=".view.player.MockPlayerActivity"
             android:exported="false"
@@ -52,11 +57,9 @@
         <service
             android:name=".view.player.MockPlayerService"
             android:foregroundServiceType="location" />
-
         <service
             android:name=".view.location.MockLocationService"
             android:foregroundServiceType="location" />
-
         <service
             android:name=".model.fcmService.FCMService"
             android:exported="false">
@@ -70,9 +73,9 @@
             android:value="@string/pushNotificationChannelId" />
 
         <!-- Sentry meta-data -->
-        <meta-data android:name="io.sentry.auto-init" android:value="false" />
-
+        <meta-data
+            android:name="io.sentry.auto-init"
+            android:value="false" />
     </application>
-
 
 </manifest>

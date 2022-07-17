@@ -126,7 +126,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun managePermissions(): Boolean {
-        if (PermissionManager.permissionsIsGranted(this)) {
+        if (PermissionManager.locationPermissionsIsGranted(this)) {
             return if (PermissionManager.locationIsEnabled(this)) {
                 true
             } else {
@@ -156,14 +156,14 @@ class MockEditorActivity : AppCompatActivity() {
                 ) {
                     ActivityCompat.requestPermissions(
                         this,
-                        PermissionManager.getPermissionList().toTypedArray(),
+                        PermissionManager.getLocationPermissionList().toTypedArray(),
                         Constant.LOCATION_REQUEST
                     )
                 }
             } else {
                 ActivityCompat.requestPermissions(
                     this,
-                    PermissionManager.getPermissionList().toTypedArray(),
+                    PermissionManager.getLocationPermissionList().toTypedArray(),
                     Constant.LOCATION_REQUEST
                 )
             }
