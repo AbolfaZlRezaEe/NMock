@@ -213,7 +213,7 @@ class MockRepositoryImpl @Inject constructor(
                 moshi.adapter(MockExportJsonModel::class.java)
             finalJson = jsonAdapter.toJson(mockExportJsonModel)
         } catch (exception: Exception) {
-            // todo: catch the exception in log and more...
+            logger.writeLog(value = "we had problem on creating json from model: ${exception.message}")
             emit(Failure(CONVERT_MOCK_TO_JSON_EXCEPTION))
         }
 
@@ -227,7 +227,7 @@ class MockRepositoryImpl @Inject constructor(
                 )
                 emit(Success(file))
             } catch (exception: Exception) {
-                // todo: catch the exception in log and more...
+                logger.writeLog(value = "we had a problem on creating export mock file: ${exception.message}")
                 emit(Failure(CREATE_EXPORT_FILE_EXCEPTION))
             }
         }
