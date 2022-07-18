@@ -14,120 +14,90 @@
         android:layout_height="match_parent"
         android:padding="16dp">
 
-        <FrameLayout
-            android:id="@+id/frameLayout2"
-            android:layout_width="0dp"
-            android:layout_height="180dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <org.neshan.mapsdk.MapView
-                android:id="@+id/mapView"
-                android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:layout_gravity="center" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|start"
-                app:cardBackgroundColor="@color/colorPrimaryDark50Alpha"
-                app:cardCornerRadius="5dp"
-                app:cardElevation="0dp">
-
-                <TextView
-                    android:id="@+id/speedTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/roboto_medium"
-                    android:padding="5dp"
-                    android:textColor="@color/color_primary10"
-                    android:textSize="12sp"
-                    tools:text="Speed: 80 KM/H" />
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                app:cardBackgroundColor="@color/colorPrimaryDark50Alpha"
-                app:cardCornerRadius="5dp"
-                app:cardElevation="0dp">
-
-                <TextView
-                    android:id="@+id/provider_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/roboto_medium"
-                    android:padding="5dp"
-                    android:textColor="@color/color_primary10"
-                    android:textSize="12sp"
-                    tools:text="Provider: GPS" />
-
-            </com.google.android.material.card.MaterialCardView>
-
-        </FrameLayout>
-
         <TextView
-            android:id="@+id/mockTitleTextView"
+            android:id="@+id/titleTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
             android:ellipsize="end"
             android:fontFamily="@font/roboto_bold"
-            android:gravity="center|top"
+            android:lines="1"
             android:maxLines="1"
-            android:textColor="@color/color_primary10"
-            android:textSize="22sp"
+            android:textColor="@color/white"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/frameLayout2"
-            tools:text="Mock Title Test" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Mock Title" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/descriptionTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:ellipsize="end"
+            android:fontFamily="@font/roboto_light"
+            android:lines="2"
+            android:maxLines="2"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="@+id/titleTextView"
+            app:layout_constraintStart_toStartOf="@+id/titleTextView"
+            app:layout_constraintTop_toBottomOf="@+id/titleTextView"
+            tools:text="Hello, this is a sample Description for this item in this ui so it is what it is Hello, this is a sample Description for this item in this ui so it is what it is" />
+
+        <TextView
+            android:id="@+id/speedTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/roboto_medium"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="@+id/descriptionTextView"
+            app:layout_constraintTop_toBottomOf="@+id/descriptionTextView"
+            tools:text="Speed: 60Km/h" />
+
+        <TextView
+            android:id="@+id/providerTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/roboto_medium"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="@+id/descriptionTextView"
+            app:layout_constraintTop_toBottomOf="@+id/descriptionTextView"
+            tools:text="Provider: GPS" />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mockTitleTextView">
+            app:layout_constraintTop_toBottomOf="@+id/speedTextView">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/runMockMaterialButton"
+                android:id="@+id/shareMaterialButton"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:fontFamily="@font/roboto_bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_medium"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="@string/run"
+                android:text="@string/shareViaFile"
                 android:textColor="@color/color_primary10"
-                android:textSize="16sp"
-                app:cornerRadius="10dp"
+                app:cornerRadius="20dp"
                 app:strokeColor="@color/colorPrimary1050Alpha" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/shareMockMaterialButton"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="16dp"
-                android:layout_weight="1"
-                android:fontFamily="@font/roboto_bold"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:text="@string/share"
-                android:textColor="@color/color_primary10"
-                android:textSize="16sp"
-                app:cornerRadius="10dp"
-                app:strokeColor="@color/colorPrimary1050Alpha" />
+            <ProgressBar
+                android:id="@+id/shareProgressbar"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/color_primary10"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-        </LinearLayout>
+        </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

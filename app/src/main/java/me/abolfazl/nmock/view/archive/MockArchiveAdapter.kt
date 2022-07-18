@@ -4,13 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import me.abolfazl.nmock.databinding.ItemMockArchiveBinding
-import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
 import me.abolfazl.nmock.utils.setupListeners
 
 class MockArchiveAdapter constructor(
     private val list: ArrayList<MockDataClass>,
-    private val onClick: (mockDataClass: MockDataClass) -> Unit,
-    private val onLongClick: (mockDataClass: MockDataClass) -> Unit
+    private val onItemClickListener: (mockDataClass: MockDataClass) -> Unit,
+    private val onItemLongClickListener: (mockDataClass: MockDataClass) -> Unit,
+    private val onShareButtonClickListener: (mockDataClass: MockDataClass) -> Unit
 ) : RecyclerView.Adapter<MockArchiveViewHolder>() {
 
     fun updateData(
@@ -19,6 +20,13 @@ class MockArchiveAdapter constructor(
         this.list.clear()
         this.list.addAll(list)
         notifyDataSetChanged()
+    }
+
+    fun changeTheStateOfShareLoadingProgressbar(
+        mockDataClass: MockDataClass,
+    ) {
+        list.find { it.id == mockDataClass.id }?.showShareLoading = mockDataClass.showShareLoading
+        notifyItemChanged(list.indexOf(mockDataClass))
     }
 
     fun addNewItem(
@@ -43,16 +51,20 @@ class MockArchiveAdapter constructor(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MockArchiveViewHolder {
-        return MockArchiveViewHolder(
+        val mockArchiveViewHolder = MockArchiveViewHolder(
             ItemMockArchiveBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
             )
         ).setupListeners(
-            { longClickPosition -> onLongClick.invoke(list[longClickPosition]) },
-            { onClickPosition -> onClick.invoke(list[onClickPosition]) }
+            { longClickPosition -> onItemLongClickListener.invoke(list[longClickPosition]) },
+            { clickPosition -> onItemClickListener.invoke(list[clickPosition]) }
         )
+        mockArchiveViewHolder.setShareClickListener { shareClickPosition ->
+            onShareButtonClickListener.invoke(list[shareClickPosition])
+        }
+        return mockArchiveViewHolder
     }
 
     override fun onBindViewHolder(holder: MockArchiveViewHolder, position: Int) {
@@ -61,9 +73,8 @@ class MockArchiveAdapter constructor(
             title = mockObject.name,
             mockProvider = mockObject.provider,
             speed = mockObject.speed,
-            originLocation = mockObject.originLocation,
-            destinationLocation = mockObject.destinationLocation,
-            lineVector = mockObject.lineVector
+            description = mockObject.description,
+            showShareLoadingProgressbar = mockObject.showShareLoading
         )
 
     }

@@ -1,7 +1,11 @@
 package me.abolfazl.nmock.view.archive
 
-import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
+import me.abolfazl.nmock.utils.response.SingleEvent
+import java.io.File
 
 data class MockArchiveState(
-    val mockList: List<MockDataClass>? = null,
+    val mockList: SingleEvent<List<MockDataClass>>? = null,
+    val filePath: SingleEvent<File>? = null,
+    val sharedMockDataClassState: SingleEvent<MockDataClass>? = null
 )

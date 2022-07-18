@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.model.apiService.RoutingApiService
 import me.abolfazl.nmock.model.apiService.models.locationInfo.LocationInfoModel
-import me.abolfazl.nmock.repository.models.LocationInfoDataclass
+import me.abolfazl.nmock.repository.locationInfo.models.LocationInfoDataclass
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.Failure
 import me.abolfazl.nmock.utils.response.Response
