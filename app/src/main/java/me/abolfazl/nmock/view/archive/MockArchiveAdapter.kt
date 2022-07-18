@@ -3,7 +3,7 @@ package me.abolfazl.nmock.view.archive
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import me.abolfazl.nmock.databinding.ItemMockBinding
+import me.abolfazl.nmock.databinding.ItemMockArchiveBinding
 import me.abolfazl.nmock.repository.models.MockDataClass
 import me.abolfazl.nmock.utils.setupListeners
 
@@ -44,7 +44,7 @@ class MockArchiveAdapter constructor(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MockArchiveViewHolder {
         return MockArchiveViewHolder(
-            ItemMockBinding.inflate(
+            ItemMockArchiveBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
@@ -59,9 +59,11 @@ class MockArchiveAdapter constructor(
         val mockObject = list[position]
         holder.bind(
             title = mockObject.name,
-            description = mockObject.description,
             mockProvider = mockObject.provider,
-            speed = mockObject.speed
+            speed = mockObject.speed,
+            originLocation = mockObject.originLocation,
+            destinationLocation = mockObject.destinationLocation,
+            lineVector = mockObject.lineVector
         )
 
     }

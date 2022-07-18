@@ -30,14 +30,14 @@ object LineManager {
 
     fun drawLineOnMap(
         mapView: MapView,
-        polylineLayer: ArrayList<Polyline>,
+        polylineLayer: ArrayList<Polyline>? = null,
         vector: ArrayList<List<LatLng>>
     ) {
         val lineStyle = createLineStyle()
         vector.forEach { lineVector ->
             val polyLine = createLineFromVectors(lineStyle, lineVector)
             mapView.addPolyline(polyLine)
-            polylineLayer.add(polyLine)
+            polylineLayer?.add(polyLine)
         }
     }
 }
