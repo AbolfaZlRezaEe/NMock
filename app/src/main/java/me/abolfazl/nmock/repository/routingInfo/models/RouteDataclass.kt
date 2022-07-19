@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.repository.models.routingInfo
+package me.abolfazl.nmock.repository.routingInfo.models
 
 import org.neshan.common.model.LatLng
 

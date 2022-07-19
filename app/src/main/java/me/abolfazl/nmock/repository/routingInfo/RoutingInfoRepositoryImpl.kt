@@ -9,10 +9,10 @@ import me.abolfazl.nmock.model.apiService.models.routingInfo.LegModel
 import me.abolfazl.nmock.model.apiService.models.routingInfo.RouteModel
 import me.abolfazl.nmock.model.apiService.models.routingInfo.RoutingInfoModel
 import me.abolfazl.nmock.model.apiService.models.routingInfo.StepModel
-import me.abolfazl.nmock.repository.models.routingInfo.LegDataclass
-import me.abolfazl.nmock.repository.models.routingInfo.RouteDataclass
-import me.abolfazl.nmock.repository.models.routingInfo.RoutingInfoDataclass
-import me.abolfazl.nmock.repository.models.routingInfo.StepDataclass
+import me.abolfazl.nmock.repository.routingInfo.models.LegDataclass
+import me.abolfazl.nmock.repository.routingInfo.models.RouteDataclass
+import me.abolfazl.nmock.repository.routingInfo.models.RoutingInfoDataclass
+import me.abolfazl.nmock.repository.routingInfo.models.StepDataclass
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.Failure
 import me.abolfazl.nmock.utils.response.Response

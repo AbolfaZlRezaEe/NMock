@@ -3,9 +3,10 @@ package me.abolfazl.nmock.repository.mock
 import kotlinx.coroutines.flow.Flow
 import me.abolfazl.nmock.model.database.MockProvider
 import me.abolfazl.nmock.model.database.MockType
-import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
 import me.abolfazl.nmock.utils.response.Response
 import org.neshan.common.model.LatLng
+import java.io.File
 
 interface MockRepository {
 
@@ -50,4 +51,8 @@ interface MockRepository {
     suspend fun getMock(
         mockId: Long
     ): Flow<Response<MockDataClass, Int>>
+
+    suspend fun createMockExportFile(
+        mockId: Long
+    ): Flow<Response<File, Int>>
 }

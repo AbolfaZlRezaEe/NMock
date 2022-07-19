@@ -86,6 +86,10 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
+    // Moshi
+    implementation "com.squareup.moshi:moshi:1.13.0"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:1.13.0"
+
     // HttpLoggingInterceptor
     implementation "com.squareup.okhttp3:logging-interceptor:4.9.2"
 

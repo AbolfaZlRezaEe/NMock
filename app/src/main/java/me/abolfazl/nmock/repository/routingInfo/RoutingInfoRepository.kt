@@ -1,7 +1,7 @@
 package me.abolfazl.nmock.repository.routingInfo
 
 import kotlinx.coroutines.flow.Flow
-import me.abolfazl.nmock.repository.models.routingInfo.RoutingInfoDataclass
+import me.abolfazl.nmock.repository.routingInfo.models.RoutingInfoDataclass
 import me.abolfazl.nmock.utils.response.Response
 
 interface RoutingInfoRepository {

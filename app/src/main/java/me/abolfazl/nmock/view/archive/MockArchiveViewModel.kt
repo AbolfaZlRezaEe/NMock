@@ -11,8 +11,14 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.repository.mock.MockRepository
+import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
+import me.abolfazl.nmock.utils.response.SingleEvent
+import me.abolfazl.nmock.utils.response.ifNotSuccessful
+import me.abolfazl.nmock.utils.response.ifSuccessful
+import me.abolfazl.nmock.view.editor.MockEditorViewModel
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,7 +39,7 @@ class MockArchiveViewModel @Inject constructor(
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         logger.writeLog(value = "Exception thrown in MockArchiveViewModel: ${throwable.message}")
-        logger.sendLogsFile(
+        logger.captureEventWithLogFile(
             fromExceptionHandler = true,
             message = "Exception thrown in MockArchiveViewModel: ${throwable.message}",
             sentryEventLevel = SentryLevel.ERROR
@@ -42,7 +48,7 @@ class MockArchiveViewModel @Inject constructor(
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
                     actionId = ACTION_UNKNOWN,
-                    message = actionMapper()
+                    message = actionMapper(0)
                 )
             )
         }
@@ -56,7 +62,7 @@ class MockArchiveViewModel @Inject constructor(
     fun getMocks() = viewModelScope.launch(exceptionHandler) {
         val mockList = mockRepository.getMocks()
         _mockArchiveState.value = _mockArchiveState.value.copy(
-            mockList = mockList
+            mockList = SingleEvent(mockList)
         )
     }
 
@@ -67,7 +73,41 @@ class MockArchiveViewModel @Inject constructor(
         )
     }
 
-    private fun actionMapper(): Int {
-        return MockArchiveActivity.UNKNOWN_ERROR_MESSAGE
+    fun processExportingMock(mockDataClass: MockDataClass) =
+        viewModelScope.launch(exceptionHandler) {
+            _mockArchiveState.value = _mockArchiveState.value.copy(
+                sharedMockDataClassState = SingleEvent(mockDataClass.apply {
+                    showShareLoading = true
+                })
+            )
+            mockRepository.createMockExportFile(mockDataClass.id!!).collect { response ->
+                _mockArchiveState.value = _mockArchiveState.value.copy(
+                    sharedMockDataClassState = SingleEvent(mockDataClass.apply {
+                        showShareLoading = false
+                    })
+                )
+                response.ifSuccessful { file ->
+                    _mockArchiveState.value = _mockArchiveState.value.copy(
+                        file = SingleEvent(file)
+                    )
+                }
+                response.ifNotSuccessful { exceptionType ->
+                    _oneTimeEmitter.emit(
+                        OneTimeEmitter(
+                            actionId = MockEditorViewModel.ACTION_LOCATION_INFORMATION,
+                            message = actionMapper(exceptionType)
+                        )
+                    )
+                }
+            }
+        }
+
+    private fun actionMapper(action: Int): Int {
+        return when (action) {
+            MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION -> MockArchiveActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
+            MockRepositoryImpl.CONVERT_MOCK_TO_JSON_EXCEPTION,
+            MockRepositoryImpl.CREATE_EXPORT_FILE_EXCEPTION -> MockArchiveActivity.EXPORTING_MOCK_FAILED_MESSAGE
+            else -> MockArchiveActivity.UNKNOWN_ERROR_MESSAGE
+        }
     }
 }

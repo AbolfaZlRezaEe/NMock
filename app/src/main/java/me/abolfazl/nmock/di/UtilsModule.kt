@@ -10,11 +10,16 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.logger.NMockLogger
+import java.io.File
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object UtilsModule {
+
+    const val INJECT_STRING_ANDROID_ID = "Android_ID"
+    const val INJECT_STRING_MAIN_DIRECTORY = "Main_Directory"
 
     @Singleton
     @Provides
@@ -29,7 +34,7 @@ object UtilsModule {
     fun provideNMockLogger(
         @ApplicationContext context: Context,
         sharedPreferences: SharedPreferences,
-        androidId: String
+        @Named(INJECT_STRING_ANDROID_ID) androidId: String
     ): NMockLogger {
         return NMockLogger(
             fileName = Constant.LOGGER_FILE_NAME,
@@ -41,9 +46,19 @@ object UtilsModule {
 
     @Provides
     @Singleton
+    @Named(INJECT_STRING_ANDROID_ID)
     fun provideAndroidId(
         @ApplicationContext context: Context
     ): String {
         return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+    }
+
+    @Provides
+    @Singleton
+    @Named(INJECT_STRING_MAIN_DIRECTORY)
+    fun provideMainDirectoryPath(
+        @ApplicationContext context: Context
+    ): String {
+        return context.filesDir.toString() + File.separator
     }
 }

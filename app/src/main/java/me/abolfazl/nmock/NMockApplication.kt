@@ -5,10 +5,12 @@ import dagger.hilt.android.HiltAndroidApp
 import io.sentry.Sentry
 import io.sentry.android.core.SentryAndroid
 import io.sentry.protocol.User
+import me.abolfazl.nmock.di.UtilsModule
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 
 
 @HiltAndroidApp
@@ -18,6 +20,7 @@ class NMockApplication : Application() {
     lateinit var logger: NMockLogger
 
     @Inject
+    @Named(UtilsModule.INJECT_STRING_ANDROID_ID)
     lateinit var androidId: String
 
     override fun onCreate() {

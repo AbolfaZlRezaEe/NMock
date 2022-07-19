@@ -73,6 +73,65 @@ an important thing that these Sharedflows can do is when an action receives from
 
 ![error architecture](https://user-images.githubusercontent.com/73066290/172200355-c851739b-7dbd-4ce2-a419-22a66a0b2bf3.png)
 
+## Mock Export file structure
+
+In some situations, you need to share your trip with your friends or your team workers. we have a feature that gives access you, to share your mock and send it everywhere you want. but what's the structure of this export file?
+
+as you maybe know, we save your mock trip and the state of that. for exporting the mock trip, we use **JSON** as a format of the file. the structure of this file is like this:
+
+```json
+{
+  "file_created_at": "Mon Jul 18 19:48:16 GMT+04:30 2022",
+  "file_owner": "User UUID",
+  "version_code": 7,
+  "mock_information": {
+    "type": "CUSTOM_CREATION",
+    "name": "Hallo",
+    "description": "Hallo description",
+    "origin_address": "your mock origin address",
+    "destination_address": "your mock destination address",
+    "speed": 90,
+    "bearing": 0,
+    "accuracy": 1,
+    "provider": "GPS_PROVIDER",
+    "created_at": "Mon Jul 18 19:48:08 GMT+04:30 2022",
+    "updated_at": "Mon Jul 18 19:48:08 GMT+04:30 2022"
+  },
+  "route_information": {
+    "origin_location": "your mock origin location",
+    "destination_location": "your mock destination address",
+    "route_lines": [
+      {
+        "id": 87,
+        "latitude": 35.71972,
+        "longitude": 51.34778000000001,
+        "time": 1658157488796,
+        "elapsed_real_time": 1517906677658857
+      },
+      {
+        "id": 88,
+        "latitude": 35.719370000000005,
+        "longitude": 51.34763,
+        "time": 1658157488803,
+        "elapsed_real_time": 1517906684490742
+      },...
+    ]
+  }
+}
+```
+
+1. **file_created_at(String)**: We save the Date/Time of the export file created in this field.
+
+2. **file_owner(String)**: We save the User UUID in this field.
+
+3. **version_code(Int)**: We save the application version code in this field.
+
+4. **mock_information(Object)**: For saving mock information, we use an object that we call **mock_information**. as you can see, we save necessary information in that.
+
+5. **route_information(Object)**: For saving route information and lines, we use this object for it. the important field of this object is **route_lines**. this object contains a list of positions that we should have for drawing lines on the map. every line has a **latitude** and **longitude** for its position.
+
+we save this file in the format of `.json`. you can share it everywhere you want. maybe you think how can we import it?
+
 ## :bookmark_tabs: Tips that help you...
 
 for developing this application, we have some tips that maybe can help you:

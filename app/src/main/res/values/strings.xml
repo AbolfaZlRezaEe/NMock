@@ -48,6 +48,7 @@
     <string name="speedDialogTitle">Choose your speed…</string>
     <string name="navigate">Navigate</string>
     <string name="share">Share</string>
+    <string name="shareViaFile">Share via file</string>
     <string name="notificationTitle">Mock is running!</string>
     <string name="mockPlayerNotificationDescription">Your mock trip was started and you should get the Mock location from other apps</string>
     <string name="limitRequestsException">Our Service has a Problem, We hope to fix it as soon as possible!</string>
@@ -89,6 +90,10 @@
     <string name="silentPushNotificationChannelId">SILENT_PUSH_NOTIFICATION_ID</string>
     <string name="applicationNotificationChannelName">NMock Notification</string>
     <string name="pushNotificationChannelName">Push Notification</string>
+    <string name="gps">GPS</string>
+    <string name="network">NETWORK</string>
+    <string name="provider">Provider</string>
+    <string name="km.h">KM/H</string>
 
     <!-- Exception messages -->
     <string name="unknownException">Unexpected Error occurred! Please try again…</string>
@@ -96,4 +101,5 @@
     <string name="routeInformationException">Sorry, we could not get the route information from server.</string>
     <string name="mockProblemException">We have a problem on Mock information. please add your mock again…</string>
     <string name="updateSpeedWasFailed">Umm… we have a problem on changing Mock speed. please try again…</string>
+    <string name="exportingMockProblem">Umm… we have a problem on sharing Mock. please try again…</string>
 </resources>
