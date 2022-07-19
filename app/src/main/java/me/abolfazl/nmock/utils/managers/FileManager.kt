@@ -13,12 +13,12 @@ object FileManager {
         val directoryPath = mainDirectory + directoryName
         checkDirectoryExistAndCreateIfNot(directoryPath)
         val filePath = directoryPath + File.separator + fileName
-        val file = checkFileExistAndCreateIdNot(filePath)
+        val file = checkFileExistAndCreateIfNot(filePath)
         file.writeText(text)
         return file
     }
 
-    fun checkFileExistAndCreateIdNot(filePath: String): File {
+    fun checkFileExistAndCreateIfNot(filePath: String): File {
         val file = File(filePath)
         if (!file.exists()) {
             file.createNewFile()

@@ -75,7 +75,7 @@ class MockArchiveActivity : AppCompatActivity() {
                         it.ifNotHandled { mockList -> processMockList(mockList) }
                     }
 
-                    state.filePath?.let {
+                    state.file?.let {
                         it.ifNotHandled { filePath -> processSharedFilePath(filePath) }
                     }
 

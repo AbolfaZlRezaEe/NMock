@@ -90,7 +90,6 @@
     <string name="silentPushNotificationChannelId">SILENT_PUSH_NOTIFICATION_ID</string>
     <string name="applicationNotificationChannelName">NMock Notification</string>
     <string name="pushNotificationChannelName">Push Notification</string>
-    <string name="run">Run</string>
     <string name="gps">GPS</string>
     <string name="network">NETWORK</string>
     <string name="provider">Provider</string>

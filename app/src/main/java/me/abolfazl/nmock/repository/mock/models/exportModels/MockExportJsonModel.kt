@@ -7,12 +7,12 @@ import com.squareup.moshi.JsonClass
 data class MockExportJsonModel(
     @Json(name = "file_created_at")
     val fileCreatedAt: String,
-    @Json(name= "file_owner")
+    @Json(name = "file_owner")
     val fileOwner: String,
     @Json(name = "version_code")
     val versionCode: Int,
     @Json(name = "mock_information")
     val mockInformation: MockInformationExportJsonModel,
-    @Json(name= "route_information")
+    @Json(name = "route_information")
     val routeInformation: RouteInformationExportJsonModel
 )

@@ -6,6 +6,6 @@ import java.io.File
 
 data class MockArchiveState(
     val mockList: SingleEvent<List<MockDataClass>>? = null,
-    val filePath: SingleEvent<File>? = null,
+    val file: SingleEvent<File>? = null,
     val sharedMockDataClassState: SingleEvent<MockDataClass>? = null
 )

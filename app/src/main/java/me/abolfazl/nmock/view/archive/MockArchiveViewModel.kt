@@ -88,7 +88,7 @@ class MockArchiveViewModel @Inject constructor(
                 )
                 response.ifSuccessful { file ->
                     _mockArchiveState.value = _mockArchiveState.value.copy(
-                        filePath = SingleEvent(file)
+                        file = SingleEvent(file)
                     )
                 }
                 response.ifNotSuccessful { exceptionType ->
