@@ -43,5 +43,5 @@ object Constant {
     // Directory names
     const val DIRECTORY_NAME_EXPORT_FILES = "EXM"
 
-    const val EXPORT_MOCK_FILE_FORMAT = ".nmock"
+    const val EXPORT_MOCK_FILE_FORMAT = ".json"
 }

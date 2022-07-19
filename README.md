@@ -130,7 +130,7 @@ as you maybe know, we save your mock trip and the state of that. for exporting t
 
 5. **route_information(Object)**: For saving route information and lines, we use this object for it. the important field of this object is **route_lines**. this object contains a list of positions that we should have for drawing lines on the map. every line has a **latitude** and **longitude** for its position.
 
-we save this file in the format of `.nmock`. you can share it everywhere you want. maybe you think how can we import it?
+we save this file in the format of `.json`. you can share it everywhere you want. maybe you think how can we import it?
 
 ## :bookmark_tabs: Tips that help you...
 
