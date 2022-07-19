@@ -39,7 +39,7 @@ class MockArchiveViewModel @Inject constructor(
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         logger.writeLog(value = "Exception thrown in MockArchiveViewModel: ${throwable.message}")
-        logger.sendLogsFile(
+        logger.captureEventWithLogFile(
             fromExceptionHandler = true,
             message = "Exception thrown in MockArchiveViewModel: ${throwable.message}",
             sentryEventLevel = SentryLevel.ERROR

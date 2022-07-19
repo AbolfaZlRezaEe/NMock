@@ -3,6 +3,7 @@ package me.abolfazl.nmock.repository.mock
 import android.os.SystemClock
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import io.sentry.SentryLevel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.BuildConfig
@@ -214,6 +215,11 @@ class MockRepositoryImpl @Inject constructor(
             finalJson = jsonAdapter.toJson(mockExportJsonModel)
         } catch (exception: Exception) {
             logger.writeLog(value = "we had problem on creating json from model: ${exception.message}")
+            logger.captureEventWithLogFile(
+                fromRepository = true,
+                exception = exception,
+                sentryEventLevel = SentryLevel.ERROR
+            )
             emit(Failure(CONVERT_MOCK_TO_JSON_EXCEPTION))
         }
 
@@ -228,6 +234,11 @@ class MockRepositoryImpl @Inject constructor(
                 emit(Success(file))
             } catch (exception: Exception) {
                 logger.writeLog(value = "we had a problem on creating export mock file: ${exception.message}")
+                logger.captureEventWithLogFile(
+                    fromRepository = true,
+                    exception = exception,
+                    sentryEventLevel = SentryLevel.ERROR
+                )
                 emit(Failure(CREATE_EXPORT_FILE_EXCEPTION))
             }
         }
