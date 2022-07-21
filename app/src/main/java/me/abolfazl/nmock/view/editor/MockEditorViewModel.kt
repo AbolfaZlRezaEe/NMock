@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepository
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepositoryImpl
-import me.abolfazl.nmock.repository.mock.MockRepository
-import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
+import me.abolfazl.nmock.repository.normalMock.NormalMockRepository
+import me.abolfazl.nmock.repository.normalMock.NormalMockRepositoryImpl
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepository
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepositoryImpl
 import me.abolfazl.nmock.utils.Constant
@@ -32,7 +32,7 @@ import javax.inject.Inject
 class MockEditorViewModel @Inject constructor(
     private val locationInfoRepository: LocationInfoRepository,
     private val routingInfoRepository: RoutingInfoRepository,
-    private val mockRepository: MockRepository,
+    private val normalMockRepository: NormalMockRepository,
     private val logger: NMockLogger
 ) : ViewModel() {
 
@@ -178,7 +178,7 @@ class MockEditorViewModel @Inject constructor(
         }
         // For updating mock:
         if (id != null) {
-            mockRepository.updateMockInformation(
+            normalMockRepository.updateMockInformation(
                 id = id,
                 name = name,
                 description = description,
@@ -210,7 +210,7 @@ class MockEditorViewModel @Inject constructor(
                 }
             }
         } /*For inserting new mock:*/ else {
-            mockRepository.saveMockInformation(
+            normalMockRepository.saveMockInformation(
                 name = name,
                 description = description,
                 type = Constant.TYPE_CUSTOM_CREATE,
@@ -270,7 +270,7 @@ class MockEditorViewModel @Inject constructor(
     fun getMockInformationFromId(
         id: Long
     ) = viewModelScope.launch(exceptionHandler) {
-        mockRepository.getMock(id).collect { response ->
+        normalMockRepository.getMock(id).collect { response ->
             response.ifSuccessful { mockData ->
                 _mockEditorState.value = _mockEditorState.value.copy(
                     id = SingleEvent(mockData.id!!),
@@ -298,7 +298,7 @@ class MockEditorViewModel @Inject constructor(
     }
 
     fun deleteMock() = viewModelScope.launch(exceptionHandler) {
-        mockRepository.deleteMock(_mockEditorState.value.id?.getRawValue())
+        normalMockRepository.deleteMock(_mockEditorState.value.id?.getRawValue())
         clearMockInformation(true)
     }
 
@@ -326,9 +326,9 @@ class MockEditorViewModel @Inject constructor(
         return when (errorType) {
             LocationInfoRepositoryImpl.UNKNOWN_EXCEPTION -> MockEditorActivity.LOCATION_INFORMATION_EXCEPTION_MESSAGE
             RoutingInfoRepositoryImpl.UNKNOWN_EXCEPTION -> MockEditorActivity.ROUTE_INFORMATION_EXCEPTION_MESSAGE
-            MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
-            MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,
-            MockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockEditorActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
+            NormalMockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
+            NormalMockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,
+            NormalMockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockEditorActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
             else -> MockEditorActivity.UNKNOWN_ERROR_MESSAGE
         }
     }

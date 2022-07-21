@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.model.database
+package me.abolfazl.nmock.model.database.mocks
 
 import androidx.annotation.StringDef
 import me.abolfazl.nmock.utils.Constant.TYPE_AUTOMATIC_CREATE

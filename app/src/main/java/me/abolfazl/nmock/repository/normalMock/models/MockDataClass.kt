@@ -1,7 +1,7 @@
-package me.abolfazl.nmock.repository.mock.models
+package me.abolfazl.nmock.repository.normalMock.models
 
-import me.abolfazl.nmock.model.database.MockProvider
-import me.abolfazl.nmock.model.database.MockType
+import me.abolfazl.nmock.model.database.mocks.MockProvider
+import me.abolfazl.nmock.model.database.mocks.MockType
 import org.neshan.common.model.LatLng
 
 data class MockDataClass(

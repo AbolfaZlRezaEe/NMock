@@ -1,14 +1,14 @@
-package me.abolfazl.nmock.model.database.models
+package me.abolfazl.nmock.model.database.mocks.normalMock
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import me.abolfazl.nmock.model.database.MockProvider
-import me.abolfazl.nmock.model.database.MockType
+import me.abolfazl.nmock.model.database.mocks.MockProvider
+import me.abolfazl.nmock.model.database.mocks.MockType
 import me.abolfazl.nmock.utils.Constant
 
 @Entity(tableName = "mock_table")
-data class MockEntity(
+data class NormalMockEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Long? = null,

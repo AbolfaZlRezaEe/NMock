@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.repository.mock
+package me.abolfazl.nmock.repository.normalMock
 
 import android.os.SystemClock
 import com.squareup.moshi.JsonAdapter
@@ -8,17 +8,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.BuildConfig
 import me.abolfazl.nmock.di.UtilsModule
-import me.abolfazl.nmock.model.database.MockProvider
-import me.abolfazl.nmock.model.database.MockType
-import me.abolfazl.nmock.model.database.dao.MockDao
-import me.abolfazl.nmock.model.database.dao.PositionDao
-import me.abolfazl.nmock.model.database.models.MockEntity
-import me.abolfazl.nmock.model.database.models.PositionEntity
-import me.abolfazl.nmock.repository.mock.models.MockDataClass
-import me.abolfazl.nmock.repository.mock.models.exportModels.LineExportJsonModel
-import me.abolfazl.nmock.repository.mock.models.exportModels.MockExportJsonModel
-import me.abolfazl.nmock.repository.mock.models.exportModels.MockInformationExportJsonModel
-import me.abolfazl.nmock.repository.mock.models.exportModels.RouteInformationExportJsonModel
+import me.abolfazl.nmock.model.database.mocks.MockProvider
+import me.abolfazl.nmock.model.database.mocks.MockType
+import me.abolfazl.nmock.model.database.mocks.normalMock.NormalMockDao
+import me.abolfazl.nmock.model.database.positions.normalPositions.NormalPositionDao
+import me.abolfazl.nmock.model.database.mocks.normalMock.NormalMockEntity
+import me.abolfazl.nmock.model.database.positions.normalPositions.NormalPositionEntity
+import me.abolfazl.nmock.repository.normalMock.models.MockDataClass
+import me.abolfazl.nmock.repository.normalMock.models.exportModels.LineExportJsonModel
+import me.abolfazl.nmock.repository.normalMock.models.exportModels.MockExportJsonModel
+import me.abolfazl.nmock.repository.normalMock.models.exportModels.MockInformationExportJsonModel
+import me.abolfazl.nmock.repository.normalMock.models.exportModels.RouteInformationExportJsonModel
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.locationFormat
 import me.abolfazl.nmock.utils.logger.NMockLogger
@@ -32,15 +32,15 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
 
-class MockRepositoryImpl @Inject constructor(
-    private val mockDao: MockDao,
-    private val positionDao: PositionDao,
+class NormalMockRepositoryImpl @Inject constructor(
+    private val normalMockDao: NormalMockDao,
+    private val normalPositionDao: NormalPositionDao,
     private val logger: NMockLogger,
     @Named(UtilsModule.INJECT_STRING_ANDROID_ID)
     private val androidId: String,
     @Named(UtilsModule.INJECT_STRING_MAIN_DIRECTORY)
     private val mainDirectoryPath: String
-) : MockRepository {
+) : NormalMockRepository {
 
     companion object {
         const val DATABASE_INSERTION_EXCEPTION = 210
@@ -75,8 +75,8 @@ class MockRepositoryImpl @Inject constructor(
             emit(Failure(LINE_VECTOR_NULL_EXCEPTION))
             return@flow
         }
-        val mockId = mockDao.insertMockInformation(
-            MockEntity(
+        val mockId = normalMockDao.insertMockInformation(
+            NormalMockEntity(
                 id = null,
                 type = type,
                 name = name,
@@ -125,8 +125,8 @@ class MockRepositoryImpl @Inject constructor(
                 emit(Failure(LINE_VECTOR_NULL_EXCEPTION))
                 return@flow
             }
-            mockDao.updateMockInformation(
-                MockEntity(
+            normalMockDao.updateMockInformation(
+                NormalMockEntity(
                     id = id,
                     type = type,
                     name = name,
@@ -143,7 +143,7 @@ class MockRepositoryImpl @Inject constructor(
                     provider = provider
                 )
             )
-            positionDao.deleteRouteInformation(id)
+            normalPositionDao.deleteRouteInformation(id)
             saveRoutingInformation(id, lineVector)
             emit(Success(id))
         }
@@ -154,8 +154,8 @@ class MockRepositoryImpl @Inject constructor(
     ) {
         lineVector.forEach { listOfLatLng ->
             listOfLatLng.forEach { latLng ->
-                positionDao.insertMockPosition(
-                    PositionEntity(
+                normalPositionDao.insertMockPosition(
+                    NormalPositionEntity(
                         mockId = mockId,
                         latitude = latLng.latitude,
                         longitude = latLng.longitude,
@@ -168,14 +168,14 @@ class MockRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getMocks(): List<MockDataClass> {
-        return fromMockEntityList(mockDao.getAllMocks())
+        return fromMockEntityList(normalMockDao.getAllMocks())
     }
 
     override suspend fun getMock(
         mockId: Long
     ): Flow<Response<MockDataClass, Int>> = flow {
-        val mockObject = mockDao.getMockFromId(mockId)
-        val positionList = positionDao.getMockPositionListFromId(mockId)
+        val mockObject = normalMockDao.getMockFromId(mockId)
+        val positionList = normalPositionDao.getMockPositionListFromId(mockId)
         if (positionList.isEmpty()) {
             logger.writeLog(value = "getMock was failed. position list is empty!")
             emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
@@ -185,12 +185,12 @@ class MockRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteAllMocks() {
-        mockDao.deleteAllMocks()
+        normalMockDao.deleteAllMocks()
     }
 
     override suspend fun deleteMock(id: Long?) {
         if (id == null) return
-        mockDao.deleteMockEntity(id)
+        normalMockDao.deleteMockEntity(id)
     }
 
     override suspend fun createMockExportFile(
@@ -245,8 +245,8 @@ class MockRepositoryImpl @Inject constructor(
     }
 
     private fun toMockExportJsonModel(
-        mockInformation: MockEntity,
-        lineInformation: List<PositionEntity>
+        mockInformation: NormalMockEntity,
+        lineInformation: List<NormalPositionEntity>
     ): MockExportJsonModel {
         val mockInformationExportJsonModel = MockInformationExportJsonModel(
             type = mockInformation.type,
@@ -277,14 +277,14 @@ class MockRepositoryImpl @Inject constructor(
 
     private suspend fun getMockAndPositionsInformationForExporting(
         mockId: Long
-    ): Pair<MockEntity, List<PositionEntity>> {
-        val mockObject = mockDao.getMockFromId(mockId)
-        val positionList = positionDao.getMockPositionListFromId(mockId)
+    ): Pair<NormalMockEntity, List<NormalPositionEntity>> {
+        val mockObject = normalMockDao.getMockFromId(mockId)
+        val positionList = normalPositionDao.getMockPositionListFromId(mockId)
         return mockObject to positionList
     }
 
     private fun toLineExportJsonModel(
-        lineVectors: List<PositionEntity>
+        lineVectors: List<NormalPositionEntity>
     ): List<LineExportJsonModel> {
         val result = mutableListOf<LineExportJsonModel>()
         lineVectors.forEach { positionEntity ->
@@ -302,30 +302,30 @@ class MockRepositoryImpl @Inject constructor(
     }
 
     private fun fromMockEntity(
-        mockEntity: MockEntity,
+        normalMockEntity: NormalMockEntity,
         lineVector: ArrayList<List<LatLng>>? = null
     ): MockDataClass {
         return MockDataClass(
-            id = mockEntity.id!!,
-            name = mockEntity.name,
-            description = mockEntity.description,
-            type = mockEntity.type,
-            originLocation = mockEntity.originLocation.locationFormat(),
-            destinationLocation = mockEntity.destinationLocation.locationFormat(),
-            originAddress = mockEntity.originAddress,
-            destinationAddress = mockEntity.destinationAddress,
-            speed = mockEntity.speed,
+            id = normalMockEntity.id!!,
+            name = normalMockEntity.name,
+            description = normalMockEntity.description,
+            type = normalMockEntity.type,
+            originLocation = normalMockEntity.originLocation.locationFormat(),
+            destinationLocation = normalMockEntity.destinationLocation.locationFormat(),
+            originAddress = normalMockEntity.originAddress,
+            destinationAddress = normalMockEntity.destinationAddress,
+            speed = normalMockEntity.speed,
             lineVector = lineVector,
-            bearing = mockEntity.bearing,
-            accuracy = mockEntity.accuracy,
-            provider = mockEntity.provider,
-            createdAt = mockEntity.createdAt,
-            updatedAt = mockEntity.updatedAt
+            bearing = normalMockEntity.bearing,
+            accuracy = normalMockEntity.accuracy,
+            provider = normalMockEntity.provider,
+            createdAt = normalMockEntity.createdAt,
+            updatedAt = normalMockEntity.updatedAt
         )
     }
 
     private fun createLineVector(
-        positionList: List<PositionEntity>
+        positionList: List<NormalPositionEntity>
     ): ArrayList<List<LatLng>> {
         val result = ArrayList<List<LatLng>>()
         val list = mutableListOf<LatLng>()
@@ -337,7 +337,7 @@ class MockRepositoryImpl @Inject constructor(
     }
 
     private fun fromMockEntityList(
-        list: List<MockEntity>
+        list: List<NormalMockEntity>
     ): List<MockDataClass> {
         val result = mutableListOf<MockDataClass>()
         list.forEach { mockEntity ->

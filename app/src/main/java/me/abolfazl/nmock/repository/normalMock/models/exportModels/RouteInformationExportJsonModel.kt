@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.repository.mock.models.exportModels
+package me.abolfazl.nmock.repository.normalMock.models.exportModels
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

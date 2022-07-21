@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import me.abolfazl.nmock.repository.mock.MockRepository
-import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
+import me.abolfazl.nmock.repository.normalMock.NormalMockRepository
+import me.abolfazl.nmock.repository.normalMock.NormalMockRepositoryImpl
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MockPlayerViewModel @Inject constructor(
-    private val mockRepository: MockRepository,
+    private val normalMockRepository: NormalMockRepository,
     private val logger: NMockLogger
 ) : ViewModel() {
 
@@ -61,7 +61,7 @@ class MockPlayerViewModel @Inject constructor(
     }
 
     fun getMockInformation(mockId: Long) = viewModelScope.launch(exceptionHandler) {
-        mockRepository.getMock(mockId).collect { response ->
+        normalMockRepository.getMock(mockId).collect { response ->
             response.ifSuccessful { mockInformation ->
                 _mockPlayerState.value = _mockPlayerState.value.copy(
                     mockInformation = mockInformation
@@ -85,7 +85,7 @@ class MockPlayerViewModel @Inject constructor(
             mockInformation = mock
         )
         val mockData = _mockPlayerState.value.mockInformation!!
-        mockRepository.updateMockInformation(
+        normalMockRepository.updateMockInformation(
             id = mockData.id!!,
             name = mockData.name,
             description = mockData.description,
@@ -114,9 +114,9 @@ class MockPlayerViewModel @Inject constructor(
 
     private fun actionMapper(exceptionType: Int): Int {
         return when (exceptionType) {
-            MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
-            MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,
-            MockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockPlayerActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
+            NormalMockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
+            NormalMockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,
+            NormalMockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockPlayerActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
             else -> MockPlayerActivity.UNKNOWN_ERROR_MESSAGE
         }
     }
