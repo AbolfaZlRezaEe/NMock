@@ -1,7 +1,7 @@
 package me.abolfazl.nmock.repository.mock.models
 
-import me.abolfazl.nmock.model.database.MockProvider
-import me.abolfazl.nmock.model.database.MockType
+import me.abolfazl.nmock.model.database.mocks.MockProvider
+import me.abolfazl.nmock.model.database.mocks.MockType
 import org.neshan.common.model.LatLng
 
 data class MockDataClass(
@@ -22,5 +22,8 @@ data class MockDataClass(
     val provider: String,
     val createdAt: String? = null,
     val updatedAt: String? = null,
+    val fileCreatedAt: String? = null,
+    val fileOwner: String? = null,
+    val versionCode: Int = 0,
     var showShareLoading: Boolean = false
 )
