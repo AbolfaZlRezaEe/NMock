@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.repository.normalMock
+package me.abolfazl.nmock.repository.mock.normalMock
 
 import android.os.SystemClock
 import com.squareup.moshi.JsonAdapter
@@ -14,11 +14,11 @@ import me.abolfazl.nmock.model.database.mocks.normalMock.NormalMockDao
 import me.abolfazl.nmock.model.database.positions.normalPositions.NormalPositionDao
 import me.abolfazl.nmock.model.database.mocks.normalMock.NormalMockEntity
 import me.abolfazl.nmock.model.database.positions.normalPositions.NormalPositionEntity
-import me.abolfazl.nmock.repository.normalMock.models.MockDataClass
-import me.abolfazl.nmock.repository.normalMock.models.exportModels.LineExportJsonModel
-import me.abolfazl.nmock.repository.normalMock.models.exportModels.MockExportJsonModel
-import me.abolfazl.nmock.repository.normalMock.models.exportModels.MockInformationExportJsonModel
-import me.abolfazl.nmock.repository.normalMock.models.exportModels.RouteInformationExportJsonModel
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.exportModels.LineExportJsonModel
+import me.abolfazl.nmock.repository.mock.models.exportModels.MockExportJsonModel
+import me.abolfazl.nmock.repository.mock.models.exportModels.MockInformationExportJsonModel
+import me.abolfazl.nmock.repository.mock.models.exportModels.RouteInformationExportJsonModel
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.locationFormat
 import me.abolfazl.nmock.utils.logger.NMockLogger

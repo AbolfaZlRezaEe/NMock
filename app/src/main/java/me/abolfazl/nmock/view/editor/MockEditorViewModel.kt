@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepository
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepositoryImpl
-import me.abolfazl.nmock.repository.normalMock.NormalMockRepository
-import me.abolfazl.nmock.repository.normalMock.NormalMockRepositoryImpl
+import me.abolfazl.nmock.repository.mock.normalMock.NormalMockRepository
+import me.abolfazl.nmock.repository.mock.normalMock.NormalMockRepositoryImpl
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepository
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepositoryImpl
 import me.abolfazl.nmock.utils.Constant

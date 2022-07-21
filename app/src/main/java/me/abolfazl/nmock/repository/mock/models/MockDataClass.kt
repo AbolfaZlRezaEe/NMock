@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.repository.normalMock.models
+package me.abolfazl.nmock.repository.mock.models
 
 import me.abolfazl.nmock.model.database.mocks.MockProvider
 import me.abolfazl.nmock.model.database.mocks.MockType
@@ -22,5 +22,8 @@ data class MockDataClass(
     val provider: String,
     val createdAt: String? = null,
     val updatedAt: String? = null,
+    val fileCreatedAt: String? = null,
+    val fileOwner: String? = null,
+    val versionCode: Int = 0,
     var showShareLoading: Boolean = false
 )

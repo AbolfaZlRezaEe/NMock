@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import me.abolfazl.nmock.repository.normalMock.NormalMockRepository
-import me.abolfazl.nmock.repository.normalMock.NormalMockRepositoryImpl
-import me.abolfazl.nmock.repository.normalMock.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.normalMock.NormalMockRepository
+import me.abolfazl.nmock.repository.mock.normalMock.NormalMockRepositoryImpl
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.SingleEvent

@@ -20,7 +20,7 @@ import io.sentry.SentryLevel
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockPlayerBinding
-import me.abolfazl.nmock.repository.normalMock.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
 import me.abolfazl.nmock.utils.*
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.*

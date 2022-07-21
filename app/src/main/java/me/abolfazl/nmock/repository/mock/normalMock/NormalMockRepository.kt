@@ -1,9 +1,9 @@
-package me.abolfazl.nmock.repository.normalMock
+package me.abolfazl.nmock.repository.mock.normalMock
 
 import kotlinx.coroutines.flow.Flow
 import me.abolfazl.nmock.model.database.mocks.MockProvider
 import me.abolfazl.nmock.model.database.mocks.MockType
-import me.abolfazl.nmock.repository.normalMock.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
 import me.abolfazl.nmock.utils.response.Response
 import org.neshan.common.model.LatLng
 import java.io.File

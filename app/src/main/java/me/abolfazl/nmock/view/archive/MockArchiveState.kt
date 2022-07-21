@@ -1,6 +1,6 @@
 package me.abolfazl.nmock.view.archive
 
-import me.abolfazl.nmock.repository.normalMock.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
 import me.abolfazl.nmock.utils.response.SingleEvent
 import java.io.File
 
