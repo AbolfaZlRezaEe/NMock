@@ -20,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NMock">
         <activity
+            android:name=".view.auth.AuthActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.player.MockPlayerActivity"
             android:exported="false"
             android:launchMode="singleInstance" />
@@ -52,11 +55,9 @@
         <service
             android:name=".view.player.MockPlayerService"
             android:foregroundServiceType="location" />
-
         <service
             android:name=".view.location.MockLocationService"
             android:foregroundServiceType="location" />
-
         <service
             android:name=".model.fcmService.FCMService"
             android:exported="false">
@@ -83,6 +84,5 @@
         </provider>
 
     </application>
-
 
 </manifest>

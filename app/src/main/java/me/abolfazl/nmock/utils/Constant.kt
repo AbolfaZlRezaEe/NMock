@@ -1,7 +1,6 @@
 package me.abolfazl.nmock.utils
 
 object Constant {
-    const val BASE_URL = "https://api.neshan.org/"
 
     // Sentry
     const val SENTRY_DSN =
@@ -22,9 +21,6 @@ object Constant {
     const val TYPE_GPS = "gps"
 
     const val DATABASE_NAME = "nmock_db"
-
-    const val HEADER_API_KEY = "Api-Key"
-    const val HEADER_VALUE_API_KEY = "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
 
     // Location
     const val LOCATION_REQUEST = 1005
