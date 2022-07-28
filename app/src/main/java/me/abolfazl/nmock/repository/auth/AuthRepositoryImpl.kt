@@ -25,8 +25,8 @@ class AuthRepositoryImpl @Inject constructor(
 
         const val EMAIL_OR_PASSWORD_IS_NOT_VALID_EXCEPTION = 410
         const val SIGNIN_PROCESS_FAILED_EXCEPTION = 411
-        const val UNKNOWN_EXCEPTION = 412
         const val SIGNUP_PROCESS_FAILED_EXCEPTION = 413
+        const val UNKNOWN_EXCEPTION = 412
     }
 
     init {
@@ -64,6 +64,10 @@ class AuthRepositoryImpl @Inject constructor(
                 logger.writeLog(value = "email or password is wrong!")
             } else {
                 logger.writeLog(value = "unknown exception thrown from server for signIn. exception-> ${response.errorBody()}")
+                Sentry.captureMessage(
+                    "unknown exception thrown from server for signIn. exception-> ${response.errorBody()}",
+                    SentryLevel.FATAL
+                )
                 emit(Failure(UNKNOWN_EXCEPTION))
             }
         }

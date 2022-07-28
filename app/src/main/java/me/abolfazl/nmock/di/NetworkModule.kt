@@ -30,12 +30,12 @@ object NetworkModule {
     private const val AUTH_API_CLIENT = "AUTH_API_CLIENT"
 
     // Header Keys
-    private const val HEADER_API_KEY = "Api-Key"
-    private const val HEADER_ACCEPT = "Accept"
+    private const val ROUTING_HEADER_API_KEY = "Api-Key"
+    private const val AUTH_HEADER_ACCEPT_KEY = "Accept"
 
     // Header values
-    private const val HEADER_VALUE_API_KEY = "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
-    private const val HEADER_VALUE_ACCEPT = "application/json"
+    private const val ROUTING_HEADER_VALUE_API_KEY = "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
+    private const val AUTH_HEADER_VALUE_ACCEPT = "application/json"
 
     @Singleton
     @Provides
@@ -61,7 +61,7 @@ object NetworkModule {
                 val oldRequest = oldInterceptor.request()
                 val newRequest = oldRequest.newBuilder()
 
-                newRequest.addHeader(HEADER_API_KEY, HEADER_VALUE_API_KEY)
+                newRequest.addHeader(ROUTING_HEADER_API_KEY, ROUTING_HEADER_VALUE_API_KEY)
 
                 newRequest.method(oldRequest.method, oldRequest.body)
                 return@addInterceptor oldInterceptor.proceed(newRequest.build())
@@ -108,7 +108,7 @@ object NetworkModule {
                 val oldRequest = oldInterceptor.request()
                 val newRequest = oldRequest.newBuilder()
 
-                newRequest.addHeader(HEADER_ACCEPT, HEADER_VALUE_ACCEPT)
+                newRequest.addHeader(AUTH_HEADER_ACCEPT_KEY, AUTH_HEADER_VALUE_ACCEPT)
 
                 newRequest.method(oldRequest.method, oldRequest.body)
                 return@addInterceptor oldInterceptor.proceed(newRequest.build())
