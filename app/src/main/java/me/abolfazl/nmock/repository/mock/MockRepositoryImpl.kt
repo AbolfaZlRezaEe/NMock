@@ -1,34 +1,53 @@
 package me.abolfazl.nmock.repository.mock
 
 import android.os.SystemClock
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import io.sentry.SentryLevel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import me.abolfazl.nmock.BuildConfig
+import me.abolfazl.nmock.di.UtilsModule
 import me.abolfazl.nmock.model.database.MockProvider
 import me.abolfazl.nmock.model.database.MockType
 import me.abolfazl.nmock.model.database.dao.MockDao
 import me.abolfazl.nmock.model.database.dao.PositionDao
 import me.abolfazl.nmock.model.database.models.MockEntity
 import me.abolfazl.nmock.model.database.models.PositionEntity
-import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.exportModels.LineExportJsonModel
+import me.abolfazl.nmock.repository.mock.models.exportModels.MockExportJsonModel
+import me.abolfazl.nmock.repository.mock.models.exportModels.MockInformationExportJsonModel
+import me.abolfazl.nmock.repository.mock.models.exportModels.RouteInformationExportJsonModel
+import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.locationFormat
 import me.abolfazl.nmock.utils.logger.NMockLogger
+import me.abolfazl.nmock.utils.managers.FileManager
 import me.abolfazl.nmock.utils.response.Failure
 import me.abolfazl.nmock.utils.response.Response
 import me.abolfazl.nmock.utils.response.Success
 import org.neshan.common.model.LatLng
+import java.io.File
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Named
 
 class MockRepositoryImpl @Inject constructor(
     private val mockDao: MockDao,
     private val positionDao: PositionDao,
-    private val logger: NMockLogger
+    private val logger: NMockLogger,
+    @Named(UtilsModule.INJECT_STRING_ANDROID_ID)
+    private val androidId: String,
+    @Named(UtilsModule.INJECT_STRING_MAIN_DIRECTORY)
+    private val mainDirectoryPath: String
 ) : MockRepository {
 
     companion object {
         const val DATABASE_INSERTION_EXCEPTION = 210
         const val DATABASE_EMPTY_LINE_EXCEPTION = 211
         const val LINE_VECTOR_NULL_EXCEPTION = 212
+        const val CONVERT_MOCK_TO_JSON_EXCEPTION = 213
+        const val CREATE_EXPORT_FILE_EXCEPTION = 214
     }
 
     init {
@@ -172,6 +191,114 @@ class MockRepositoryImpl @Inject constructor(
     override suspend fun deleteMock(id: Long?) {
         if (id == null) return
         mockDao.deleteMockEntity(id)
+    }
+
+    override suspend fun createMockExportFile(
+        mockId: Long
+    ): Flow<Response<File, Int>> = flow {
+        val response = getMockAndPositionsInformationForExporting(mockId)
+        if (response.second.isEmpty()) {
+            logger.writeLog(value = "getMock was failed. position list is empty!")
+            emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
+            return@flow
+        }
+        val mockExportJsonModel = toMockExportJsonModel(
+            mockInformation = response.first,
+            lineInformation = response.second
+        )
+
+        var finalJson: String? = null
+        try {
+            val moshi: Moshi = Moshi.Builder().build()
+            val jsonAdapter: JsonAdapter<MockExportJsonModel> =
+                moshi.adapter(MockExportJsonModel::class.java)
+            finalJson = jsonAdapter.toJson(mockExportJsonModel)
+        } catch (exception: Exception) {
+            logger.writeLog(value = "we had problem on creating json from model: ${exception.message}")
+            logger.captureEventWithLogFile(
+                fromRepository = true,
+                exception = exception,
+                sentryEventLevel = SentryLevel.ERROR
+            )
+            emit(Failure(CONVERT_MOCK_TO_JSON_EXCEPTION))
+        }
+
+        finalJson?.let {
+            try {
+                val file = FileManager.writeTextToFileWithPath(
+                    mainDirectory = mainDirectoryPath,
+                    directoryName = Constant.DIRECTORY_NAME_EXPORT_FILES,
+                    fileName = mockExportJsonModel.mockInformation.name + Constant.EXPORT_MOCK_FILE_FORMAT,
+                    text = finalJson
+                )
+                emit(Success(file))
+            } catch (exception: Exception) {
+                logger.writeLog(value = "we had a problem on creating export mock file: ${exception.message}")
+                logger.captureEventWithLogFile(
+                    fromRepository = true,
+                    exception = exception,
+                    sentryEventLevel = SentryLevel.ERROR
+                )
+                emit(Failure(CREATE_EXPORT_FILE_EXCEPTION))
+            }
+        }
+    }
+
+    private fun toMockExportJsonModel(
+        mockInformation: MockEntity,
+        lineInformation: List<PositionEntity>
+    ): MockExportJsonModel {
+        val mockInformationExportJsonModel = MockInformationExportJsonModel(
+            type = mockInformation.type,
+            name = mockInformation.name,
+            description = mockInformation.description,
+            originAddress = mockInformation.originAddress,
+            destinationAddress = mockInformation.destinationAddress,
+            speed = mockInformation.speed,
+            bearing = mockInformation.bearing,
+            accuracy = mockInformation.accuracy,
+            provider = mockInformation.provider,
+            createdAt = mockInformation.createdAt,
+            updatedAt = mockInformation.updatedAt
+        )
+        val routeInformationExportJsonModel = RouteInformationExportJsonModel(
+            originLocation = mockInformation.originLocation,
+            destinationLocation = mockInformation.destinationLocation,
+            routeLines = toLineExportJsonModel(lineInformation)
+        )
+        return MockExportJsonModel(
+            fileCreatedAt = getTime(),
+            fileOwner = androidId,
+            versionCode = BuildConfig.VERSION_CODE,
+            mockInformation = mockInformationExportJsonModel,
+            routeInformation = routeInformationExportJsonModel
+        )
+    }
+
+    private suspend fun getMockAndPositionsInformationForExporting(
+        mockId: Long
+    ): Pair<MockEntity, List<PositionEntity>> {
+        val mockObject = mockDao.getMockFromId(mockId)
+        val positionList = positionDao.getMockPositionListFromId(mockId)
+        return mockObject to positionList
+    }
+
+    private fun toLineExportJsonModel(
+        lineVectors: List<PositionEntity>
+    ): List<LineExportJsonModel> {
+        val result = mutableListOf<LineExportJsonModel>()
+        lineVectors.forEach { positionEntity ->
+            result.add(
+                LineExportJsonModel(
+                    id = positionEntity.id!!,
+                    latitude = positionEntity.latitude,
+                    longitude = positionEntity.longitude,
+                    time = positionEntity.time,
+                    elapsedRealTime = positionEntity.elapsedRealTime
+                )
+            )
+        }
+        return result
     }
 
     private fun fromMockEntity(

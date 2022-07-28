@@ -68,10 +68,21 @@
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="@string/pushNotificationChannelId" /> <!-- Sentry meta-data -->
-        <meta-data
-            android:name="io.sentry.auto-init"
-            android:value="false" />
+            android:value="@string/pushNotificationChannelId" />
+
+        <!-- Sentry meta-data -->
+        <meta-data android:name="io.sentry.auto-init" android:value="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
+
     </application>
 
 </manifest>

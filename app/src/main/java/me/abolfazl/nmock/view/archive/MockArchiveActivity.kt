@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -14,13 +15,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockArchiveBinding
-import me.abolfazl.nmock.repository.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockDataClass
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.editor.MockEditorActivity
 import me.abolfazl.nmock.view.player.MockPlayerActivity
 import me.abolfazl.nmock.view.player.MockPlayerService
+import java.io.File
+import java.net.URLConnection
 
 @AndroidEntryPoint
 class MockArchiveActivity : AppCompatActivity() {
@@ -28,6 +31,8 @@ class MockArchiveActivity : AppCompatActivity() {
     companion object {
         // error messages
         const val UNKNOWN_ERROR_MESSAGE = R.string.unknownException
+        const val MOCK_INFORMATION_IS_WRONG_MESSAGE = R.string.mockProblemException
+        const val EXPORTING_MOCK_FAILED_MESSAGE = R.string.exportingMockProblem
     }
 
     private lateinit var binding: ActivityMockArchiveBinding
@@ -64,12 +69,42 @@ class MockArchiveActivity : AppCompatActivity() {
     private fun initState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.mockArchiveState.collect { processState(it) }
+                viewModel.mockArchiveState.collect { state ->
+
+                    state.mockList?.let {
+                        it.ifNotHandled { mockList -> processMockList(mockList) }
+                    }
+
+                    state.file?.let {
+                        it.ifNotHandled { filePath -> processSharedFilePath(filePath) }
+                    }
+
+                    state.sharedMockDataClassState?.let {
+                        it.ifNotHandled { mockDataClass ->
+                            adapter?.changeTheStateOfShareLoadingProgressbar(
+                                mockDataClass = mockDataClass
+                            )
+                        }
+                    }
+                }
             }
         }
         lifecycleScope.launchWhenStarted {
             viewModel.oneTimeEmitter.collect { processAction(it) }
         }
+    }
+
+    private fun processSharedFilePath(file: File) {
+        val shareFileIntent = Intent(Intent.ACTION_SEND)
+        shareFileIntent.type = URLConnection.guessContentTypeFromName(file.name)
+        val uri = FileProvider.getUriForFile(
+            this,
+            this.applicationContext.packageName,
+            file
+        )
+        shareFileIntent.putExtra(Intent.EXTRA_STREAM, uri)
+        shareFileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        startActivity(Intent.createChooser(shareFileIntent, null))
     }
 
     private fun initItems(list: List<MockDataClass>) {
@@ -78,7 +113,8 @@ class MockArchiveActivity : AppCompatActivity() {
                 MockArchiveAdapter(
                     ArrayList(list),
                     { onItemClicked(it) },
-                    { onItemLongClicked(it) }
+                    { onItemLongClicked(it) },
+                    { viewModel.processExportingMock(it) }
                 )
         } else {
             adapter?.updateData(ArrayList(list))
@@ -132,17 +168,17 @@ class MockArchiveActivity : AppCompatActivity() {
         })
     }
 
-    private fun processState(mockArchiveState: MockArchiveState) {
-        mockArchiveState.mockList?.let { mockList ->
-            binding.contentRecyclerView.visibility =
-                if (mockList.isEmpty()) View.GONE else View.VISIBLE
-            binding.emptyStateTextView.visibility =
-                if (mockList.isEmpty()) View.VISIBLE else View.GONE
-            binding.deleteAllImageView.visibility =
-                if (mockList.size >= 2) View.VISIBLE else View.GONE
-            binding.loadingState.visibility = View.GONE
-            initItems(mockList)
-        }
+    private fun processMockList(
+        mockList: List<MockDataClass>
+    ) {
+        binding.contentRecyclerView.visibility =
+            if (mockList.isEmpty()) View.GONE else View.VISIBLE
+        binding.emptyStateTextView.visibility =
+            if (mockList.isEmpty()) View.VISIBLE else View.GONE
+        binding.deleteAllImageView.visibility =
+            if (mockList.size >= 2) View.VISIBLE else View.GONE
+        binding.loadingState.visibility = View.GONE
+        initItems(mockList)
     }
 
     private fun processAction(response: OneTimeEmitter) {

@@ -35,4 +35,9 @@ object Constant {
 
     // Shared
     const val SHARED_PREFERENCES_NAME = "mock_shared"
+
+    // Directory names
+    const val DIRECTORY_NAME_EXPORT_FILES = "EXM"
+
+    const val EXPORT_MOCK_FILE_FORMAT = ".json"
 }
