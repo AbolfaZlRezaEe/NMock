@@ -104,6 +104,7 @@
     <string name="lastName">Last name</string>
     <string name="emailOrPasswordIsWrongMessage">Your email or password isn\'t correct!</string>
     <string name="authExceptionMessage">We had a problem on getting data from server. please try again.</string>
+    <string name="justTakeAMoment">Just take a moment…</string>
 
     <!-- Exception messages -->
     <string name="unknownException">Unexpected Error occurred! Please try again…</string>

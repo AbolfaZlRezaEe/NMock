@@ -14,4 +14,6 @@ interface AuthRepository {
     fun signUp(
         signUpDataclass: SignUpDataclass
     ): Flow<Response<Boolean, Int>>
+
+    fun isUserLoggedIn(): Boolean
 }

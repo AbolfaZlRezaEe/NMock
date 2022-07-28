@@ -1,6 +1,8 @@
 package me.abolfazl.nmock.repository.auth
 
 import android.content.SharedPreferences
+import io.sentry.Sentry
+import io.sentry.SentryLevel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.model.apiService.AuthApiService
@@ -10,6 +12,7 @@ import me.abolfazl.nmock.utils.isValidEmail
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.SharedManager
 import me.abolfazl.nmock.utils.response.*
+import timber.log.Timber
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -88,14 +91,26 @@ class AuthRepositoryImpl @Inject constructor(
                     return@collect
                 }
 
-                response.ifNotSuccessful {
-                    emit(Failure(SIGNUP_PROCESS_FAILED_EXCEPTION))
+                response.ifNotSuccessful { exceptionType ->
+                    emit(Failure(exceptionType))
                     return@collect
                 }
             }
         } else {
             emit(Failure(SIGNUP_PROCESS_FAILED_EXCEPTION))
             logger.writeLog(value = "unknown exception thrown from server for signUp. exception-> ${response.errorBody()}")
+            Sentry.captureMessage(
+                "unknown exception thrown from server for signUp. exception-> ${response.errorBody()}",
+                SentryLevel.FATAL
+            )
         }
+    }
+
+    override fun isUserLoggedIn(): Boolean {
+        return SharedManager.getString(
+            sharedPreferences = sharedPreferences,
+            key = SHARED_AUTH_TOKEN,
+            defaultValue = null
+        ) != null
     }
 }

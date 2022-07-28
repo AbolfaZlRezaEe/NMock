@@ -56,16 +56,9 @@ class SignInFragment : Fragment() {
     }
 
     private fun processAction(response: OneTimeEmitter) {
-        // todo: turn of the loading
+        showLoading(false)
 
         when (response.actionId) {
-            AuthViewModel.ACTION_AUTH_FAILED -> {
-                showSnackBar(
-                    message = resources.getString(response.message),
-                    rootView = binding.root,
-                    duration = Snackbar.LENGTH_LONG
-                )
-            }
             AuthViewModel.ACTION_AUTH_SUCCESSFULLY -> {
                 findNavController().navigate(R.id.action_signInFragment_to_authSuccessFragment)
             }
@@ -104,9 +97,21 @@ class SignInFragment : Fragment() {
             return
         }
 
+        showLoading(true)
+
         viewModel.signIn(
             email = binding.emailTextInputEditText.text?.toString()!!,
             password = binding.passwordTextInputEditText.text?.toString()!!
         )
+    }
+
+    private fun showLoading(show: Boolean) {
+        if (show) {
+            binding.signInMaterialButton.isEnabled = false
+            binding.loadingLinearLayout.visibility = View.VISIBLE
+        } else {
+            binding.signInMaterialButton.isEnabled = true
+            binding.loadingLinearLayout.visibility = View.GONE
+        }
     }
 }

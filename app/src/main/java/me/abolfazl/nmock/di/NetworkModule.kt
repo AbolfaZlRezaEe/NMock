@@ -18,6 +18,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    // Base URLs
+    private const val ROUTING_BASE_URL = "https://api.neshan.org/"
+    private const val AUTH_BASE_URL = "https://abolfazlrezaee.ir/"
+
     // For Retrofits
     private const val ROUTING_API_RETROFIT_INSTANCE = "ROUTING_RETROFIT_INSTANCE"
     private const val AUTH_API_RETROFIT_INSTANCE = "AUTH_RETROFIT_INSTANCE"
@@ -43,7 +47,7 @@ object NetworkModule {
         return Retrofit.Builder()
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(Constant.BASE_URL)
+            .baseUrl(ROUTING_BASE_URL)
             .build()
     }
 
@@ -90,7 +94,7 @@ object NetworkModule {
         return Retrofit.Builder()
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(Constant.BASE_URL)
+            .baseUrl(AUTH_BASE_URL)
             .build()
     }
 

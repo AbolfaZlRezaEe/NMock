@@ -1,9 +1,9 @@
 package me.abolfazl.nmock.view.auth
 
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.sentry.Sentry
 import io.sentry.SentryLevel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val logger: NMockLogger
+    private val logger: NMockLogger,
 ) : ViewModel() {
 
     companion object {
@@ -114,6 +114,10 @@ class AuthViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return authRepository.isUserLoggedIn()
     }
 
     private fun actionMapper(exceptionType: Int): Int {
