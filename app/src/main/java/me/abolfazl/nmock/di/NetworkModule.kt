@@ -6,7 +6,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import me.abolfazl.nmock.model.apiService.AuthApiService
 import me.abolfazl.nmock.model.apiService.RoutingApiService
-import me.abolfazl.nmock.utils.Constant
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

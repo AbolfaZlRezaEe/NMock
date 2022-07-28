@@ -12,7 +12,6 @@ import me.abolfazl.nmock.utils.isValidEmail
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.SharedManager
 import me.abolfazl.nmock.utils.response.*
-import timber.log.Timber
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -85,13 +84,13 @@ class AuthRepositoryImpl @Inject constructor(
             signIn(
                 email = signUpDataclass.email,
                 password = signUpDataclass.password
-            ).collect { response ->
-                response.ifSuccessful {
+            ).collect { result ->
+                result.ifSuccessful {
                     emit(Success(true))
                     return@collect
                 }
 
-                response.ifNotSuccessful { exceptionType ->
+                result.ifNotSuccessful { exceptionType ->
                     emit(Failure(exceptionType))
                     return@collect
                 }

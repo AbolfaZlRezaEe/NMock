@@ -1,6 +1,5 @@
 package me.abolfazl.nmock.view.auth
 
-import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,7 +35,7 @@ class AuthViewModel @Inject constructor(
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         logger.writeLog(value = "Exception thrown in AuthViewModel: ${throwable.message}")
-        logger.sendLogsFile(
+        logger.captureEventWithLogFile(
             fromExceptionHandler = true,
             message = "Exception thrown in AuthViewModel: ${throwable.message}",
             sentryEventLevel = SentryLevel.ERROR
