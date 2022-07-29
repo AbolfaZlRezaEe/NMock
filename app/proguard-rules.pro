@@ -101,4 +101,4 @@
 # Keep all data clases
 -keep class me.abolfazl.nmock.model.apiService.models.** { *; }
 -keep class me.abolfazl.nmock.model.database.models.** { *; }
--keep class me.abolfazl.nmock.repository.models.** { *; }
+-keep class me.abolfazl.nmock.repository.auth.models.** { *; }

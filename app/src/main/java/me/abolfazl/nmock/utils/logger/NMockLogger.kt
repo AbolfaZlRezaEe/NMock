@@ -199,8 +199,9 @@ class NMockLogger constructor(
                     if (eventTitle == null) exception?.message
                     else "$eventTitle: ${exception?.message}"
             }
-
-            Sentry.captureMessage(eventTitle ?: "Logs Reported from $androidId", sentryEventLevel)
+            val finalMessage = eventTitle ?: "Logs Reported from $androidId"
+            Sentry.captureMessage(finalMessage, sentryEventLevel)
+            Timber.i("$className(captureEventWithLogFile): $finalMessage")
 
             Sentry.configureScope {
                 it.clearAttachments()

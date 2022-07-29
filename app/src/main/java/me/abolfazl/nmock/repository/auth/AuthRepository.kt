@@ -1,7 +1,7 @@
 package me.abolfazl.nmock.repository.auth
 
 import kotlinx.coroutines.flow.Flow
-import me.abolfazl.nmock.repository.models.SignUpDataclass
+import me.abolfazl.nmock.repository.auth.models.SignUpDataclass
 import me.abolfazl.nmock.utils.response.Response
 
 interface AuthRepository {
@@ -15,5 +15,5 @@ interface AuthRepository {
         signUpDataclass: SignUpDataclass
     ): Flow<Response<Boolean, Int>>
 
-    fun isUserLoggedIn(): Boolean
+    suspend fun isUserLoggedIn(): Boolean
 }

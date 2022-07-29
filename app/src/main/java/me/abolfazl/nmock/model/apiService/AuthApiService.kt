@@ -2,7 +2,10 @@ package me.abolfazl.nmock.model.apiService
 
 import me.abolfazl.nmock.model.apiService.models.auth.SignInModel
 import me.abolfazl.nmock.model.apiService.models.auth.SignUpModel
+import me.abolfazl.nmock.model.apiService.models.auth.UserInformationModel
 import retrofit2.Response
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -22,4 +25,9 @@ interface AuthApiService {
         @Query("email") email: String,
         @Query("password") password: String
     ): Response<SignUpModel>
+
+    @GET("/api/auth/me")
+    suspend fun getUserInformation(
+        @Header("Authorization") userToken: String
+    ): Response<UserInformationModel>
 }

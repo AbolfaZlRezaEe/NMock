@@ -31,11 +31,17 @@ object NetworkModule {
 
     // Header Keys
     private const val ROUTING_HEADER_API_KEY = "Api-Key"
-    private const val AUTH_HEADER_ACCEPT_KEY = "Accept"
+    const val AUTH_HEADER_ACCEPT_KEY = "Accept"
+    const val AUTH_HEADER_AUTHORIZATION_KEY = "Authorization"
 
     // Header values
-    private const val ROUTING_HEADER_VALUE_API_KEY = "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
-    private const val AUTH_HEADER_VALUE_ACCEPT = "application/json"
+    private const val ROUTING_HEADER_VALUE_API_KEY =
+        "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
+    const val AUTH_HEADER_VALUE_ACCEPT = "application/json"
+
+    // For Pusher
+    const val BEAMS_AUTH_URL_INSTANCE = "BEAMS_AUTH_URL"
+    const val PUSHER_INSTANCE_ID_NAME = "PUSHER_INSTANCE_ID"
 
     @Singleton
     @Provides
@@ -121,6 +127,20 @@ object NetworkModule {
         @Named(AUTH_API_RETROFIT_INSTANCE) retrofit: Retrofit
     ): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    @Named(BEAMS_AUTH_URL_INSTANCE)
+    fun provideBeamsBaseUrl(): String {
+        return "${AUTH_BASE_URL}api/auth/beams"
+    }
+
+    @Singleton
+    @Provides
+    @Named(PUSHER_INSTANCE_ID_NAME)
+    fun providePusherInstanceId(): String {
+        return "b19d3795-6e91-4edc-8e15-79ead0737748"
     }
 
 }

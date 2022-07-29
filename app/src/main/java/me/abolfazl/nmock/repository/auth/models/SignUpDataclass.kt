@@ -1,4 +1,4 @@
-package me.abolfazl.nmock.repository.models
+package me.abolfazl.nmock.repository.auth.models
 
 data class SignUpDataclass(
     val firstName: String,
