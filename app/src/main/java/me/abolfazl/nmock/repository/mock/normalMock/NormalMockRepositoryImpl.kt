@@ -11,8 +11,8 @@ import me.abolfazl.nmock.di.UtilsModule
 import me.abolfazl.nmock.model.database.mocks.MockProvider
 import me.abolfazl.nmock.model.database.mocks.MockType
 import me.abolfazl.nmock.model.database.mocks.normalMock.NormalMockDao
-import me.abolfazl.nmock.model.database.positions.normalPositions.NormalPositionDao
 import me.abolfazl.nmock.model.database.mocks.normalMock.NormalMockEntity
+import me.abolfazl.nmock.model.database.positions.normalPositions.NormalPositionDao
 import me.abolfazl.nmock.model.database.positions.normalPositions.NormalPositionEntity
 import me.abolfazl.nmock.repository.mock.models.MockDataClass
 import me.abolfazl.nmock.repository.mock.models.exportModels.LineExportJsonModel

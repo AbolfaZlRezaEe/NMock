@@ -9,6 +9,10 @@ import org.neshan.common.model.LatLng
 
 interface ImportedMockRepository {
 
+    fun parseJsonDataString(
+        json: String
+    ): Flow<Response<MockDataClass, Int>>
+
     fun saveMockInformation(
         name: String,
         description: String,

@@ -22,8 +22,5 @@ data class MockDataClass(
     val provider: String,
     val createdAt: String? = null,
     val updatedAt: String? = null,
-    val fileCreatedAt: String? = null,
-    val fileOwner: String? = null,
-    val versionCode: Int = 0,
     var showShareLoading: Boolean = false
 )

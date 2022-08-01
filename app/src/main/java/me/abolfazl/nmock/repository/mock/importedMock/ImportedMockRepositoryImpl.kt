@@ -1,6 +1,9 @@
 package me.abolfazl.nmock.repository.mock.importedMock
 
 import android.os.SystemClock
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.model.database.mocks.importedMock.ImportedMockDao
@@ -8,6 +11,8 @@ import me.abolfazl.nmock.model.database.mocks.importedMock.ImportedMockEntity
 import me.abolfazl.nmock.model.database.positions.importedPositions.ImportedPositionDao
 import me.abolfazl.nmock.model.database.positions.importedPositions.ImportedPositionEntity
 import me.abolfazl.nmock.repository.mock.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.exportModels.LineExportJsonModel
+import me.abolfazl.nmock.repository.mock.models.exportModels.MockExportJsonModel
 import me.abolfazl.nmock.utils.locationFormat
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.Failure
@@ -27,11 +32,42 @@ class ImportedMockRepositoryImpl @Inject constructor(
         const val DATABASE_INSERTION_EXCEPTION = 410
         const val DATABASE_EMPTY_LINE_EXCEPTION = 411
         const val LINE_VECTOR_NULL_EXCEPTION = 412
+        const val JSON_PROBLEM_EXCEPTION = 413
+        const val JSON_PROCESS_FAILED_EXCEPTION = 414
     }
 
     init {
         logger.disableLogHeaderForThisClass()
         logger.setClassInformationForEveryLog(javaClass.simpleName)
+    }
+
+    override fun parseJsonDataString(
+        json: String
+    ): Flow<Response<MockDataClass, Int>> = flow {
+        if (json.isEmpty()) {
+            emit(Failure(JSON_PROBLEM_EXCEPTION))
+            return@flow
+        }
+
+        var mockJsonModel: MockExportJsonModel? = null
+        try {
+            val moshi: Moshi = Moshi.Builder().build()
+            val jsonAdapter: JsonAdapter<MockExportJsonModel> =
+                moshi.adapter(MockExportJsonModel::class.java)
+
+            mockJsonModel = jsonAdapter.fromJson(json)
+        } catch (jsonDataException: JsonDataException) {
+            emit(Failure(JSON_PROCESS_FAILED_EXCEPTION))
+            logger.writeLog(value = "The json format is not acceptable for parsing. we emit failed!")
+        }
+
+        if (mockJsonModel == null) {
+            emit(Failure(JSON_PROCESS_FAILED_EXCEPTION))
+            logger.writeLog(value = "We had exception on parsing json file. why json file is null?!")
+            return@flow
+        }
+
+        emit(Success(fromExportedMockModel(mockJsonModel)))
     }
 
     override fun saveMockInformation(
@@ -223,10 +259,39 @@ class ImportedMockRepositoryImpl @Inject constructor(
             provider = importedMockEntity.provider,
             createdAt = importedMockEntity.createdAt,
             updatedAt = importedMockEntity.updatedAt,
-            fileCreatedAt = importedMockEntity.fileCreatedAt,
-            fileOwner = importedMockEntity.fileOwner,
-            versionCode = importedMockEntity.versionCode,
         )
+    }
+
+    private fun fromExportedMockModel(
+        mockExportJsonModel: MockExportJsonModel
+    ): MockDataClass = MockDataClass(
+        id = null,
+        name = mockExportJsonModel.mockInformation.name,
+        description = mockExportJsonModel.mockInformation.description,
+        originLocation = mockExportJsonModel.routeInformation.originLocation.locationFormat(),
+        destinationLocation = mockExportJsonModel.routeInformation.destinationLocation.locationFormat(),
+        originAddress = mockExportJsonModel.mockInformation.originAddress,
+        destinationAddress = mockExportJsonModel.mockInformation.destinationAddress,
+        type = mockExportJsonModel.mockInformation.type,
+        speed = mockExportJsonModel.mockInformation.speed,
+        lineVector = fromLineExportJsonModel(mockExportJsonModel.routeInformation.routeLines),
+        bearing = mockExportJsonModel.mockInformation.bearing,
+        accuracy = mockExportJsonModel.mockInformation.accuracy,
+        provider = mockExportJsonModel.mockInformation.provider,
+        createdAt = mockExportJsonModel.mockInformation.createdAt,
+        updatedAt = mockExportJsonModel.mockInformation.updatedAt,
+    )
+
+    private fun fromLineExportJsonModel(
+        routeLines: List<LineExportJsonModel>
+    ): ArrayList<List<LatLng>> {
+        val result = ArrayList<List<LatLng>>()
+        val list = mutableListOf<LatLng>()
+        routeLines.forEach { lineExportedJsonModel ->
+            list.add(LatLng(lineExportedJsonModel.latitude, lineExportedJsonModel.longitude))
+        }
+        result.add(list)
+        return result
     }
 
     private fun getTime(): String {

@@ -32,52 +32,30 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <FrameLayout
-                    android:id="@+id/titleSectionViewGroup"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/titleTextInputLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="top">
+                    android:layout_gravity="top|center_horizontal"
+                    android:hint="@string/mockName"
+                    android:textColorHint="@color/colorPrimaryDark"
+                    app:boxStrokeColor="@color/colorPrimaryDark"
+                    app:endIconMode="clear_text"
+                    app:hintTextColor="@color/colorPrimaryDark">
 
-                    <TextView
-                        android:id="@+id/titleNameTextView"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/titleTextInputEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="top|center_horizontal"
                         android:ellipsize="end"
-                        android:fontFamily="@font/roboto_bold"
-                        android:gravity="center"
+                        android:fontFamily="@font/roboto_medium"
+                        android:inputType="text"
                         android:maxLines="1"
-                        android:textColor="@color/colorSecondary"
-                        android:textSize="23sp"
-                        tools:text="NMock Trip Text Title"
-                        tools:visibility="gone" />
+                        android:textColor="@color/colorPrimaryDark"
+                        tools:text="Mock Trip Text Title" />
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/titleTextInputLayout"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top|center_horizontal"
-                        android:hint="@string/mockName"
-                        android:textColorHint="@color/colorPrimaryDark"
-                        app:boxStrokeColor="@color/colorPrimaryDark"
-                        app:endIconMode="clear_text"
-                        app:hintTextColor="@color/colorPrimaryDark">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/titleTextInputEditText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:fontFamily="@font/roboto_medium"
-                            android:inputType="text"
-                            android:maxLines="1"
-                            android:textColor="@color/colorPrimaryDark"
-                            tools:text="Mock Trip Text Title" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                </FrameLayout>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <org.neshan.mapsdk.MapView
                     android:id="@+id/mapview"
@@ -110,8 +88,8 @@
                             android:ellipsize="end"
                             android:fontFamily="@font/roboto_medium"
                             android:maxLines="2"
-                            tools:text="@string/withoutOriginInformation"
-                            android:textColor="@color/colorPrimaryDark" />
+                            android:textColor="@color/colorPrimaryDark"
+                            tools:text="@string/withoutOriginInformation" />
 
                         <TextView
                             android:id="@+id/destinationAddressTextView"
@@ -121,9 +99,9 @@
                             android:layout_weight="1"
                             android:fontFamily="@font/roboto_medium"
                             android:maxLines="2"
-                            tools:text="@string/withoutDestinationInformation"
                             android:textColor="@color/colorPrimaryDark"
                             android:visibility="gone"
+                            tools:text="@string/withoutDestinationInformation"
                             tools:visibility="visible" />
 
                     </LinearLayout>
@@ -142,7 +120,7 @@
 
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/secondryMaterialButton"
+                        android:id="@+id/openInEditorMaterialButton"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
@@ -150,22 +128,40 @@
                         android:clipChildren="false"
                         android:clipToPadding="false"
                         android:fontFamily="@font/roboto_bold"
+                        android:text="@string/openInEditor"
                         android:textColor="@color/colorPrimaryDark"
-                        app:cornerRadius="15dp"
-                        android:text="@string/openInEditor" />
+                        app:cornerRadius="15dp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/actionMaterialButton"
+                    <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
                         android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:fontFamily="@font/roboto_bold"
-                        android:textColor="@color/colorPrimaryDark"
-                        app:cornerRadius="15dp"
-                        android:text="@string/submit" />
+                        android:clipToPadding="false">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/saveMaterialButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:clipChildren="false"
+                            android:clipToPadding="false"
+                            android:fontFamily="@font/roboto_bold"
+                            android:text="@string/save"
+                            android:textColor="@color/colorPrimaryDark"
+                            app:cornerRadius="15dp" />
+
+                        <ProgressBar
+                            android:id="@+id/loadingProgressbar"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="center"
+                            android:elevation="5dp"
+                            android:indeterminateTint="@color/colorPrimaryDark"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                    </FrameLayout>
 
                 </LinearLayout>
 

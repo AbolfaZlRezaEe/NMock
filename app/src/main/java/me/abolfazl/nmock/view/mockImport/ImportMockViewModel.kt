@@ -11,9 +11,12 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.repository.mock.importedMock.ImportedMockRepository
+import me.abolfazl.nmock.repository.mock.importedMock.ImportedMockRepositoryImpl
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import me.abolfazl.nmock.view.editor.MockEditorState
+import me.abolfazl.nmock.utils.response.SingleEvent
+import me.abolfazl.nmock.utils.response.ifNotSuccessful
+import me.abolfazl.nmock.utils.response.ifSuccessful
 import me.abolfazl.nmock.view.editor.MockEditorViewModel
 import javax.inject.Inject
 
@@ -23,8 +26,12 @@ class ImportMockViewModel @Inject constructor(
     private val logger: NMockLogger,
 ) : ViewModel() {
 
+    companion object {
+        const val ACTION_PARSE_JSON_MOCK = "ACTION_PARSE_JSON_MOCK"
+    }
+
     // for handling states
-    private val _importMockState = MutableStateFlow(MockEditorState())
+    private val _importMockState = MutableStateFlow(ImportMockState())
     val importMockState = _importMockState.asStateFlow()
 
     // for actions..
@@ -53,9 +60,37 @@ class ImportMockViewModel @Inject constructor(
         logger.setClassInformationForEveryLog(javaClass.simpleName)
     }
 
+    fun parseJsonData(
+        jsonString: String
+    ) = viewModelScope.launch(exceptionHandler) {
+        _importMockState.value = _importMockState.value.copy(
+            showImportLoading = SingleEvent(true)
+        )
+        importedMockRepository.parseJsonDataString(jsonString).collect { response ->
+            _importMockState.value = _importMockState.value.copy(
+                showImportLoading = SingleEvent(false)
+            )
+            response.ifSuccessful { result ->
+                _importMockState.value = _importMockState.value.copy(
+                    mockImportedInformation = SingleEvent(result)
+                )
+            }
+            response.ifNotSuccessful { exceptionType ->
+                _oneTimeEmitter.emit(
+                    OneTimeEmitter(
+                        actionId = ACTION_PARSE_JSON_MOCK,
+                        message = actionMapper(exceptionType)
+                    )
+                )
+            }
+        }
+    }
+
     private fun actionMapper(errorType: Int): Int {
         return when (errorType) {
-            else -> 0
+            ImportedMockRepositoryImpl.JSON_PROBLEM_EXCEPTION -> ImportActivity.JSON_STRUCTURE_PROBLEM_MESSAGE
+            ImportedMockRepositoryImpl.JSON_PROCESS_FAILED_EXCEPTION -> ImportActivity.JSON_PARSE_PROCESS_PROBLEM_MESSAGE
+            else -> ImportActivity.UNKNOWN_ERROR_MESSAGE
         }
     }
 }
