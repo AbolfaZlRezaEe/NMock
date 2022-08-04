@@ -1,20 +1,25 @@
 package me.abolfazl.nmock.view.mockImport
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.carto.core.ScreenPos
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentImportPreviewBinding
-import me.abolfazl.nmock.repository.mock.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockImportedDataClass
 import me.abolfazl.nmock.utils.managers.CameraManager
 import me.abolfazl.nmock.utils.managers.LineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
@@ -40,50 +45,55 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        showBottomSheetFullyExpanded()
+
         initListeners()
 
         initObservers()
+
+        showMockInformationPreview(viewModel.importMockState.value.mockImportedInformation?.getRawValue())
     }
 
-    private fun initListeners() {
-        binding.openInEditorMaterialButton.setOnClickListener { onOpenInEditorButtonClicked() }
-
-        binding.saveMaterialButton.setOnClickListener { onSaveButtonClicked() }
+    private fun showBottomSheetFullyExpanded() {
+        val dialog = dialog as BottomSheetDialog
+        val bottomSheet =
+            dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
+        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
-    private fun onSaveButtonClicked() {
-        // todo: save the information with viewmodel
-    }
-
-    private fun onOpenInEditorButtonClicked() {
-        // todo: open the editor activity and pass the data
-    }
-
-    private fun initObservers() = lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.importMockState.collect { state ->
-                state.mockImportedInformation?.let {
-                    it.ifNotHandled { mockInformation -> showMockInformationPreview(mockInformation) }
+    private fun initObservers() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.importMockState.collect { state ->
+                    state.showSaveLoading.ifNotHandled { showLoading(it) }
                 }
             }
         }
     }
 
+    private fun initListeners() {
+        /* We save the mock first in the database for passing that to MockEditorActivity and
+           We read that in MockEditorActivity! */
+        binding.openInEditorMaterialButton.setOnClickListener { viewModel.saveMockInformation(true) }
+
+        binding.saveMaterialButton.setOnClickListener { viewModel.saveMockInformation(false) }
+    }
+
     private fun showMockInformationPreview(
-        mockInformation: MockDataClass
+        mockInformation: MockImportedDataClass?
     ) {
-        if (context == null || mockInformation.lineVector == null) {
+        if (mockInformation == null || context == null || mockInformation.lineVector == null) {
             dismiss()
             return
         }
 
-        binding.loadingProgressbar.visibility = View.VISIBLE
+        showLoading(true)
 
         if (mockInformation.name.isNotEmpty()) {
             binding.titleTextInputEditText.setText(mockInformation.name)
         }
 
-        binding.mapview.isEnabled = false
         val originMarker = MarkerManager.createMarker(
             location = mockInformation.originLocation,
             drawableRes = R.drawable.ic_origin_marker,
@@ -103,19 +113,31 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
         binding.mapview.addMarker(originMarker)
         binding.mapview.addMarker(destinationMarker)
 
-        CameraManager.moveCameraToTripLine(
-            mapView = binding.mapview,
-            screenPos = ScreenPos(
-                binding.mapview.x + 32.toPixel(context!!),
-                binding.mapview.y + 32.toPixel(context!!)
-            ),
-            origin = mockInformation.originLocation,
-            destination = mockInformation.destinationLocation
-        )
-
         binding.originAddressTextView.text = mockInformation.originAddress
         binding.destinationAddressTextView.text = mockInformation.destinationAddress
 
-        binding.loadingProgressbar.visibility = View.GONE
+        Handler(Looper.getMainLooper()).postDelayed({
+            CameraManager.moveCameraToTripLine(
+                mapView = binding.mapview,
+                screenPos = ScreenPos(
+                    binding.mapview.x - 20.toPixel(context!!),
+                    binding.mapview.y - 20.toPixel(context!!)
+                ),
+                origin = mockInformation.originLocation,
+                destination = mockInformation.destinationLocation
+            )
+        }, 500)
+
+        showLoading(false)
+    }
+
+    private fun showLoading(show: Boolean) {
+        if (show) {
+            binding.loadingProgressbar.visibility = View.VISIBLE
+            binding.saveMaterialButton.text = ""
+        } else {
+            binding.loadingProgressbar.visibility = View.GONE
+            binding.saveMaterialButton.text = resources.getString(R.string.save)
+        }
     }
 }

@@ -28,11 +28,13 @@ class ImportMockViewModel @Inject constructor(
 
     companion object {
         const val ACTION_PARSE_JSON_MOCK = "ACTION_PARSE_JSON_MOCK"
+        const val ACTION_FORCE_CLOSE_IMPORT_PREVIEW = "FORCE_CLOSE_IMPORT_PREVIEW"
+        const val ACTION_MOCK_DOES_NOT_SAVED = "ACTION_MOCK_DOES_NOT_SAVED"
     }
 
     // for handling states
-    private val _importMockState = MutableStateFlow(ImportMockState())
-    val importMockState = _importMockState.asStateFlow()
+    private val _importedMockState = MutableStateFlow(ImportedMockState())
+    val importMockState = _importedMockState.asStateFlow()
 
     // for actions..
     private val _oneTimeEmitter = MutableSharedFlow<OneTimeEmitter>()
@@ -63,15 +65,15 @@ class ImportMockViewModel @Inject constructor(
     fun parseJsonData(
         jsonString: String
     ) = viewModelScope.launch(exceptionHandler) {
-        _importMockState.value = _importMockState.value.copy(
+        _importedMockState.value = _importedMockState.value.copy(
             showImportLoading = SingleEvent(true)
         )
         importedMockRepository.parseJsonDataString(jsonString).collect { response ->
-            _importMockState.value = _importMockState.value.copy(
+            _importedMockState.value = _importedMockState.value.copy(
                 showImportLoading = SingleEvent(false)
             )
             response.ifSuccessful { result ->
-                _importMockState.value = _importMockState.value.copy(
+                _importedMockState.value = _importedMockState.value.copy(
                     mockImportedInformation = SingleEvent(result)
                 )
             }
@@ -86,10 +88,68 @@ class ImportMockViewModel @Inject constructor(
         }
     }
 
+    fun saveMockInformation(
+        shouldOpenOnEditor: Boolean
+    ) = viewModelScope.launch(exceptionHandler) {
+        _importedMockState.value = _importedMockState.value.copy(
+            showSaveLoading = SingleEvent(true)
+        )
+        _importedMockState.value = _importedMockState.value.copy(
+            shouldOpenOnEditor = shouldOpenOnEditor
+        )
+        val mockDataClass = _importedMockState.value.mockImportedInformation?.getRawValue()
+        if (mockDataClass == null) {
+            _oneTimeEmitter.emit(
+                OneTimeEmitter(
+                    actionId = ACTION_FORCE_CLOSE_IMPORT_PREVIEW,
+                    actionMapper(0)
+                )
+            )
+            return@launch
+        }
+        importedMockRepository.saveMockInformation(
+            name = mockDataClass.name,
+            description = mockDataClass.description,
+            originLocation = mockDataClass.originLocation,
+            destinationLocation = mockDataClass.destinationLocation,
+            originAddress = mockDataClass.originAddress,
+            destinationAddress = mockDataClass.destinationAddress,
+            type = mockDataClass.type,
+            speed = mockDataClass.speed,
+            lineVector = mockDataClass.lineVector,
+            bearing = mockDataClass.bearing,
+            accuracy = mockDataClass.accuracy,
+            provider = mockDataClass.provider,
+            fileCreatedAt = mockDataClass.fileCreatedAt,
+            fileOwner = mockDataClass.fileOwner,
+            versionCode = mockDataClass.versionCode
+        ).collect { response ->
+            response.ifSuccessful { importedMockId ->
+                _importedMockState.value = _importedMockState.value.copy(
+                    finalMockId = SingleEvent(importedMockId)
+                )
+            }
+            response.ifNotSuccessful { exceptionType ->
+                _oneTimeEmitter.emit(
+                    OneTimeEmitter(
+                        actionId = ACTION_MOCK_DOES_NOT_SAVED,
+                        actionMapper(exceptionType)
+                    )
+                )
+            }
+        }
+    }
+
+    fun clearImportMockState() {
+        _importedMockState.value = ImportedMockState()
+    }
+
     private fun actionMapper(errorType: Int): Int {
         return when (errorType) {
             ImportedMockRepositoryImpl.JSON_PROBLEM_EXCEPTION -> ImportActivity.JSON_STRUCTURE_PROBLEM_MESSAGE
             ImportedMockRepositoryImpl.JSON_PROCESS_FAILED_EXCEPTION -> ImportActivity.JSON_PARSE_PROCESS_PROBLEM_MESSAGE
+            ImportedMockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
+            ImportedMockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> ImportActivity.MOCK_INFORMATION_HAS_PROBLEM
             else -> ImportActivity.UNKNOWN_ERROR_MESSAGE
         }
     }

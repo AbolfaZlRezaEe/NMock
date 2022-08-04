@@ -44,6 +44,7 @@ class MockEditorActivity : AppCompatActivity() {
 
     companion object {
         const val KEY_MOCK_INFORMATION = "MOCK_INFORMATION"
+        const val KEY_MOCK_IS_IMPORTED = "MOCK_IS_IMPORTED"
 
         // error messages
         const val UNKNOWN_ERROR_MESSAGE = R.string.unknownException
@@ -178,7 +179,11 @@ class MockEditorActivity : AppCompatActivity() {
         val mockId = intent.getLongExtra(KEY_MOCK_INFORMATION, -1)
         if (mockId != -1L) {
             logger.writeLog(value = "User would like to edit the mock. start loading mock information...")
-            viewModel.getMockInformationFromId(mockId)
+            val mockIsImported = intent.getBooleanExtra(KEY_MOCK_IS_IMPORTED, false)
+            viewModel.getMockInformationFromId(
+                id = mockId,
+                mockIsImported = mockIsImported
+            )
             binding.deleteMockImageView.visibility = View.VISIBLE
             return
         } else if (intent.data != null) {

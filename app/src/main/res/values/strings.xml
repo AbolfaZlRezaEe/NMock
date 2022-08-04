@@ -108,6 +108,7 @@
     <string name="locationInformationException">Sorry, we could not get the location information from server.</string>
     <string name="routeInformationException">Sorry, we could not get the route information from server.</string>
     <string name="mockProblemException">We have a problem on Mock information. please add your mock again…</string>
+    <string name="importedMockProblemException">We have a problem on Mock information. please import your mock again…</string>
     <string name="updateSpeedWasFailed">Umm… we have a problem on changing Mock speed. please try again…</string>
     <string name="exportingMockProblem">Umm… we have a problem on sharing Mock. please try again…</string>
     <string name="jsonStructureProblemMessage">Your json file has a problem in structure. please check it and try again…</string>

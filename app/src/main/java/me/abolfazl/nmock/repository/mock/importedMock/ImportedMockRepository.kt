@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import me.abolfazl.nmock.model.database.mocks.MockProvider
 import me.abolfazl.nmock.model.database.mocks.MockType
 import me.abolfazl.nmock.repository.mock.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockImportedDataClass
 import me.abolfazl.nmock.utils.response.Response
 import org.neshan.common.model.LatLng
 
@@ -11,7 +12,7 @@ interface ImportedMockRepository {
 
     fun parseJsonDataString(
         json: String
-    ): Flow<Response<MockDataClass, Int>>
+    ): Flow<Response<MockImportedDataClass, Int>>
 
     fun saveMockInformation(
         name: String,
@@ -55,9 +56,9 @@ interface ImportedMockRepository {
 
     suspend fun deleteAllMocks()
 
-    suspend fun getMocks(): List<MockDataClass>
+    suspend fun getMocks(): List<MockImportedDataClass>
 
     suspend fun getMock(
         mockId: Long
-    ): Flow<Response<MockDataClass, Int>>
+    ): Flow<Response<MockImportedDataClass, Int>>
 }

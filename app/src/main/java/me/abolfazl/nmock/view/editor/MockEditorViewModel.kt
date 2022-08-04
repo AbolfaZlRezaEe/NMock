@@ -268,8 +268,10 @@ class MockEditorViewModel @Inject constructor(
     }
 
     fun getMockInformationFromId(
-        id: Long
+        id: Long,
+        mockIsImported: Boolean
     ) = viewModelScope.launch(exceptionHandler) {
+        // todo: check the boolean and load the mock information from imported repository if need!
         normalMockRepository.getMock(id).collect { response ->
             response.ifSuccessful { mockData ->
                 _mockEditorState.value = _mockEditorState.value.copy(

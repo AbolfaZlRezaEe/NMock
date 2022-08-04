@@ -10,7 +10,7 @@ import me.abolfazl.nmock.model.database.mocks.importedMock.ImportedMockDao
 import me.abolfazl.nmock.model.database.mocks.importedMock.ImportedMockEntity
 import me.abolfazl.nmock.model.database.positions.importedPositions.ImportedPositionDao
 import me.abolfazl.nmock.model.database.positions.importedPositions.ImportedPositionEntity
-import me.abolfazl.nmock.repository.mock.models.MockDataClass
+import me.abolfazl.nmock.repository.mock.models.MockImportedDataClass
 import me.abolfazl.nmock.repository.mock.models.exportModels.LineExportJsonModel
 import me.abolfazl.nmock.repository.mock.models.exportModels.MockExportJsonModel
 import me.abolfazl.nmock.utils.locationFormat
@@ -43,7 +43,7 @@ class ImportedMockRepositoryImpl @Inject constructor(
 
     override fun parseJsonDataString(
         json: String
-    ): Flow<Response<MockDataClass, Int>> = flow {
+    ): Flow<Response<MockImportedDataClass, Int>> = flow {
         if (json.isEmpty()) {
             emit(Failure(JSON_PROBLEM_EXCEPTION))
             return@flow
@@ -183,11 +183,11 @@ class ImportedMockRepositoryImpl @Inject constructor(
         importedMockDao.deleteAllImportedMocks()
     }
 
-    override suspend fun getMocks(): List<MockDataClass> {
+    override suspend fun getMocks(): List<MockImportedDataClass> {
         return fromMockEntityList(importedMockDao.getAllImportedMocks())
     }
 
-    override suspend fun getMock(mockId: Long): Flow<Response<MockDataClass, Int>> = flow {
+    override suspend fun getMock(mockId: Long): Flow<Response<MockImportedDataClass, Int>> = flow {
         val mockObject = importedMockDao.getImportedMockFromId(mockId)
         val positionList = importedPositionDao.getImportedMockPositionListFromId(mockId)
         if (positionList.isEmpty()) {
@@ -195,7 +195,7 @@ class ImportedMockRepositoryImpl @Inject constructor(
             emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
             return@flow
         }
-        emit(Success(fromMockEntity(mockObject, createLineVector(positionList))))
+        emit(Success(fromMockImportedEntity(mockObject, createLineVector(positionList))))
     }
 
     private suspend fun saveImportedRoutingInformation(
@@ -231,19 +231,19 @@ class ImportedMockRepositoryImpl @Inject constructor(
 
     private fun fromMockEntityList(
         list: List<ImportedMockEntity>
-    ): List<MockDataClass> {
-        val result = mutableListOf<MockDataClass>()
+    ): List<MockImportedDataClass> {
+        val result = mutableListOf<MockImportedDataClass>()
         list.forEach { mockEntity ->
-            result.add(fromMockEntity(mockEntity))
+            result.add(fromMockImportedEntity(mockEntity))
         }
         return result
     }
 
-    private fun fromMockEntity(
+    private fun fromMockImportedEntity(
         importedMockEntity: ImportedMockEntity,
         lineVector: ArrayList<List<LatLng>>? = null
-    ): MockDataClass {
-        return MockDataClass(
+    ): MockImportedDataClass {
+        return MockImportedDataClass(
             id = importedMockEntity.id!!,
             name = importedMockEntity.name,
             description = importedMockEntity.description,
@@ -259,12 +259,15 @@ class ImportedMockRepositoryImpl @Inject constructor(
             provider = importedMockEntity.provider,
             createdAt = importedMockEntity.createdAt,
             updatedAt = importedMockEntity.updatedAt,
+            fileCreatedAt = importedMockEntity.fileCreatedAt,
+            fileOwner = importedMockEntity.fileOwner,
+            versionCode = importedMockEntity.versionCode
         )
     }
 
     private fun fromExportedMockModel(
         mockExportJsonModel: MockExportJsonModel
-    ): MockDataClass = MockDataClass(
+    ): MockImportedDataClass = MockImportedDataClass(
         id = null,
         name = mockExportJsonModel.mockInformation.name,
         description = mockExportJsonModel.mockInformation.description,
@@ -280,6 +283,9 @@ class ImportedMockRepositoryImpl @Inject constructor(
         provider = mockExportJsonModel.mockInformation.provider,
         createdAt = mockExportJsonModel.mockInformation.createdAt,
         updatedAt = mockExportJsonModel.mockInformation.updatedAt,
+        fileCreatedAt = mockExportJsonModel.fileCreatedAt,
+        fileOwner = mockExportJsonModel.fileOwner,
+        versionCode = mockExportJsonModel.versionCode
     )
 
     private fun fromLineExportJsonModel(

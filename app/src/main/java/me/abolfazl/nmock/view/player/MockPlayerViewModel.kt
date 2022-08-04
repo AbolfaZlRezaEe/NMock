@@ -60,7 +60,11 @@ class MockPlayerViewModel @Inject constructor(
         logger.setClassInformationForEveryLog(javaClass.simpleName)
     }
 
-    fun getMockInformation(mockId: Long) = viewModelScope.launch(exceptionHandler) {
+    fun getMockInformation(
+        mockId: Long,
+        mockIsImported: Boolean
+    ) = viewModelScope.launch(exceptionHandler) {
+        //todo: get mock information from imported repository if boolean is true
         normalMockRepository.getMock(mockId).collect { response ->
             response.ifSuccessful { mockInformation ->
                 _mockPlayerState.value = _mockPlayerState.value.copy(
