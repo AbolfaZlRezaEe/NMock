@@ -17,7 +17,8 @@ interface MockRepository {
     ): Flow<Response<Long, Int>>
 
     suspend fun deleteMock(
-        mockDataClass: MockDataClass,
+        @MockDatabaseType mockDatabaseType: String,
+        mockId: Long,
     )
 
     suspend fun deleteAllMocks(

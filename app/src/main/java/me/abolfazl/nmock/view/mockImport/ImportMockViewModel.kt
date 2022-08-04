@@ -10,8 +10,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import me.abolfazl.nmock.repository.mock.importedMock.ImportedMockRepository
-import me.abolfazl.nmock.repository.mock.importedMock.ImportedMockRepositoryImpl
+import me.abolfazl.nmock.model.database.DATABASE_TYPE_IMPORTED
+import me.abolfazl.nmock.repository.mock.MockRepository
+import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
+import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.SingleEvent
@@ -22,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ImportMockViewModel @Inject constructor(
-    private val importedMockRepository: ImportedMockRepository,
+    private val mockRepository: MockRepository,
     private val logger: NMockLogger,
 ) : ViewModel() {
 
@@ -68,7 +70,7 @@ class ImportMockViewModel @Inject constructor(
         _importedMockState.value = _importedMockState.value.copy(
             showImportLoading = SingleEvent(true)
         )
-        importedMockRepository.parseJsonDataString(jsonString).collect { response ->
+        mockRepository.parseJsonDataModelString(jsonString).collect { response ->
             _importedMockState.value = _importedMockState.value.copy(
                 showImportLoading = SingleEvent(false)
             )
@@ -107,22 +109,25 @@ class ImportMockViewModel @Inject constructor(
             )
             return@launch
         }
-        importedMockRepository.saveMockInformation(
-            name = mockDataClass.name,
-            description = mockDataClass.description,
-            originLocation = mockDataClass.originLocation,
-            destinationLocation = mockDataClass.destinationLocation,
-            originAddress = mockDataClass.originAddress,
-            destinationAddress = mockDataClass.destinationAddress,
-            type = mockDataClass.type,
-            speed = mockDataClass.speed,
-            lineVector = mockDataClass.lineVector,
-            bearing = mockDataClass.bearing,
-            accuracy = mockDataClass.accuracy,
-            provider = mockDataClass.provider,
-            fileCreatedAt = mockDataClass.fileCreatedAt,
-            fileOwner = mockDataClass.fileOwner,
-            versionCode = mockDataClass.versionCode
+        mockRepository.saveMockInformation(
+            MockDataClass(
+                name = mockDataClass.name,
+                description = mockDataClass.description,
+                originLocation = mockDataClass.originLocation,
+                destinationLocation = mockDataClass.destinationLocation,
+                originAddress = mockDataClass.originAddress,
+                destinationAddress = mockDataClass.destinationAddress,
+                type = mockDataClass.type,
+                speed = mockDataClass.speed,
+                lineVector = mockDataClass.lineVector,
+                bearing = mockDataClass.bearing,
+                accuracy = mockDataClass.accuracy,
+                provider = mockDataClass.provider,
+                fileCreatedAt = mockDataClass.fileCreatedAt,
+                fileOwner = mockDataClass.fileOwner,
+                applicationVersionCode = mockDataClass.applicationVersionCode,
+                mockDatabaseType = DATABASE_TYPE_IMPORTED,
+            )
         ).collect { response ->
             response.ifSuccessful { importedMockId ->
                 _importedMockState.value = _importedMockState.value.copy(
@@ -146,10 +151,10 @@ class ImportMockViewModel @Inject constructor(
 
     private fun actionMapper(errorType: Int): Int {
         return when (errorType) {
-            ImportedMockRepositoryImpl.JSON_PROBLEM_EXCEPTION -> ImportActivity.JSON_STRUCTURE_PROBLEM_MESSAGE
-            ImportedMockRepositoryImpl.JSON_PROCESS_FAILED_EXCEPTION -> ImportActivity.JSON_PARSE_PROCESS_PROBLEM_MESSAGE
-            ImportedMockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
-            ImportedMockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> ImportActivity.MOCK_INFORMATION_HAS_PROBLEM
+            MockRepositoryImpl.JSON_PROBLEM_EXCEPTION -> ImportActivity.JSON_STRUCTURE_PROBLEM_MESSAGE
+            MockRepositoryImpl.JSON_PROCESS_FAILED_EXCEPTION -> ImportActivity.JSON_PARSE_PROCESS_PROBLEM_MESSAGE
+            MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
+            MockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> ImportActivity.MOCK_INFORMATION_HAS_PROBLEM
             else -> ImportActivity.UNKNOWN_ERROR_MESSAGE
         }
     }

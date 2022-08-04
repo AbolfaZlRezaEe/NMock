@@ -9,10 +9,11 @@ import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.dataSource.mock.ImportedMockDataSource
 import me.abolfazl.nmock.dataSource.mock.NormalMockDataSource
 import me.abolfazl.nmock.di.UtilsModule
+import me.abolfazl.nmock.model.database.DATABASE_TYPE_ALL
 import me.abolfazl.nmock.model.database.DATABASE_TYPE_IMPORTED
 import me.abolfazl.nmock.model.database.DATABASE_TYPE_NORMAL
-import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.repository.mock.models.exportModels.MockExportJsonModel
+import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.FileManager
@@ -125,17 +126,18 @@ class MockRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteMock(
-        mockDataClass: MockDataClass
+        mockDatabaseType: String,
+        mockId: Long,
     ) {
-        when (mockDataClass.mockDatabaseType) {
+        when (mockDatabaseType) {
             DATABASE_TYPE_NORMAL -> {
-                normalMockDataSource.deleteMock(mockDataClass.id!!)
+                normalMockDataSource.deleteMock(mockId)
             }
             DATABASE_TYPE_IMPORTED -> {
-                importedMockDataSource.deleteMock(mockDataClass.id!!)
+                importedMockDataSource.deleteMock(mockId)
             }
             else -> {
-                logger.writeLog(value = "MockDatabaseType is wrong?! type-> ${mockDataClass.mockDatabaseType}")
+                logger.writeLog(value = "MockDatabaseType is wrong?! type-> ${mockDatabaseType}")
             }
         }
     }
@@ -160,6 +162,18 @@ class MockRepositoryImpl @Inject constructor(
         mockDatabaseType: String
     ): Flow<Response<List<MockDataClass>, Int>> = flow {
         when (mockDatabaseType) {
+            DATABASE_TYPE_ALL -> {
+                val normalMockResponse = normalMockDataSource.getMocksInformation()
+                val importedMockResponse = importedMockDataSource.getMocksInformation()
+                emit(Success(mutableListOf<MockDataClass>().apply {
+                    normalMockResponse.forEach { normalMockEntity ->
+                        add(MockRepositoryHelper.fromNormalMockEntity(normalMockEntity))
+                    }
+                    importedMockResponse.forEach { importedMockEntity ->
+                        add(MockRepositoryHelper.fromImportedMockEntity(importedMockEntity))
+                    }
+                }))
+            }
             DATABASE_TYPE_NORMAL -> {
                 val response = normalMockDataSource.getMocksInformation()
                 val result: List<MockDataClass> = mutableListOf<MockDataClass>().apply {

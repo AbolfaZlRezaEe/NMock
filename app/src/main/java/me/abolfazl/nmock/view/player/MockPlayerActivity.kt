@@ -251,7 +251,7 @@ class MockPlayerActivity : AppCompatActivity() {
         LineManager.drawLineOnMap(
             mapView = binding.mapview,
             polylineLayer = polylineLayer,
-            vector = mockInformation.lineVector
+            vector = mockInformation.lineVector!!
         )
         CameraManager.moveCameraToTripLine(
             mapView = binding.mapview,

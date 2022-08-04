@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepository
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepositoryImpl
+import me.abolfazl.nmock.repository.mock.MockRepository
+import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepository
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepositoryImpl
 import javax.inject.Singleton
@@ -25,4 +27,10 @@ abstract class RepositoryModule {
     abstract fun bindRoutingInfoRepository(
         routingInfoRepositoryImpl: RoutingInfoRepositoryImpl
     ): RoutingInfoRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindMockRepository(
+        mockRepositoryImpl: MockRepositoryImpl
+    ): MockRepository
 }

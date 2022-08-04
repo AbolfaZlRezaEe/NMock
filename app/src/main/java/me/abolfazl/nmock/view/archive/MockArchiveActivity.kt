@@ -53,7 +53,7 @@ class MockArchiveActivity : AppCompatActivity() {
         super.onStart()
         binding.loadingState.visibility = View.VISIBLE
         binding.contentRecyclerView.visibility = View.GONE
-        viewModel.getMocks()
+        viewModel.getMocksInformation()
     }
 
     private fun initListeners() {

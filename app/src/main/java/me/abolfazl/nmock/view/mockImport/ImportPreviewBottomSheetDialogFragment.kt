@@ -19,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentImportPreviewBinding
+import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.managers.CameraManager
 import me.abolfazl.nmock.utils.managers.LineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
@@ -80,40 +81,40 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private fun showMockInformationPreview(
-        mockInformation: MockImportedDataClass?
+        mockDataClass: MockDataClass?
     ) {
-        if (mockInformation == null || context == null || mockInformation.lineVector == null) {
+        if (mockDataClass == null || context == null || mockDataClass.lineVector == null) {
             dismiss()
             return
         }
 
         showLoading(true)
 
-        if (mockInformation.name.isNotEmpty()) {
-            binding.titleTextInputEditText.setText(mockInformation.name)
+        if (mockDataClass.name.isNotEmpty()) {
+            binding.titleTextInputEditText.setText(mockDataClass.name)
         }
 
         val originMarker = MarkerManager.createMarker(
-            location = mockInformation.originLocation,
+            location = mockDataClass.originLocation,
             drawableRes = R.drawable.ic_origin_marker,
             context = context,
             elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
         )
         val destinationMarker = MarkerManager.createMarker(
-            location = mockInformation.destinationLocation,
+            location = mockDataClass.destinationLocation,
             drawableRes = R.drawable.ic_destination_marker,
             context = context,
             elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER
         )
         LineManager.drawLineOnMap(
             mapView = binding.mapview,
-            vector = mockInformation.lineVector,
+            vector = mockDataClass.lineVector!!,
         )
         binding.mapview.addMarker(originMarker)
         binding.mapview.addMarker(destinationMarker)
 
-        binding.originAddressTextView.text = mockInformation.originAddress
-        binding.destinationAddressTextView.text = mockInformation.destinationAddress
+        binding.originAddressTextView.text = mockDataClass.originAddress
+        binding.destinationAddressTextView.text = mockDataClass.destinationAddress
 
         Handler(Looper.getMainLooper()).postDelayed({
             CameraManager.moveCameraToTripLine(
@@ -122,8 +123,8 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     binding.mapview.x - 20.toPixel(context!!),
                     binding.mapview.y - 20.toPixel(context!!)
                 ),
-                origin = mockInformation.originLocation,
-                destination = mockInformation.destinationLocation
+                origin = mockDataClass.originLocation,
+                destination = mockDataClass.destinationLocation
             )
         }, 500)
 

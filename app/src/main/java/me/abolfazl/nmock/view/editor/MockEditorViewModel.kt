@@ -12,10 +12,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.abolfazl.nmock.model.database.DATABASE_TYPE_IMPORTED
+import me.abolfazl.nmock.model.database.DATABASE_TYPE_NORMAL
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepository
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepositoryImpl
-import me.abolfazl.nmock.repository.mock.normalMock.NormalMockRepository
-import me.abolfazl.nmock.repository.mock.normalMock.NormalMockRepositoryImpl
+import me.abolfazl.nmock.repository.mock.MockRepository
+import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
+import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepository
 import me.abolfazl.nmock.repository.routingInfo.RoutingInfoRepositoryImpl
 import me.abolfazl.nmock.utils.Constant
@@ -32,7 +35,7 @@ import javax.inject.Inject
 class MockEditorViewModel @Inject constructor(
     private val locationInfoRepository: LocationInfoRepository,
     private val routingInfoRepository: RoutingInfoRepository,
-    private val normalMockRepository: NormalMockRepository,
+    private val mockRepository: MockRepository,
     private val logger: NMockLogger
 ) : ViewModel() {
 
@@ -178,21 +181,24 @@ class MockEditorViewModel @Inject constructor(
         }
         // For updating mock:
         if (id != null) {
-            normalMockRepository.updateMockInformation(
-                id = id,
-                name = name,
-                description = description,
-                originLocation = originLocation,
-                destinationLocation = destinationLocation,
-                originAddress = _mockEditorState.value.originAddress?.getRawValue()!!,
-                destinationAddress = _mockEditorState.value.destinationAddress?.getRawValue()!!,
-                type = Constant.TYPE_CUSTOM_CREATE,
-                speed = speed,
-                lineVector = _mockEditorState.value.lineVector?.getRawValue(),
-                bearing = 0f,
-                accuracy = 1f,
-                provider = Constant.PROVIDER_GPS,
-                createdAt = _mockEditorState.value.createdAt!!
+            mockRepository.updateMockInformation(
+                mockDataClass = MockDataClass(
+                    id = id,
+                    name = name,
+                    description = description,
+                    originLocation = originLocation,
+                    destinationLocation = destinationLocation,
+                    originAddress = _mockEditorState.value.originAddress?.getRawValue()!!,
+                    destinationAddress = _mockEditorState.value.destinationAddress?.getRawValue()!!,
+                    type = Constant.TYPE_CUSTOM_CREATE,
+                    speed = speed,
+                    lineVector = _mockEditorState.value.lineVector?.getRawValue(),
+                    bearing = 0f,
+                    accuracy = 1f,
+                    provider = Constant.PROVIDER_GPS,
+                    createdAt = _mockEditorState.value.createdAt!!,
+                    mockDatabaseType = _mockEditorState.value.mockDatabaseType!!,
+                )
             ).collect { response ->
                 response.ifSuccessful { mockId ->
                     _mockEditorState.value = _mockEditorState.value.copy(
@@ -210,19 +216,22 @@ class MockEditorViewModel @Inject constructor(
                 }
             }
         } /*For inserting new mock:*/ else {
-            normalMockRepository.saveMockInformation(
-                name = name,
-                description = description,
-                type = Constant.TYPE_CUSTOM_CREATE,
-                originLocation = originLocation,
-                destinationLocation = destinationLocation,
-                originAddress = _mockEditorState.value.originAddress?.getRawValue(),
-                destinationAddress = _mockEditorState.value.destinationAddress?.getRawValue(),
-                speed = speed,
-                lineVector = mockEditorState.value.lineVector?.getRawValue(),
-                bearing = 0f,
-                accuracy = 1F,
-                provider = Constant.PROVIDER_GPS
+            mockRepository.saveMockInformation(
+                mockDataClass = MockDataClass(
+                    name = name,
+                    description = description,
+                    type = Constant.TYPE_CUSTOM_CREATE,
+                    originLocation = originLocation,
+                    destinationLocation = destinationLocation,
+                    originAddress = _mockEditorState.value.originAddress?.getRawValue(),
+                    destinationAddress = _mockEditorState.value.destinationAddress?.getRawValue(),
+                    speed = speed,
+                    lineVector = mockEditorState.value.lineVector?.getRawValue(),
+                    bearing = 0f,
+                    accuracy = 1F,
+                    provider = Constant.PROVIDER_GPS,
+                    mockDatabaseType = DATABASE_TYPE_NORMAL
+                )
             ).collect { response ->
                 response.ifSuccessful { mockId ->
                     _mockEditorState.value = _mockEditorState.value.copy(
@@ -271,8 +280,11 @@ class MockEditorViewModel @Inject constructor(
         id: Long,
         mockIsImported: Boolean
     ) = viewModelScope.launch(exceptionHandler) {
-        // todo: check the boolean and load the mock information from imported repository if need!
-        normalMockRepository.getMock(id).collect { response ->
+        val mockDatabaseType = if (mockIsImported) DATABASE_TYPE_IMPORTED else DATABASE_TYPE_NORMAL
+        mockRepository.getMockInformationFromId(
+            id = id,
+            mockDatabaseType = mockDatabaseType
+        ).collect { response ->
             response.ifSuccessful { mockData ->
                 _mockEditorState.value = _mockEditorState.value.copy(
                     id = SingleEvent(mockData.id!!),
@@ -285,7 +297,8 @@ class MockEditorViewModel @Inject constructor(
                     lineVector = SingleEvent(mockData.lineVector!!),
                     speed = mockData.speed,
                     createdAt = mockData.createdAt,
-                    updatedAt = mockData.updatedAt
+                    updatedAt = mockData.updatedAt,
+                    mockDatabaseType = mockData.mockDatabaseType
                 )
             }
             response.ifNotSuccessful { exceptionType ->
@@ -300,7 +313,11 @@ class MockEditorViewModel @Inject constructor(
     }
 
     fun deleteMock() = viewModelScope.launch(exceptionHandler) {
-        normalMockRepository.deleteMock(_mockEditorState.value.id?.getRawValue())
+        mockRepository.deleteMock(
+            mockId = _mockEditorState.value.id?.getRawValue()!!,
+            // todo: it's doesn't good solution for deleting! we should have capacity for all database types!
+            mockDatabaseType = _mockEditorState.value.mockDatabaseType ?: DATABASE_TYPE_NORMAL
+        )
         clearMockInformation(true)
     }
 
@@ -328,9 +345,9 @@ class MockEditorViewModel @Inject constructor(
         return when (errorType) {
             LocationInfoRepositoryImpl.UNKNOWN_EXCEPTION -> MockEditorActivity.LOCATION_INFORMATION_EXCEPTION_MESSAGE
             RoutingInfoRepositoryImpl.UNKNOWN_EXCEPTION -> MockEditorActivity.ROUTE_INFORMATION_EXCEPTION_MESSAGE
-            NormalMockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
-            NormalMockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,
-            NormalMockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockEditorActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
+            MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
+            MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,
+            MockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockEditorActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
             else -> MockEditorActivity.UNKNOWN_ERROR_MESSAGE
         }
     }

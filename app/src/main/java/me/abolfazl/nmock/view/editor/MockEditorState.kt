@@ -1,5 +1,6 @@
 package me.abolfazl.nmock.view.editor
 
+import me.abolfazl.nmock.model.database.MockDatabaseType
 import me.abolfazl.nmock.utils.response.SingleEvent
 import org.neshan.common.model.LatLng
 
@@ -14,5 +15,6 @@ data class MockEditorState(
     val lineVector: SingleEvent<ArrayList<List<LatLng>>>? = null,
     var speed: Int = 0,
     var createdAt: String? = null,
-    var updatedAt: String? = null
+    var updatedAt: String? = null,
+    @MockDatabaseType var mockDatabaseType: String? = null
 )

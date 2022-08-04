@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import me.abolfazl.nmock.model.database.DATABASE_TYPE_ALL
 import me.abolfazl.nmock.repository.mock.MockRepository
 import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
 import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
@@ -59,15 +60,27 @@ class MockArchiveViewModel @Inject constructor(
         logger.setClassInformationForEveryLog(javaClass.simpleName)
     }
 
-    fun getMocks() = viewModelScope.launch(exceptionHandler) {
-        val mockList = mockRepository.getMocks()
-        _mockArchiveState.value = _mockArchiveState.value.copy(
-            mockList = SingleEvent(mockList)
-        )
+    fun getMocksInformation() = viewModelScope.launch(exceptionHandler) {
+        mockRepository.getMocksInformation(DATABASE_TYPE_ALL)
+            .collect { response ->
+                response.ifSuccessful { mockList ->
+                    _mockArchiveState.value = _mockArchiveState.value.copy(
+                        mockList = SingleEvent(mockList)
+                    )
+                }
+                response.ifNotSuccessful { exceptionType ->
+                    _oneTimeEmitter.emit(
+                        OneTimeEmitter(
+                            actionId = ACTION_UNKNOWN,
+                            message = actionMapper(exceptionType)
+                        )
+                    )
+                }
+            }
     }
 
     fun deleteAllMocks() = viewModelScope.launch(exceptionHandler) {
-        mockRepository.deleteAllMocks()
+        mockRepository.deleteAllMocks(DATABASE_TYPE_ALL)
         _mockArchiveState.value = _mockArchiveState.value.copy(
             mockList = null
         )
@@ -80,7 +93,10 @@ class MockArchiveViewModel @Inject constructor(
                     showShareLoading = true
                 })
             )
-            mockRepository.createMockExportFile(mockDataClass.id!!).collect { response ->
+            mockRepository.createMockExportFile(
+                mockDatabaseType = mockDataClass.mockDatabaseType!!,
+                id = mockDataClass.id!!
+            ).collect { response ->
                 _mockArchiveState.value = _mockArchiveState.value.copy(
                     sharedMockDataClassState = SingleEvent(mockDataClass.apply {
                         showShareLoading = false
