@@ -23,6 +23,9 @@
             android:name=".view.mockImport.ImportActivity"
             android:exported="false" />
         <activity
+            android:name=".view.auth.AuthActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.player.MockPlayerActivity"
             android:exported="false"
             android:launchMode="singleInstance" />
