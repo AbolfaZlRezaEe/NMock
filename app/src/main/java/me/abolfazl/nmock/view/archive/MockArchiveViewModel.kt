@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import me.abolfazl.nmock.repository.mock.models.MockDataClass
-import me.abolfazl.nmock.repository.mock.normalMock.NormalMockRepository
-import me.abolfazl.nmock.repository.mock.normalMock.NormalMockRepositoryImpl
+import me.abolfazl.nmock.repository.mock.MockRepository
+import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
+import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.SingleEvent
@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MockArchiveViewModel @Inject constructor(
-    private val normalMockRepository: NormalMockRepository,
+    private val mockRepository: MockRepository,
     private val logger: NMockLogger
 ) : ViewModel() {
 
@@ -60,14 +60,14 @@ class MockArchiveViewModel @Inject constructor(
     }
 
     fun getMocks() = viewModelScope.launch(exceptionHandler) {
-        val mockList = normalMockRepository.getMocks()
+        val mockList = mockRepository.getMocks()
         _mockArchiveState.value = _mockArchiveState.value.copy(
             mockList = SingleEvent(mockList)
         )
     }
 
     fun deleteAllMocks() = viewModelScope.launch(exceptionHandler) {
-        normalMockRepository.deleteAllMocks()
+        mockRepository.deleteAllMocks()
         _mockArchiveState.value = _mockArchiveState.value.copy(
             mockList = null
         )
@@ -80,7 +80,7 @@ class MockArchiveViewModel @Inject constructor(
                     showShareLoading = true
                 })
             )
-            normalMockRepository.createMockExportFile(mockDataClass.id!!).collect { response ->
+            mockRepository.createMockExportFile(mockDataClass.id!!).collect { response ->
                 _mockArchiveState.value = _mockArchiveState.value.copy(
                     sharedMockDataClassState = SingleEvent(mockDataClass.apply {
                         showShareLoading = false
@@ -104,9 +104,9 @@ class MockArchiveViewModel @Inject constructor(
 
     private fun actionMapper(action: Int): Int {
         return when (action) {
-            NormalMockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION -> MockArchiveActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
-            NormalMockRepositoryImpl.CONVERT_MOCK_TO_JSON_EXCEPTION,
-            NormalMockRepositoryImpl.CREATE_EXPORT_FILE_EXCEPTION -> MockArchiveActivity.EXPORTING_MOCK_FAILED_MESSAGE
+            MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION -> MockArchiveActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
+            MockRepositoryImpl.CONVERT_MOCK_TO_JSON_EXCEPTION,
+            MockRepositoryImpl.CREATE_EXPORT_FILE_EXCEPTION -> MockArchiveActivity.EXPORTING_MOCK_FAILED_MESSAGE
             else -> MockArchiveActivity.UNKNOWN_ERROR_MESSAGE
         }
     }

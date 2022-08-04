@@ -1,7 +1,7 @@
 package me.abolfazl.nmock.model.database.mocks.normalMock
 
 import androidx.room.*
-import me.abolfazl.nmock.model.database.mocks.MockType
+import me.abolfazl.nmock.model.database.mocks.MockCreationType
 
 @Dao
 interface NormalMockDao {
@@ -12,11 +12,11 @@ interface NormalMockDao {
     @Query("DELETE FROM mock_table")
     suspend fun deleteAllMocks()
 
-    @Query("SELECT * FROM mock_table WHERE mock_type =:mockType")
-    suspend fun getSpecificTypeOfMock(@MockType mockType: String): List<NormalMockEntity>
+    @Query("SELECT * FROM mock_table WHERE mock_type =:mockCreationType")
+    suspend fun getSpecificTypeOfMock(@MockCreationType mockCreationType: String): List<NormalMockEntity>
 
     @Query("SELECT * FROM mock_table WHERE id =:mockId LIMIT 1")
-    suspend fun getMockFromId(mockId: Long): NormalMockEntity
+    suspend fun getMockFromId(mockId: Long): NormalMockEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMockInformation(normalMockEntity: NormalMockEntity): Long

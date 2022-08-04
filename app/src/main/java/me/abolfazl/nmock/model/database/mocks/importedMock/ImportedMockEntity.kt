@@ -4,14 +4,14 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import me.abolfazl.nmock.model.database.mocks.MockProvider
-import me.abolfazl.nmock.model.database.mocks.MockType
+import me.abolfazl.nmock.model.database.mocks.MockCreationType
 
 @Entity(tableName = "imported_mock_table")
 data class ImportedMockEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Long? = null,
-    @MockType
+    @MockCreationType
     @ColumnInfo(name = "mock_type")
     val type: String,
     @ColumnInfo(name = "name")

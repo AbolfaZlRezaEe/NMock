@@ -19,7 +19,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentImportPreviewBinding
-import me.abolfazl.nmock.repository.mock.models.MockImportedDataClass
 import me.abolfazl.nmock.utils.managers.CameraManager
 import me.abolfazl.nmock.utils.managers.LineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager

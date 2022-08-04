@@ -9,7 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentMockDetailBinding
 import me.abolfazl.nmock.model.database.mocks.MockProvider
-import me.abolfazl.nmock.model.database.mocks.MockType
+import me.abolfazl.nmock.model.database.mocks.MockCreationType
 import me.abolfazl.nmock.utils.changeStringTo
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class MockDetailBottomSheetDialogFragment : BottomSheetDialogFragment() {
             title: String,
             description: String,
             @MockProvider provider: String,
-            @MockType type: String,
+            @MockCreationType type: String,
             createdAt: String,
             updatedAt: String
         ): MockDetailBottomSheetDialogFragment {

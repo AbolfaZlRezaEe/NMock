@@ -1,9 +1,6 @@
 package me.abolfazl.nmock.model.database.positions.normalPositions
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface NormalPositionDao {
@@ -13,6 +10,9 @@ interface NormalPositionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMockPosition(normalPositionEntity: NormalPositionEntity): Long
+
+    @Update
+    suspend fun updateMockPosition(normalPositionEntity: NormalPositionEntity): Int
 
     @Query("DELETE FROM position_table WHERE mock_id=:mockId")
     suspend fun deleteRouteInformation(mockId: Long)

@@ -12,7 +12,8 @@ import me.abolfazl.nmock.model.database.mocks.normalMock.NormalMockEntity
         entity = NormalMockEntity::class,
         parentColumns = arrayOf("id"),
         childColumns = arrayOf("mock_id"),
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
     )]
 )
 data class NormalPositionEntity(
