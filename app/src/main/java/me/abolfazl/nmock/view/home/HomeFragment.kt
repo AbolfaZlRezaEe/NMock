@@ -15,7 +15,7 @@ import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.archive.MockArchiveActivity
 import me.abolfazl.nmock.view.editor.MockEditorActivity
-import me.abolfazl.nmock.view.mockImport.ImportActivity
+import me.abolfazl.nmock.view.mockImport.MockImportActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -70,7 +70,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.mockImportMaterialButton.setOnClickListener {
-            activity?.startActivity(Intent(activity, ImportActivity::class.java))
+            activity?.startActivity(Intent(activity, MockImportActivity::class.java))
         }
 
         binding.reportLogsMaterialButton.setOnClickListener {

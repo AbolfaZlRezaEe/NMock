@@ -13,16 +13,16 @@ class NormalMockDataSourceImpl @Inject constructor(
 
     override suspend fun saveMockInformation(
         normalMockEntity: NormalMockEntity,
-        normalPositionEntities: List<NormalPositionEntity>
     ): Long {
-        val mockId = normalMockDao.insertMockInformation(normalMockEntity)
+        return normalMockDao.insertMockInformation(normalMockEntity)
+    }
 
-        if (mockId == -1L) return mockId
-
+    override suspend fun saveMockPositionsInformation(
+        normalPositionEntities: List<NormalPositionEntity>
+    ) {
         normalPositionEntities.forEach { positionEntity ->
             normalPositionDao.insertMockPosition(positionEntity)
         }
-        return mockId
     }
 
     override suspend fun updateMockInformation(
@@ -31,11 +31,13 @@ class NormalMockDataSourceImpl @Inject constructor(
     ): Long {
         normalMockDao.updateMockInformation(normalMockEntity)
 
+        normalPositionDao.deleteRouteInformation(normalMockEntity.id!!)
+
         normalPositionEntities.forEach { positionEntity ->
-            normalPositionDao.updateMockPosition(positionEntity)
+            normalPositionDao.insertMockPosition(positionEntity)
         }
 
-        return normalMockEntity.id!!
+        return normalMockEntity.id
     }
 
     override suspend fun deleteMock(id: Long) {

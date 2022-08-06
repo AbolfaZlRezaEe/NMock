@@ -7,8 +7,11 @@ interface NormalMockDataSource {
 
     suspend fun saveMockInformation(
         normalMockEntity: NormalMockEntity,
-        normalPositionEntities: List<NormalPositionEntity>
     ): Long
+
+    suspend fun saveMockPositionsInformation(
+        normalPositionEntities: List<NormalPositionEntity>
+    )
 
     suspend fun updateMockInformation(
         normalMockEntity: NormalMockEntity,

@@ -8,11 +8,11 @@ import me.abolfazl.nmock.model.database.mocks.importedMock.ImportedMockEntity
 import me.abolfazl.nmock.model.database.mocks.normalMock.NormalMockEntity
 import me.abolfazl.nmock.model.database.positions.importedPositions.ImportedPositionEntity
 import me.abolfazl.nmock.model.database.positions.normalPositions.NormalPositionEntity
-import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.repository.mock.models.exportModels.LineExportJsonModel
 import me.abolfazl.nmock.repository.mock.models.exportModels.MockExportJsonModel
 import me.abolfazl.nmock.repository.mock.models.exportModels.MockInformationExportJsonModel
 import me.abolfazl.nmock.repository.mock.models.exportModels.RouteInformationExportJsonModel
+import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.locationFormat
 import org.neshan.common.model.LatLng
 
@@ -25,8 +25,8 @@ object MockRepositoryHelper {
         type = mockDataClass.type,
         name = mockDataClass.name,
         description = mockDataClass.description,
-        originLocation = mockDataClass.originAddress!!,
-        destinationLocation = mockDataClass.destinationAddress!!,
+        originLocation = mockDataClass.originLocation.locationFormat(),
+        destinationLocation = mockDataClass.destinationLocation.locationFormat(),
         originAddress = mockDataClass.originAddress,
         destinationAddress = mockDataClass.destinationAddress,
         speed = mockDataClass.speed,
@@ -55,7 +55,7 @@ object MockRepositoryHelper {
         accuracy = normalMockEntity.accuracy,
         provider = normalMockEntity.provider,
         createdAt = normalMockEntity.createdAt,
-        updatedAt = normalMockEntity.createdAt,
+        updatedAt = normalMockEntity.updatedAt,
         showShareLoading = false,
         fileCreatedAt = null,
         fileOwner = null,
@@ -70,7 +70,7 @@ object MockRepositoryHelper {
                 listOfLatLng.forEach { latLng ->
                     add(
                         NormalPositionEntity(
-                            mockId = mockDataClass.id!!,
+                            mockId = mockDataClass.id ?: 0,
                             latitude = latLng.latitude,
                             longitude = latLng.longitude,
                             time = System.currentTimeMillis(),
@@ -101,8 +101,8 @@ object MockRepositoryHelper {
         type = mockDataClass.type,
         name = mockDataClass.name,
         description = mockDataClass.description,
-        originLocation = mockDataClass.originAddress!!,
-        destinationLocation = mockDataClass.destinationAddress!!,
+        originLocation = mockDataClass.originLocation.locationFormat(),
+        destinationLocation = mockDataClass.destinationLocation.locationFormat(),
         originAddress = mockDataClass.originAddress,
         destinationAddress = mockDataClass.destinationAddress,
         speed = mockDataClass.speed,

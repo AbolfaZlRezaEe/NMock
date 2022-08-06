@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NMock">
         <activity
-            android:name=".view.mockImport.ImportActivity"
+            android:name=".view.mockImport.MockImportActivity"
             android:exported="false" />
         <activity
             android:name=".view.auth.AuthActivity"

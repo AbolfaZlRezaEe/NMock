@@ -13,16 +13,16 @@ class ImportedMockDataSourceImpl @Inject constructor(
 
     override suspend fun saveMockInformation(
         importedMockEntity: ImportedMockEntity,
-        importedPositionEntities: List<ImportedPositionEntity>
     ): Long {
-        val mockId = importedMockDao.insertImportedMock(importedMockEntity)
+        return importedMockDao.insertImportedMock(importedMockEntity)
+    }
 
-        if (mockId == -1L) return mockId
-
+    override suspend fun saveMockPositionsInformation(
+        importedPositionEntities: List<ImportedPositionEntity>
+    ) {
         importedPositionEntities.forEach { positionEntity ->
             importedPositionDao.insertImportedMockPosition(positionEntity)
         }
-        return mockId
     }
 
     override suspend fun updateMockInformation(
@@ -31,11 +31,13 @@ class ImportedMockDataSourceImpl @Inject constructor(
     ): Long {
         importedMockDao.updateImportedMockInformation(importedMockEntity)
 
+        importedPositionDao.deleteImportedRouteInformation(importedMockEntity.id!!)
+
         importedPositionEntities.forEach { positionEntity ->
-            importedPositionDao.updateImportedMockPosition(positionEntity)
+            importedPositionDao.insertImportedMockPosition(positionEntity)
         }
 
-        return importedMockEntity.id!!
+        return importedMockEntity.id
     }
 
     override suspend fun deleteMock(id: Long) {

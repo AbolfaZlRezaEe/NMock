@@ -7,8 +7,11 @@ interface ImportedMockDataSource {
 
     suspend fun saveMockInformation(
         importedMockEntity: ImportedMockEntity,
-        importedPositionEntities: List<ImportedPositionEntity>
     ): Long
+
+    suspend fun saveMockPositionsInformation(
+        importedPositionEntities: List<ImportedPositionEntity>
+    )
 
     suspend fun updateMockInformation(
         importedMockEntity: ImportedMockEntity,

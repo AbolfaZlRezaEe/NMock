@@ -13,13 +13,12 @@ import me.abolfazl.nmock.model.database.mocks.normalMock.NormalMockEntity
         parentColumns = arrayOf("id"),
         childColumns = arrayOf("mock_id"),
         onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE
     )]
 )
 data class NormalPositionEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Long? = null,
+    var id: Long? = null,
     @ColumnInfo(name = "mock_id", index = true)
     val mockId: Long,
     @ColumnInfo(name = "lat")

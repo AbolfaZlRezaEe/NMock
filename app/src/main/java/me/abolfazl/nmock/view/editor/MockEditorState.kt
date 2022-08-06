@@ -16,5 +16,8 @@ data class MockEditorState(
     var speed: Int = 0,
     var createdAt: String? = null,
     var updatedAt: String? = null,
-    @MockDatabaseType var mockDatabaseType: String? = null
+    @MockDatabaseType var mockDatabaseType: String? = null,
+    val fileCreatedAt: String? = null,
+    val fileOwner: String? = null,
+    val applicationVersionCode: Int = 0
 )

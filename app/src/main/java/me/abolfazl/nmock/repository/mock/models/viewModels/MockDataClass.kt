@@ -6,7 +6,7 @@ import me.abolfazl.nmock.model.database.mocks.MockProvider
 import org.neshan.common.model.LatLng
 
 data class MockDataClass(
-    val id: Long? = null,
+    var id: Long? = null,
     @MockDatabaseType val mockDatabaseType: String?,
     val name: String,
     val description: String,

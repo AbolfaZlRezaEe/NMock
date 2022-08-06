@@ -6,6 +6,7 @@ import com.squareup.moshi.Moshi
 import io.sentry.SentryLevel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import me.abolfazl.nmock.BuildConfig
 import me.abolfazl.nmock.dataSource.mock.ImportedMockDataSource
 import me.abolfazl.nmock.dataSource.mock.NormalMockDataSource
 import me.abolfazl.nmock.di.UtilsModule
@@ -58,34 +59,43 @@ class MockRepositoryImpl @Inject constructor(
             DATABASE_TYPE_NORMAL -> {
                 val mockId = normalMockDataSource.saveMockInformation(
                     normalMockEntity = MockRepositoryHelper.toNormalMockEntity(mockInformation),
-                    normalPositionEntities = MockRepositoryHelper.toNormalPositionEntity(
-                        mockInformation
-                    )
                 )
                 if (mockId == -1L) {
                     logger.writeLog(value = "saveMockInformation was failed(NormalMockSaving). mockId was -1!")
                     emit(Failure(DATABASE_INSERTION_EXCEPTION))
                     return@flow
                 }
+                mockInformation.id = mockId
+                normalMockDataSource.saveMockPositionsInformation(
+                    normalPositionEntities = MockRepositoryHelper.toNormalPositionEntity(
+                        mockInformation
+                    )
+                )
                 emit(Success(mockId))
             }
             DATABASE_TYPE_IMPORTED -> {
                 val mockId = importedMockDataSource.saveMockInformation(
                     importedMockEntity = MockRepositoryHelper.toImportedMockEntity(mockInformation),
-                    importedPositionEntities = MockRepositoryHelper.toImportedPositionEntity(
-                        mockInformation
-                    )
                 )
                 if (mockId == -1L) {
                     logger.writeLog(value = "saveMockInformation was failed(ImportedMockSaving). mockId was -1!")
                     emit(Failure(DATABASE_INSERTION_EXCEPTION))
                     return@flow
                 }
+                mockInformation.id = mockId
+                importedMockDataSource.saveMockPositionsInformation(
+                    importedPositionEntities = MockRepositoryHelper.toImportedPositionEntity(
+                        mockInformation
+                    )
+                )
                 emit(Success(mockId))
             }
             else -> {
                 logger.writeLog(value = "MockDatabaseType is wrong?! type-> ${mockInformation.mockDatabaseType}")
                 emit(Failure(DATABASE_WRONG_TYPE_EXCEPTION))
+                if (BuildConfig.DEBUG) {
+                    throw IllegalStateException("MockDatabaseType is wrong?! type-> $mockInformation.mockDatabaseType")
+                }
             }
         }
     }
@@ -121,6 +131,9 @@ class MockRepositoryImpl @Inject constructor(
             else -> {
                 logger.writeLog(value = "MockDatabaseType is wrong?! type-> ${mockInformation.mockDatabaseType}")
                 emit(Failure(DATABASE_WRONG_TYPE_EXCEPTION))
+                if (BuildConfig.DEBUG) {
+                    throw IllegalStateException("MockDatabaseType is wrong?! type-> $mockInformation.mockDatabaseType")
+                }
             }
         }
     }
@@ -138,6 +151,9 @@ class MockRepositoryImpl @Inject constructor(
             }
             else -> {
                 logger.writeLog(value = "MockDatabaseType is wrong?! type-> ${mockDatabaseType}")
+                if (BuildConfig.DEBUG) {
+                    throw IllegalStateException("MockDatabaseType is wrong?! type-> $mockDatabaseType")
+                }
             }
         }
     }
@@ -146,6 +162,10 @@ class MockRepositoryImpl @Inject constructor(
         mockDatabaseType: String
     ) {
         when (mockDatabaseType) {
+            DATABASE_TYPE_ALL -> {
+                normalMockDataSource.deleteAllMocks()
+                importedMockDataSource.deleteAllMocks()
+            }
             DATABASE_TYPE_NORMAL -> {
                 normalMockDataSource.deleteAllMocks()
             }
@@ -154,6 +174,9 @@ class MockRepositoryImpl @Inject constructor(
             }
             else -> {
                 logger.writeLog(value = "MockDatabaseType is wrong?! type-> $mockDatabaseType")
+                if (BuildConfig.DEBUG) {
+                    throw IllegalStateException("MockDatabaseType is wrong?! type-> $mockDatabaseType")
+                }
             }
         }
     }
@@ -195,6 +218,9 @@ class MockRepositoryImpl @Inject constructor(
             else -> {
                 logger.writeLog(value = "MockDatabaseType is wrong?! type-> $mockDatabaseType")
                 emit(Failure(DATABASE_WRONG_TYPE_EXCEPTION))
+                if (BuildConfig.DEBUG) {
+                    throw IllegalStateException("MockDatabaseType is wrong?! type-> $mockDatabaseType")
+                }
             }
         }
     }
@@ -241,6 +267,9 @@ class MockRepositoryImpl @Inject constructor(
             else -> {
                 logger.writeLog(value = "MockDatabaseType is wrong?! type-> $mockDatabaseType")
                 emit(Failure(DATABASE_WRONG_TYPE_EXCEPTION))
+                if (BuildConfig.DEBUG) {
+                    throw IllegalStateException("MockDatabaseType is wrong?! type-> $mockDatabaseType")
+                }
             }
         }
     }
@@ -379,6 +408,9 @@ class MockRepositoryImpl @Inject constructor(
             else -> {
                 logger.writeLog(value = "MockDatabaseType is wrong?! type-> $mockDatabaseType")
                 emit(Failure(DATABASE_WRONG_TYPE_EXCEPTION))
+                if (BuildConfig.DEBUG) {
+                    throw IllegalStateException("MockDatabaseType is wrong?! type-> $mockDatabaseType")
+                }
                 return@flow
             }
         }

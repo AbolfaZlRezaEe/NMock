@@ -14,7 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
-import me.abolfazl.nmock.databinding.ActivityImportBinding
+import me.abolfazl.nmock.databinding.ActivityImportMockBinding
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.dialog.LoadingDialogFragment
@@ -26,9 +26,9 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 @AndroidEntryPoint
-class ImportActivity : AppCompatActivity() {
+class MockImportActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityImportBinding
+    private lateinit var binding: ActivityImportMockBinding
 
     private val viewModel: ImportMockViewModel by viewModels()
     private var loadingDialog: LoadingDialogFragment? = null
@@ -63,7 +63,7 @@ class ImportActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityImportBinding.inflate(layoutInflater)
+        binding = ActivityImportMockBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         initObservers()

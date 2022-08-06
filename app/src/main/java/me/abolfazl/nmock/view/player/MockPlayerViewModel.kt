@@ -111,7 +111,11 @@ class MockPlayerViewModel @Inject constructor(
                 accuracy = mockData.bearing,
                 provider = mockData.provider,
                 createdAt = mockData.createdAt!!,
-                mockDatabaseType = mockData.mockDatabaseType
+                mockDatabaseType = mockData.mockDatabaseType,
+                updatedAt = mockData.updatedAt,
+                fileCreatedAt = mockData.fileCreatedAt,
+                fileOwner = mockData.fileOwner,
+                applicationVersionCode = mockData.applicationVersionCode
             )
         ).collect { response ->
             response.ifNotSuccessful { exceptionType ->

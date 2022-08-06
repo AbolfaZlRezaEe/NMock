@@ -197,7 +197,11 @@ class MockEditorViewModel @Inject constructor(
                     accuracy = 1f,
                     provider = Constant.PROVIDER_GPS,
                     createdAt = _mockEditorState.value.createdAt!!,
+                    updatedAt = _mockEditorState.value.updatedAt,
                     mockDatabaseType = _mockEditorState.value.mockDatabaseType!!,
+                    fileCreatedAt = _mockEditorState.value.fileCreatedAt,
+                    fileOwner = _mockEditorState.value.fileOwner,
+                    applicationVersionCode = _mockEditorState.value.applicationVersionCode
                 )
             ).collect { response ->
                 response.ifSuccessful { mockId ->
@@ -298,7 +302,10 @@ class MockEditorViewModel @Inject constructor(
                     speed = mockData.speed,
                     createdAt = mockData.createdAt,
                     updatedAt = mockData.updatedAt,
-                    mockDatabaseType = mockData.mockDatabaseType
+                    mockDatabaseType = mockData.mockDatabaseType,
+                    fileCreatedAt = mockData.fileCreatedAt,
+                    fileOwner = mockData.fileOwner,
+                    applicationVersionCode = mockData.applicationVersionCode
                 )
             }
             response.ifNotSuccessful { exceptionType ->

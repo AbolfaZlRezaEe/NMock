@@ -12,7 +12,6 @@ import androidx.room.PrimaryKey
         parentColumns = arrayOf("id"),
         childColumns = arrayOf("mock_id"),
         onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE
     )]
 )
 data class ImportedPositionEntity(

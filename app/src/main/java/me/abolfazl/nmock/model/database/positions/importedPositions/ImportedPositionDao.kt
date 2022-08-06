@@ -11,9 +11,6 @@ interface ImportedPositionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertImportedMockPosition(importedPositionEntity: ImportedPositionEntity): Long
 
-    @Update
-    suspend fun updateImportedMockPosition(importedPositionEntity: ImportedPositionEntity): Int
-
     @Query("DELETE FROM imported_position_table WHERE mock_id=:mockId")
     suspend fun deleteImportedRouteInformation(mockId: Long)
 
