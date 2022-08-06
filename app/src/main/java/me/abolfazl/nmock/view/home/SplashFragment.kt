@@ -37,11 +37,13 @@ class SplashFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Handler(Looper.getMainLooper())
             .postDelayed({
-                if (authViewModel.isUserLoggedIn()) {
-                    findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
-                } else {
-                    startActivity(Intent(requireActivity(), AuthActivity::class.java))
-                    requireActivity().finish()
+                if (activity != null && context != null) {
+                    if (authViewModel.isUserLoggedIn()) {
+                        findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
+                    } else {
+                        startActivity(Intent(requireActivity(), AuthActivity::class.java))
+                        activity!!.finish()
+                    }
                 }
             }, 3000)
     }
