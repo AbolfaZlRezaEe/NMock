@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import me.abolfazl.nmock.model.database.DATABASE_TYPE_IMPORTED
 import me.abolfazl.nmock.repository.mock.MockRepository
 import me.abolfazl.nmock.repository.mock.MockRepositoryImpl
 import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
@@ -19,7 +18,6 @@ import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.SingleEvent
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
 import me.abolfazl.nmock.utils.response.ifSuccessful
-import me.abolfazl.nmock.view.editor.MockEditorViewModel
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,6 +27,7 @@ class ImportMockViewModel @Inject constructor(
 ) : ViewModel() {
 
     companion object {
+        const val ACTION_UNKNOWN = "UNKNOWN_EXCEPTION"
         const val ACTION_PARSE_JSON_MOCK = "ACTION_PARSE_JSON_MOCK"
         const val ACTION_FORCE_CLOSE_IMPORT_PREVIEW = "FORCE_CLOSE_IMPORT_PREVIEW"
         const val ACTION_MOCK_DOES_NOT_SAVED = "ACTION_MOCK_DOES_NOT_SAVED"
@@ -52,7 +51,7 @@ class ImportMockViewModel @Inject constructor(
         viewModelScope.launch {
             _oneTimeEmitter.emit(
                 OneTimeEmitter(
-                    actionId = MockEditorViewModel.ACTION_UNKNOWN,
+                    actionId = ACTION_UNKNOWN,
                     message = actionMapper(0)
                 )
             )
@@ -117,7 +116,7 @@ class ImportMockViewModel @Inject constructor(
                 destinationLocation = mockDataClass.destinationLocation,
                 originAddress = mockDataClass.originAddress,
                 destinationAddress = mockDataClass.destinationAddress,
-                type = mockDataClass.type,
+                creationType = mockDataClass.creationType,
                 speed = mockDataClass.speed,
                 lineVector = mockDataClass.lineVector,
                 bearing = mockDataClass.bearing,
@@ -126,7 +125,7 @@ class ImportMockViewModel @Inject constructor(
                 fileCreatedAt = mockDataClass.fileCreatedAt,
                 fileOwner = mockDataClass.fileOwner,
                 applicationVersionCode = mockDataClass.applicationVersionCode,
-                mockDatabaseType = DATABASE_TYPE_IMPORTED,
+                mockDatabaseType = mockDataClass.mockDatabaseType,
             )
         ).collect { response ->
             response.ifSuccessful { importedMockId ->

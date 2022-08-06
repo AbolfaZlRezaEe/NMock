@@ -46,10 +46,19 @@ class MockImportActivity : AppCompatActivity() {
                     )
                     return@registerForActivityResult
                 }
-                val jsonTextFile = StringBuilder()
-                BufferedReader(InputStreamReader(contentResolver.openInputStream(fileUri)))
-                    .use { jsonTextFile.append(it.readLine()) }
-                viewModel.parseJsonData(jsonTextFile.toString())
+                try {
+                    val jsonTextFile = StringBuilder()
+                    BufferedReader(InputStreamReader(contentResolver.openInputStream(fileUri)))
+                        .use { jsonTextFile.append(it.readLine()) }
+                    viewModel.parseJsonData(jsonTextFile.toString())
+                } catch (exception: Exception) {
+                    showSnackBar(
+                        message = resources.getString(R.string.jsonParseProcessMessage),
+                        rootView = binding.root,
+                        duration = Snackbar.LENGTH_LONG
+                    )
+                    return@registerForActivityResult
+                }
             }
         }
 
@@ -93,6 +102,7 @@ class MockImportActivity : AppCompatActivity() {
     }
 
     private fun processMockImportedInformation() {
+        importPreviewBottomSheet?.dismiss()
         importPreviewBottomSheet = ImportPreviewBottomSheetDialogFragment()
         importPreviewBottomSheet?.let { bottomSheetDialogFragment ->
             bottomSheetDialogFragment.isCancelable = true

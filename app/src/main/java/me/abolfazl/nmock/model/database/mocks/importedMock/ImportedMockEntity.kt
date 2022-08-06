@@ -13,7 +13,7 @@ data class ImportedMockEntity(
     val id: Long? = null,
     @MockCreationType
     @ColumnInfo(name = "mock_type")
-    val type: String,
+    val creationType: String,
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "description")

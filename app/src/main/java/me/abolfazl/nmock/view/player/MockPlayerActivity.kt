@@ -20,6 +20,7 @@ import io.sentry.SentryLevel
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockPlayerBinding
+import me.abolfazl.nmock.model.database.DATABASE_TYPE_IMPORTED
 import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.*
 import me.abolfazl.nmock.utils.logger.NMockLogger
@@ -267,7 +268,11 @@ class MockPlayerActivity : AppCompatActivity() {
             key = SHARED_MOCK_ID,
             value = mockInformation.id!!
         )
-        // todo: put mockIsImported boolean to shared
+        SharedManager.putBoolean(
+            sharedPreferences = sharedPreferences,
+            key = SHARED_MOCK_IS_IMPORTED,
+            value = mockInformation.mockDatabaseType == DATABASE_TYPE_IMPORTED
+        )
     }
 
     private fun processAction(response: OneTimeEmitter) {
@@ -371,7 +376,7 @@ class MockPlayerActivity : AppCompatActivity() {
             title = viewModel.mockPlayerState.value.mockInformation?.name!!,
             description = viewModel.mockPlayerState.value.mockInformation?.description!!,
             provider = viewModel.mockPlayerState.value.mockInformation?.provider!!,
-            type = viewModel.mockPlayerState.value.mockInformation?.type!!,
+            type = viewModel.mockPlayerState.value.mockInformation?.creationType!!,
             createdAt = viewModel.mockPlayerState.value.mockInformation?.createdAt!!,
             updatedAt = viewModel.mockPlayerState.value.mockInformation?.updatedAt!!
         )

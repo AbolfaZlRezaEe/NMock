@@ -104,7 +104,7 @@ class MockPlayerViewModel @Inject constructor(
                 destinationLocation = mockData.destinationLocation,
                 originAddress = mockData.originAddress,
                 destinationAddress = mockData.destinationAddress,
-                type = mockData.type,
+                creationType = mockData.creationType,
                 speed = mockData.speed,
                 lineVector = mockData.lineVector,
                 bearing = mockData.bearing,

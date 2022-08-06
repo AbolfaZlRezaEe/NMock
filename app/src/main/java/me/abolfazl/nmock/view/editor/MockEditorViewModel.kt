@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.abolfazl.nmock.model.database.DATABASE_TYPE_IMPORTED
 import me.abolfazl.nmock.model.database.DATABASE_TYPE_NORMAL
+import me.abolfazl.nmock.model.database.mocks.TYPE_CUSTOM_CREATION
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepository
 import me.abolfazl.nmock.repository.locationInfo.LocationInfoRepositoryImpl
 import me.abolfazl.nmock.repository.mock.MockRepository
@@ -190,7 +191,7 @@ class MockEditorViewModel @Inject constructor(
                     destinationLocation = destinationLocation,
                     originAddress = _mockEditorState.value.originAddress?.getRawValue()!!,
                     destinationAddress = _mockEditorState.value.destinationAddress?.getRawValue()!!,
-                    type = Constant.TYPE_CUSTOM_CREATE,
+                    creationType = TYPE_CUSTOM_CREATION,
                     speed = speed,
                     lineVector = _mockEditorState.value.lineVector?.getRawValue(),
                     bearing = 0f,
@@ -224,7 +225,7 @@ class MockEditorViewModel @Inject constructor(
                 mockDataClass = MockDataClass(
                     name = name,
                     description = description,
-                    type = Constant.TYPE_CUSTOM_CREATE,
+                    creationType = TYPE_CUSTOM_CREATION,
                     originLocation = originLocation,
                     destinationLocation = destinationLocation,
                     originAddress = _mockEditorState.value.originAddress?.getRawValue(),

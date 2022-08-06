@@ -4,11 +4,12 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import me.abolfazl.nmock.model.database.mocks.importedMock.ImportedMockEntity
 
 @Entity(
     tableName = "imported_position_table",
     foreignKeys = [ForeignKey(
-        entity = ImportedPositionEntity::class,
+        entity = ImportedMockEntity::class,
         parentColumns = arrayOf("id"),
         childColumns = arrayOf("mock_id"),
         onDelete = ForeignKey.CASCADE,

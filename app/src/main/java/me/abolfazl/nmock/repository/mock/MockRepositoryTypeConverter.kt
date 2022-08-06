@@ -22,7 +22,7 @@ object MockRepositoryTypeConverter {
         mockDataClass: MockDataClass
     ): NormalMockEntity = NormalMockEntity(
         id = mockDataClass.id,
-        type = mockDataClass.type,
+        creationType = mockDataClass.creationType,
         name = mockDataClass.name,
         description = mockDataClass.description,
         originLocation = mockDataClass.originLocation.locationFormat(),
@@ -50,7 +50,7 @@ object MockRepositoryTypeConverter {
         speed = normalMockEntity.speed,
         bearing = normalMockEntity.bearing,
         mockDatabaseType = DATABASE_TYPE_NORMAL,
-        type = normalMockEntity.type,
+        creationType = normalMockEntity.creationType,
         lineVector = null,
         accuracy = normalMockEntity.accuracy,
         provider = normalMockEntity.provider,
@@ -98,7 +98,7 @@ object MockRepositoryTypeConverter {
         mockDataClass: MockDataClass
     ): ImportedMockEntity = ImportedMockEntity(
         id = mockDataClass.id,
-        type = mockDataClass.type,
+        creationType = mockDataClass.creationType,
         name = mockDataClass.name,
         description = mockDataClass.description,
         originLocation = mockDataClass.originLocation.locationFormat(),
@@ -129,12 +129,12 @@ object MockRepositoryTypeConverter {
         speed = importedMockEntity.speed,
         bearing = importedMockEntity.bearing,
         mockDatabaseType = DATABASE_TYPE_IMPORTED,
-        type = importedMockEntity.type,
+        creationType = importedMockEntity.creationType,
         lineVector = null,
         accuracy = importedMockEntity.accuracy,
         provider = importedMockEntity.provider,
         createdAt = importedMockEntity.createdAt,
-        updatedAt = importedMockEntity.createdAt,
+        updatedAt = importedMockEntity.updatedAt,
         showShareLoading = false,
         fileCreatedAt = importedMockEntity.fileCreatedAt,
         fileOwner = importedMockEntity.fileOwner,
@@ -179,7 +179,7 @@ object MockRepositoryTypeConverter {
         androidId: String
     ): MockExportJsonModel {
         val mockInformationExportJsonModel = MockInformationExportJsonModel(
-            type = normalMockEntity.type,
+            type = normalMockEntity.creationType,
             name = normalMockEntity.name,
             description = normalMockEntity.description,
             originAddress = normalMockEntity.originAddress,
@@ -206,7 +206,7 @@ object MockRepositoryTypeConverter {
         androidId: String
     ): MockExportJsonModel {
         val mockInformationExportJsonModel = MockInformationExportJsonModel(
-            type = importedMockEntity.type,
+            type = importedMockEntity.creationType,
             name = importedMockEntity.name,
             description = importedMockEntity.description,
             originAddress = importedMockEntity.originAddress,
@@ -302,7 +302,7 @@ object MockRepositoryTypeConverter {
         destinationLocation = mockExportJsonModel.routeInformation!!.destinationLocation.locationFormat(),
         originAddress = mockExportJsonModel.mockInformation.originAddress,
         destinationAddress = mockExportJsonModel.mockInformation.destinationAddress,
-        type = mockExportJsonModel.mockInformation.type,
+        creationType = mockExportJsonModel.mockInformation.type,
         speed = mockExportJsonModel.mockInformation.speed,
         lineVector = fromLineExportJsonModel(mockExportJsonModel.routeInformation!!.routeLines),
         bearing = mockExportJsonModel.mockInformation.bearing,
@@ -313,7 +313,7 @@ object MockRepositoryTypeConverter {
         fileCreatedAt = mockExportJsonModel.fileCreatedAt,
         fileOwner = mockExportJsonModel.fileOwner,
         applicationVersionCode = mockExportJsonModel.versionCode,
-        mockDatabaseType = null
+        mockDatabaseType = DATABASE_TYPE_IMPORTED
     )
 
     private fun fromLineExportJsonModel(

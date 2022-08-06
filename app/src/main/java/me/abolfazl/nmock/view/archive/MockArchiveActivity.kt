@@ -162,7 +162,13 @@ class MockArchiveActivity : AppCompatActivity() {
         startActivity(
             Intent(
                 this@MockArchiveActivity, MockEditorActivity::class.java
-            ).apply { putExtra(MockEditorActivity.KEY_MOCK_INFORMATION, mockDataClass.id) }
+            ).apply {
+                putExtra(MockEditorActivity.KEY_MOCK_INFORMATION, mockDataClass.id)
+                putExtra(
+                    MockEditorActivity.KEY_MOCK_IS_IMPORTED,
+                    mockDataClass.mockDatabaseType == DATABASE_TYPE_IMPORTED
+                )
+            }
         )
     }
 

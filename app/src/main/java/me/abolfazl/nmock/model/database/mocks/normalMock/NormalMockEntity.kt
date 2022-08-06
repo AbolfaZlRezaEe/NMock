@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import me.abolfazl.nmock.model.database.mocks.MockCreationType
 import me.abolfazl.nmock.model.database.mocks.MockProvider
+import me.abolfazl.nmock.model.database.mocks.TYPE_CUSTOM_CREATION
 import me.abolfazl.nmock.utils.Constant
 
 @Entity(tableName = "mock_table")
@@ -14,7 +15,7 @@ data class NormalMockEntity(
     val id: Long? = null,
     @ColumnInfo(name = "mock_type")
     @MockCreationType
-    val type: String = Constant.TYPE_CUSTOM_CREATE,
+    val creationType: String = TYPE_CUSTOM_CREATION,
     @ColumnInfo(name = "mock_name")
     val name: String,
     @ColumnInfo(name = "description")

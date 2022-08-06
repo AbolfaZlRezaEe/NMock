@@ -1,8 +1,9 @@
 package me.abolfazl.nmock.model.database.mocks
 
 import androidx.annotation.StringDef
-import me.abolfazl.nmock.utils.Constant.TYPE_AUTOMATIC_CREATE
-import me.abolfazl.nmock.utils.Constant.TYPE_CUSTOM_CREATE
 
-@StringDef(TYPE_CUSTOM_CREATE, TYPE_AUTOMATIC_CREATE)
+const val TYPE_CUSTOM_CREATION = "CUSTOM_CREATION"
+const val TYPE_AUTOMATIC_CREATION = "AUTOMATIC_CREATION"
+
+@StringDef(TYPE_CUSTOM_CREATION, TYPE_AUTOMATIC_CREATION)
 annotation class MockCreationType
