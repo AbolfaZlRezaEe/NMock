@@ -14,5 +14,5 @@ data class MockExportJsonModel(
     @Json(name = "mock_information")
     val mockInformation: MockInformationExportJsonModel,
     @Json(name = "route_information")
-    val routeInformation: RouteInformationExportJsonModel
+    var routeInformation: RouteInformationExportJsonModel?
 )

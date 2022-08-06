@@ -1,23 +1,24 @@
-package me.abolfazl.nmock.model.database.models
+package me.abolfazl.nmock.model.database.positions.normalPositions
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import me.abolfazl.nmock.model.database.mocks.normalMock.NormalMockEntity
 
 @Entity(
     tableName = "position_table",
     foreignKeys = [ForeignKey(
-        entity = MockEntity::class,
+        entity = NormalMockEntity::class,
         parentColumns = arrayOf("id"),
         childColumns = arrayOf("mock_id"),
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
     )]
 )
-data class PositionEntity(
+data class NormalPositionEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Long? = null,
+    var id: Long? = null,
     @ColumnInfo(name = "mock_id", index = true)
     val mockId: Long,
     @ColumnInfo(name = "lat")

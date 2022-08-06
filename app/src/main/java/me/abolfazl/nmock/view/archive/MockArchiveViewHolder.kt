@@ -4,7 +4,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ItemMockArchiveBinding
-import me.abolfazl.nmock.model.database.MockProvider
+import me.abolfazl.nmock.model.database.mocks.MockProvider
 import me.abolfazl.nmock.utils.Constant
 
 class MockArchiveViewHolder constructor(

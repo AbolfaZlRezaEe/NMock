@@ -15,7 +15,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockArchiveBinding
-import me.abolfazl.nmock.repository.mock.models.MockDataClass
+import me.abolfazl.nmock.model.database.DATABASE_TYPE_IMPORTED
+import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.dialog.NMockDialog
@@ -53,7 +54,7 @@ class MockArchiveActivity : AppCompatActivity() {
         super.onStart()
         binding.loadingState.visibility = View.VISIBLE
         binding.contentRecyclerView.visibility = View.GONE
-        viewModel.getMocks()
+        viewModel.getMocksInformation()
     }
 
     private fun initListeners() {
@@ -132,7 +133,10 @@ class MockArchiveActivity : AppCompatActivity() {
 
     private fun onItemClicked(mockDataClass: MockDataClass) {
         if (!MockPlayerService.SERVICE_IS_RUNNING) {
-            startPlayer(mockDataClass.id!!, false)
+            startPlayer(
+                mockDataClass = mockDataClass,
+                reset = false
+            )
             return
         }
         val dialog = NMockDialog.newInstance(
@@ -143,7 +147,10 @@ class MockArchiveActivity : AppCompatActivity() {
         dialog.isCancelable = true
         dialog.setDialogListener(
             onActionButtonClicked = {
-                startPlayer(mockDataClass.id!!, true)
+                startPlayer(
+                    mockDataClass = mockDataClass,
+                    reset = true
+                )
                 dialog.dismiss()
             },
             onSecondaryButtonClicked = { dialog.dismiss() }
@@ -155,16 +162,29 @@ class MockArchiveActivity : AppCompatActivity() {
         startActivity(
             Intent(
                 this@MockArchiveActivity, MockEditorActivity::class.java
-            ).apply { putExtra(MockEditorActivity.KEY_MOCK_INFORMATION, mockDataClass.id) }
+            ).apply {
+                putExtra(MockEditorActivity.KEY_MOCK_INFORMATION, mockDataClass.id)
+                putExtra(
+                    MockEditorActivity.KEY_MOCK_IS_IMPORTED,
+                    mockDataClass.mockDatabaseType == DATABASE_TYPE_IMPORTED
+                )
+            }
         )
     }
 
-    private fun startPlayer(mockId: Long, reset: Boolean) {
+    private fun startPlayer(
+        mockDataClass: MockDataClass,
+        reset: Boolean
+    ) {
         startActivity(Intent(this, MockPlayerActivity::class.java).apply {
             if (reset) {
                 putExtra(MockPlayerActivity.RESET_COMMAND, true)
             }
-            putExtra(MockPlayerActivity.KEY_MOCK_ID_PLAYER, mockId)
+            putExtra(MockPlayerActivity.KEY_MOCK_ID_PLAYER, mockDataClass.id!!)
+            putExtra(
+                MockPlayerActivity.KEY_MOCK_IS_IMPORTED,
+                mockDataClass.mockDatabaseType == DATABASE_TYPE_IMPORTED
+            )
         })
     }
 

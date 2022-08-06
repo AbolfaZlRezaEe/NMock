@@ -110,12 +110,23 @@
     <string name="network">NETWORK</string>
     <string name="provider">Provider</string>
     <string name="km.h">KM/H</string>
+    <string name="importDescription">Some of them are under development…</string>
+    <string name="importTitle">Choose how you want to import your mock?</string>
+    <string name="importFromJsonFile">Import from JSON file</string>
+    <string name="importWithLocations">Import with locations</string>
+    <string name="importWithNMockLink">Import with NMock link</string>
+    <string name="submit">Submit</string>
+    <string name="openInEditor">Open in editor</string>
+    <string name="pleaseWait">Please wait…</string>
 
     <!-- Exception messages -->
     <string name="unknownException">Unexpected Error occurred! Please try again…</string>
     <string name="locationInformationException">Sorry, we could not get the location information from server.</string>
     <string name="routeInformationException">Sorry, we could not get the route information from server.</string>
     <string name="mockProblemException">We have a problem on Mock information. please add your mock again…</string>
+    <string name="importedMockProblemException">We have a problem on Mock information. please import your mock again…</string>
     <string name="updateSpeedWasFailed">Umm… we have a problem on changing Mock speed. please try again…</string>
     <string name="exportingMockProblem">Umm… we have a problem on sharing Mock. please try again…</string>
+    <string name="jsonStructureProblemMessage">Your json file has a problem in structure. please check it and try again…</string>
+    <string name="jsonParseProcessMessage">Umm… we have a problem on processing Mock json file. please try again…</string>
 </resources>

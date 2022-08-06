@@ -34,7 +34,8 @@ object NetworkModule {
     private const val AUTH_HEADER_ACCEPT_KEY = "Accept"
 
     // Header values
-    private const val ROUTING_HEADER_VALUE_API_KEY = "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
+    private const val ROUTING_HEADER_VALUE_API_KEY =
+        "service.2xpUYE0D5pjJZOSSUwmzlhjQrKB4g68pcg9wzDJg"
     private const val AUTH_HEADER_VALUE_ACCEPT = "application/json"
 
     @Singleton

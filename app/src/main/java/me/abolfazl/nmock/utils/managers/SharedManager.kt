@@ -62,7 +62,7 @@ object SharedManager {
         return sharedPreferences.getString(key, defaultValue)
     }
 
-    fun deleteLong(
+    fun deleteParameterFromShared(
         sharedPreferences: SharedPreferences,
         @SharedParametersType key: String
     ) {

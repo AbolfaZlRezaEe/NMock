@@ -9,10 +9,6 @@ object Constant {
     const val ENVIRONMENT_RELEASE = "Release-Mode"
     const val LOGGER_FILE_NAME = "Helper"
 
-    // Mock types
-    const val TYPE_CUSTOM_CREATE = "CUSTOM_CREATION"
-    const val TYPE_AUTOMATIC_CREATE = "AUTOMATIC_CREATION"
-
     // Mock Provider names
     const val PROVIDER_GPS = "GPS_PROVIDER"
     const val PROVIDER_NETWORK = "NETWORK_PROVIDER"

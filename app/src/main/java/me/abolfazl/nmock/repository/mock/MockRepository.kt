@@ -1,58 +1,45 @@
 package me.abolfazl.nmock.repository.mock
 
 import kotlinx.coroutines.flow.Flow
-import me.abolfazl.nmock.model.database.MockProvider
-import me.abolfazl.nmock.model.database.MockType
-import me.abolfazl.nmock.repository.mock.models.MockDataClass
+import me.abolfazl.nmock.model.database.MockDatabaseType
+import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.response.Response
-import org.neshan.common.model.LatLng
 import java.io.File
 
 interface MockRepository {
 
     fun saveMockInformation(
-        name: String,
-        description: String,
-        originLocation: LatLng,
-        destinationLocation: LatLng,
-        originAddress: String?,
-        destinationAddress: String?,
-        @MockType type: String,
-        speed: Int,
-        lineVector: ArrayList<List<LatLng>>?,
-        bearing: Float,
-        accuracy: Float,
-        @MockProvider provider: String,
+        mockDataClass: MockDataClass,
     ): Flow<Response<Long, Int>>
 
     fun updateMockInformation(
-        id: Long,
-        name: String,
-        description: String,
-        originLocation: LatLng,
-        destinationLocation: LatLng,
-        originAddress: String?,
-        destinationAddress: String?,
-        @MockType type: String,
-        speed: Int,
-        lineVector: ArrayList<List<LatLng>>?,
-        bearing: Float,
-        accuracy: Float,
-        @MockProvider provider: String,
-        createdAt: String
+        mockDataClass: MockDataClass,
     ): Flow<Response<Long, Int>>
 
-    suspend fun deleteMock(id: Long?)
+    suspend fun deleteMock(
+        @MockDatabaseType mockDatabaseType: String,
+        mockId: Long,
+    )
 
-    suspend fun deleteAllMocks()
+    suspend fun deleteAllMocks(
+        @MockDatabaseType mockDatabaseType: String
+    )
 
-    suspend fun getMocks(): List<MockDataClass>
+    fun getMocksInformation(
+        @MockDatabaseType mockDatabaseType: String
+    ): Flow<Response<List<MockDataClass>, Int>>
 
-    suspend fun getMock(
-        mockId: Long
+    fun getMockInformationFromId(
+        @MockDatabaseType mockDatabaseType: String,
+        id: Long
     ): Flow<Response<MockDataClass, Int>>
 
-    suspend fun createMockExportFile(
-        mockId: Long
+    fun createMockExportFile(
+        @MockDatabaseType mockDatabaseType: String,
+        id: Long
     ): Flow<Response<File, Int>>
+
+    fun parseJsonDataModelString(
+        json: String
+    ): Flow<Response<MockDataClass, Int>>
 }

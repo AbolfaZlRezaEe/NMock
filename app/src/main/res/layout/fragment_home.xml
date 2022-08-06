@@ -67,24 +67,24 @@
             app:cornerRadius="20dp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/mockTrackerMaterialButton"
-            android:layout_width="300dp"
-            android:layout_height="55dp"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/roboto_medium"
-            android:text="@string/trackYourMock"
-            android:textAllCaps="false"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="16sp"
-            app:cornerRadius="20dp" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/mockImportMaterialButton"
             android:layout_width="300dp"
             android:layout_height="55dp"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/roboto_medium"
             android:text="@string/importYourMock"
+            android:textAllCaps="false"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16sp"
+            app:cornerRadius="20dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mockTrackerMaterialButton"
+            android:layout_width="300dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/roboto_medium"
+            android:text="@string/trackYourMock"
             android:textAllCaps="false"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="16sp"
