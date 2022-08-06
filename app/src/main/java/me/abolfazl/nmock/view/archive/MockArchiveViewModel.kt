@@ -19,7 +19,6 @@ import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.SingleEvent
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
 import me.abolfazl.nmock.utils.response.ifSuccessful
-import me.abolfazl.nmock.view.editor.MockEditorViewModel
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,6 +29,7 @@ class MockArchiveViewModel @Inject constructor(
 
     companion object {
         const val ACTION_UNKNOWN = "UNKNOWN_EXCEPTION"
+        const val ACTION_PROCESS_EXPORTING_MOCK = "ACTION_EXPORTING_MOCK"
     }
 
     private val _mockArchiveState = MutableStateFlow(MockArchiveState())
@@ -110,7 +110,7 @@ class MockArchiveViewModel @Inject constructor(
                 response.ifNotSuccessful { exceptionType ->
                     _oneTimeEmitter.emit(
                         OneTimeEmitter(
-                            actionId = MockEditorViewModel.ACTION_LOCATION_INFORMATION,
+                            actionId = ACTION_PROCESS_EXPORTING_MOCK,
                             message = actionMapper(exceptionType)
                         )
                     )
@@ -122,6 +122,8 @@ class MockArchiveViewModel @Inject constructor(
         return when (action) {
             MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION -> MockArchiveActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
             MockRepositoryImpl.CONVERT_MOCK_TO_JSON_EXCEPTION,
+            MockRepositoryImpl.DATABASE_EMPTY_MOCK_INFORMATION,
+            MockRepositoryImpl.DATABASE_WRONG_TYPE_EXCEPTION,
             MockRepositoryImpl.CREATE_EXPORT_FILE_EXCEPTION -> MockArchiveActivity.EXPORTING_MOCK_FAILED_MESSAGE
             else -> MockArchiveActivity.UNKNOWN_ERROR_MESSAGE
         }

@@ -133,7 +133,9 @@ class MockPlayerViewModel @Inject constructor(
         return when (exceptionType) {
             MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
             MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,
-            MockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockPlayerActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
+            MockRepositoryImpl.DATABASE_INSERTION_EXCEPTION,
+            MockRepositoryImpl.DATABASE_EMPTY_MOCK_INFORMATION,
+            MockRepositoryImpl.DATABASE_WRONG_TYPE_EXCEPTION -> MockPlayerActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
             else -> MockPlayerActivity.UNKNOWN_ERROR_MESSAGE
         }
     }

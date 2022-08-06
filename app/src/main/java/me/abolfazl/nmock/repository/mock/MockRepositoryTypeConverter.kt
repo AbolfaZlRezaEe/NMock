@@ -16,7 +16,7 @@ import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.locationFormat
 import org.neshan.common.model.LatLng
 
-object MockRepositoryHelper {
+object MockRepositoryTypeConverter {
 
     fun toNormalMockEntity(
         mockDataClass: MockDataClass

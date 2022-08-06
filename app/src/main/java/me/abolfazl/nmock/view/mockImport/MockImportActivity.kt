@@ -118,11 +118,24 @@ class MockImportActivity : AppCompatActivity() {
     private fun processAction(
         response: OneTimeEmitter
     ) {
-        showSnackBar(
-            message = resources.getString(response.message),
-            rootView = binding.root,
-            duration = Snackbar.LENGTH_SHORT
-        )
+        when (response.actionId) {
+            ImportMockViewModel.ACTION_MOCK_DOES_NOT_SAVED -> {
+                importPreviewBottomSheet?.dismiss()
+                importPreviewBottomSheet = null
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_LONG
+                )
+            }
+            else -> {
+                showSnackBar(
+                    message = resources.getString(response.message),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_SHORT
+                )
+            }
+        }
     }
 
     private fun initListeners() {

@@ -58,7 +58,7 @@ class MockRepositoryImpl @Inject constructor(
         when (mockInformation.mockDatabaseType) {
             DATABASE_TYPE_NORMAL -> {
                 val mockId = normalMockDataSource.saveMockInformation(
-                    normalMockEntity = MockRepositoryHelper.toNormalMockEntity(mockInformation),
+                    normalMockEntity = MockRepositoryTypeConverter.toNormalMockEntity(mockInformation),
                 )
                 if (mockId == -1L) {
                     logger.writeLog(value = "saveMockInformation was failed(NormalMockSaving). mockId was -1!")
@@ -67,7 +67,7 @@ class MockRepositoryImpl @Inject constructor(
                 }
                 mockInformation.id = mockId
                 normalMockDataSource.saveMockPositionsInformation(
-                    normalPositionEntities = MockRepositoryHelper.toNormalPositionEntity(
+                    normalPositionEntities = MockRepositoryTypeConverter.toNormalPositionEntity(
                         mockInformation
                     )
                 )
@@ -75,7 +75,7 @@ class MockRepositoryImpl @Inject constructor(
             }
             DATABASE_TYPE_IMPORTED -> {
                 val mockId = importedMockDataSource.saveMockInformation(
-                    importedMockEntity = MockRepositoryHelper.toImportedMockEntity(mockInformation),
+                    importedMockEntity = MockRepositoryTypeConverter.toImportedMockEntity(mockInformation),
                 )
                 if (mockId == -1L) {
                     logger.writeLog(value = "saveMockInformation was failed(ImportedMockSaving). mockId was -1!")
@@ -84,7 +84,7 @@ class MockRepositoryImpl @Inject constructor(
                 }
                 mockInformation.id = mockId
                 importedMockDataSource.saveMockPositionsInformation(
-                    importedPositionEntities = MockRepositoryHelper.toImportedPositionEntity(
+                    importedPositionEntities = MockRepositoryTypeConverter.toImportedPositionEntity(
                         mockInformation
                     )
                 )
@@ -112,8 +112,8 @@ class MockRepositoryImpl @Inject constructor(
         when (mockInformation.mockDatabaseType) {
             DATABASE_TYPE_NORMAL -> {
                 val mockId = normalMockDataSource.updateMockInformation(
-                    normalMockEntity = MockRepositoryHelper.toNormalMockEntity(mockInformation),
-                    normalPositionEntities = MockRepositoryHelper.toNormalPositionEntity(
+                    normalMockEntity = MockRepositoryTypeConverter.toNormalMockEntity(mockInformation),
+                    normalPositionEntities = MockRepositoryTypeConverter.toNormalPositionEntity(
                         mockInformation
                     )
                 )
@@ -121,8 +121,8 @@ class MockRepositoryImpl @Inject constructor(
             }
             DATABASE_TYPE_IMPORTED -> {
                 val mockId = importedMockDataSource.updateMockInformation(
-                    importedMockEntity = MockRepositoryHelper.toImportedMockEntity(mockInformation),
-                    importedPositionEntities = MockRepositoryHelper.toImportedPositionEntity(
+                    importedMockEntity = MockRepositoryTypeConverter.toImportedMockEntity(mockInformation),
+                    importedPositionEntities = MockRepositoryTypeConverter.toImportedPositionEntity(
                         mockInformation
                     )
                 )
@@ -190,10 +190,10 @@ class MockRepositoryImpl @Inject constructor(
                 val importedMockResponse = importedMockDataSource.getMocksInformation()
                 emit(Success(mutableListOf<MockDataClass>().apply {
                     normalMockResponse.forEach { normalMockEntity ->
-                        add(MockRepositoryHelper.fromNormalMockEntity(normalMockEntity))
+                        add(MockRepositoryTypeConverter.fromNormalMockEntity(normalMockEntity))
                     }
                     importedMockResponse.forEach { importedMockEntity ->
-                        add(MockRepositoryHelper.fromImportedMockEntity(importedMockEntity))
+                        add(MockRepositoryTypeConverter.fromImportedMockEntity(importedMockEntity))
                     }
                 }))
             }
@@ -201,7 +201,7 @@ class MockRepositoryImpl @Inject constructor(
                 val response = normalMockDataSource.getMocksInformation()
                 val result: List<MockDataClass> = mutableListOf<MockDataClass>().apply {
                     response.forEach { normalMockEntity ->
-                        add(MockRepositoryHelper.fromNormalMockEntity(normalMockEntity))
+                        add(MockRepositoryTypeConverter.fromNormalMockEntity(normalMockEntity))
                     }
                 }
                 emit(Success(result))
@@ -210,7 +210,7 @@ class MockRepositoryImpl @Inject constructor(
                 val response = importedMockDataSource.getMocksInformation()
                 val result: List<MockDataClass> = mutableListOf<MockDataClass>().apply {
                     response.forEach { importedMockEntity ->
-                        add(MockRepositoryHelper.fromImportedMockEntity(importedMockEntity))
+                        add(MockRepositoryTypeConverter.fromImportedMockEntity(importedMockEntity))
                     }
                 }
                 emit(Success(result))
@@ -242,9 +242,9 @@ class MockRepositoryImpl @Inject constructor(
                     emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
                     return@flow
                 }
-                val result = MockRepositoryHelper.fromNormalMockEntity(mockInformationResponse)
+                val result = MockRepositoryTypeConverter.fromNormalMockEntity(mockInformationResponse)
                 result.lineVector =
-                    MockRepositoryHelper.fromNormalPositionEntity(positionInformationResponse)
+                    MockRepositoryTypeConverter.fromNormalPositionEntity(positionInformationResponse)
                 emit(Success(result))
             }
             DATABASE_TYPE_IMPORTED -> {
@@ -259,9 +259,9 @@ class MockRepositoryImpl @Inject constructor(
                     emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
                     return@flow
                 }
-                val result = MockRepositoryHelper.fromImportedMockEntity(mockInformationResponse)
+                val result = MockRepositoryTypeConverter.fromImportedMockEntity(mockInformationResponse)
                 result.lineVector =
-                    MockRepositoryHelper.fromImportedPositionEntity(positionInformationResponse)
+                    MockRepositoryTypeConverter.fromImportedPositionEntity(positionInformationResponse)
                 emit(Success(result))
             }
             else -> {
@@ -352,7 +352,7 @@ class MockRepositoryImpl @Inject constructor(
             return@flow
         }
 
-        emit(Success(MockRepositoryHelper.fromExportedMockModel(mockJsonModel)))
+        emit(Success(MockRepositoryTypeConverter.fromExportedMockModel(mockJsonModel)))
     }
 
     private fun generateMockExportJsonModelByMockId(
@@ -372,12 +372,12 @@ class MockRepositoryImpl @Inject constructor(
                     emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
                     return@flow
                 }
-                mockExportJsonModel = MockRepositoryHelper.toMockExportJsonModel(
+                mockExportJsonModel = MockRepositoryTypeConverter.toMockExportJsonModel(
                     normalMockEntity = mockInformation,
                     time = getTime(),
                     androidId = androidId
                 )
-                mockExportJsonModel = MockRepositoryHelper.toMockRoutingJsonModel(
+                mockExportJsonModel = MockRepositoryTypeConverter.toMockRoutingJsonModel(
                     mockExportJsonModel = mockExportJsonModel,
                     normalMockEntity = mockInformation,
                     normalPositionEntities = positionsInformation
@@ -394,12 +394,12 @@ class MockRepositoryImpl @Inject constructor(
                     emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
                     return@flow
                 }
-                mockExportJsonModel = MockRepositoryHelper.toMockExportJsonModel(
+                mockExportJsonModel = MockRepositoryTypeConverter.toMockExportJsonModel(
                     importedMockEntity = mockInformation,
                     time = getTime(),
                     androidId = androidId
                 )
-                mockExportJsonModel = MockRepositoryHelper.toMockRoutingJsonModel(
+                mockExportJsonModel = MockRepositoryTypeConverter.toMockRoutingJsonModel(
                     mockExportJsonModel = mockExportJsonModel,
                     importedMockEntity = mockInformation,
                     importedPositionEntities = positionsInformation

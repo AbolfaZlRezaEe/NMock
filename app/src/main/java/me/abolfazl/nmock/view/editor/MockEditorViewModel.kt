@@ -354,6 +354,8 @@ class MockEditorViewModel @Inject constructor(
             RoutingInfoRepositoryImpl.UNKNOWN_EXCEPTION -> MockEditorActivity.ROUTE_INFORMATION_EXCEPTION_MESSAGE
             MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
             MockRepositoryImpl.DATABASE_EMPTY_LINE_EXCEPTION,
+            MockRepositoryImpl.DATABASE_WRONG_TYPE_EXCEPTION,
+            MockRepositoryImpl.DATABASE_EMPTY_MOCK_INFORMATION,
             MockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockEditorActivity.MOCK_INFORMATION_IS_WRONG_MESSAGE
             else -> MockEditorActivity.UNKNOWN_ERROR_MESSAGE
         }

@@ -154,6 +154,7 @@ class ImportMockViewModel @Inject constructor(
             MockRepositoryImpl.JSON_PROBLEM_EXCEPTION -> MockImportActivity.JSON_STRUCTURE_PROBLEM_MESSAGE
             MockRepositoryImpl.JSON_PROCESS_FAILED_EXCEPTION -> MockImportActivity.JSON_PARSE_PROCESS_PROBLEM_MESSAGE
             MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
+            MockRepositoryImpl.DATABASE_WRONG_TYPE_EXCEPTION,
             MockRepositoryImpl.DATABASE_INSERTION_EXCEPTION -> MockImportActivity.MOCK_INFORMATION_HAS_PROBLEM
             else -> MockImportActivity.UNKNOWN_ERROR_MESSAGE
         }
