@@ -58,7 +58,9 @@ class MockRepositoryImpl @Inject constructor(
         when (mockInformation.mockDatabaseType) {
             DATABASE_TYPE_NORMAL -> {
                 val mockId = normalMockDataSource.saveMockInformation(
-                    normalMockEntity = MockRepositoryTypeConverter.toNormalMockEntity(mockInformation),
+                    normalMockEntity = MockRepositoryTypeConverter.toNormalMockEntity(
+                        mockInformation
+                    ),
                 )
                 if (mockId == -1L) {
                     logger.writeLog(value = "saveMockInformation was failed(NormalMockSaving). mockId was -1!")
@@ -71,11 +73,14 @@ class MockRepositoryImpl @Inject constructor(
                         mockInformation
                     )
                 )
+                logger.writeLog(value = "saving normal mock information was successful!")
                 emit(Success(mockId))
             }
             DATABASE_TYPE_IMPORTED -> {
                 val mockId = importedMockDataSource.saveMockInformation(
-                    importedMockEntity = MockRepositoryTypeConverter.toImportedMockEntity(mockInformation),
+                    importedMockEntity = MockRepositoryTypeConverter.toImportedMockEntity(
+                        mockInformation
+                    ),
                 )
                 if (mockId == -1L) {
                     logger.writeLog(value = "saveMockInformation was failed(ImportedMockSaving). mockId was -1!")
@@ -88,6 +93,7 @@ class MockRepositoryImpl @Inject constructor(
                         mockInformation
                     )
                 )
+                logger.writeLog(value = "saving imported mock information was successful!")
                 emit(Success(mockId))
             }
             else -> {
@@ -112,20 +118,26 @@ class MockRepositoryImpl @Inject constructor(
         when (mockInformation.mockDatabaseType) {
             DATABASE_TYPE_NORMAL -> {
                 val mockId = normalMockDataSource.updateMockInformation(
-                    normalMockEntity = MockRepositoryTypeConverter.toNormalMockEntity(mockInformation),
+                    normalMockEntity = MockRepositoryTypeConverter.toNormalMockEntity(
+                        mockInformation
+                    ),
                     normalPositionEntities = MockRepositoryTypeConverter.toNormalPositionEntity(
                         mockInformation
                     )
                 )
+                logger.writeLog(value = "updating normal mock information was successful!")
                 emit(Success(mockId))
             }
             DATABASE_TYPE_IMPORTED -> {
                 val mockId = importedMockDataSource.updateMockInformation(
-                    importedMockEntity = MockRepositoryTypeConverter.toImportedMockEntity(mockInformation),
+                    importedMockEntity = MockRepositoryTypeConverter.toImportedMockEntity(
+                        mockInformation
+                    ),
                     importedPositionEntities = MockRepositoryTypeConverter.toImportedPositionEntity(
                         mockInformation
                     )
                 )
+                logger.writeLog(value = "updating imported mock information was successful!")
                 emit(Success(mockId))
             }
             else -> {
@@ -145,9 +157,11 @@ class MockRepositoryImpl @Inject constructor(
         when (mockDatabaseType) {
             DATABASE_TYPE_NORMAL -> {
                 normalMockDataSource.deleteMock(mockId)
+                logger.writeLog(value = "We deleted normal mock information with mockId:$mockId")
             }
             DATABASE_TYPE_IMPORTED -> {
                 importedMockDataSource.deleteMock(mockId)
+                logger.writeLog(value = "We deleted imported mock information with mockId:$mockId")
             }
             else -> {
                 logger.writeLog(value = "MockDatabaseType is wrong?! type-> ${mockDatabaseType}")
@@ -165,12 +179,15 @@ class MockRepositoryImpl @Inject constructor(
             DATABASE_TYPE_ALL -> {
                 normalMockDataSource.deleteAllMocks()
                 importedMockDataSource.deleteAllMocks()
+                logger.writeLog(value = "We deleted all mock information!")
             }
             DATABASE_TYPE_NORMAL -> {
                 normalMockDataSource.deleteAllMocks()
+                logger.writeLog(value = "We deleted normal mock information!")
             }
             DATABASE_TYPE_IMPORTED -> {
                 importedMockDataSource.deleteAllMocks()
+                logger.writeLog(value = "We deleted imported mock information!")
             }
             else -> {
                 logger.writeLog(value = "MockDatabaseType is wrong?! type-> $mockDatabaseType")
@@ -186,6 +203,7 @@ class MockRepositoryImpl @Inject constructor(
     ): Flow<Response<List<MockDataClass>, Int>> = flow {
         when (mockDatabaseType) {
             DATABASE_TYPE_ALL -> {
+                logger.writeLog(value = "We are going to collect all mock information for user.")
                 val normalMockResponse = normalMockDataSource.getMocksInformation()
                 val importedMockResponse = importedMockDataSource.getMocksInformation()
                 emit(Success(mutableListOf<MockDataClass>().apply {
@@ -198,6 +216,7 @@ class MockRepositoryImpl @Inject constructor(
                 }))
             }
             DATABASE_TYPE_NORMAL -> {
+                logger.writeLog(value = "We are going to collect normal mock information for user.")
                 val response = normalMockDataSource.getMocksInformation()
                 val result: List<MockDataClass> = mutableListOf<MockDataClass>().apply {
                     response.forEach { normalMockEntity ->
@@ -207,6 +226,7 @@ class MockRepositoryImpl @Inject constructor(
                 emit(Success(result))
             }
             DATABASE_TYPE_IMPORTED -> {
+                logger.writeLog(value = "We are going to collect imported mock information for user.")
                 val response = importedMockDataSource.getMocksInformation()
                 val result: List<MockDataClass> = mutableListOf<MockDataClass>().apply {
                     response.forEach { importedMockEntity ->
@@ -231,37 +251,47 @@ class MockRepositoryImpl @Inject constructor(
     ): Flow<Response<MockDataClass, Int>> = flow {
         when (mockDatabaseType) {
             DATABASE_TYPE_NORMAL -> {
+                logger.writeLog(value = "We are going to collect normal mock information with mock id->$id")
                 val mockInformationResponse = normalMockDataSource.getMockInformationById(id)
                 if (mockInformationResponse == null) {
+                    logger.writeLog(value = "mock information is null!!")
                     emit(Failure(DATABASE_EMPTY_MOCK_INFORMATION))
                     return@flow
                 }
                 val positionInformationResponse =
                     normalMockDataSource.getMockPositionInformationById(id)
                 if (positionInformationResponse.isEmpty()) {
+                    logger.writeLog(value = "route information of mock is null!!")
                     emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
                     return@flow
                 }
-                val result = MockRepositoryTypeConverter.fromNormalMockEntity(mockInformationResponse)
+                val result =
+                    MockRepositoryTypeConverter.fromNormalMockEntity(mockInformationResponse)
                 result.lineVector =
                     MockRepositoryTypeConverter.fromNormalPositionEntity(positionInformationResponse)
                 emit(Success(result))
             }
             DATABASE_TYPE_IMPORTED -> {
+                logger.writeLog(value = "We are going to collect imported mock information with mock id->$id")
                 val mockInformationResponse = importedMockDataSource.getMockInformationById(id)
                 if (mockInformationResponse == null) {
+                    logger.writeLog(value = "mock information is null!!")
                     emit(Failure(DATABASE_EMPTY_MOCK_INFORMATION))
                     return@flow
                 }
                 val positionInformationResponse =
                     importedMockDataSource.getMockPositionInformationById(id)
                 if (positionInformationResponse.isEmpty()) {
+                    logger.writeLog(value = "route information of mock is null!!")
                     emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
                     return@flow
                 }
-                val result = MockRepositoryTypeConverter.fromImportedMockEntity(mockInformationResponse)
+                val result =
+                    MockRepositoryTypeConverter.fromImportedMockEntity(mockInformationResponse)
                 result.lineVector =
-                    MockRepositoryTypeConverter.fromImportedPositionEntity(positionInformationResponse)
+                    MockRepositoryTypeConverter.fromImportedPositionEntity(
+                        positionInformationResponse
+                    )
                 emit(Success(result))
             }
             else -> {
@@ -360,15 +390,18 @@ class MockRepositoryImpl @Inject constructor(
         id: Long,
     ): Flow<Response<MockExportJsonModel, Int>> = flow {
         var mockExportJsonModel: MockExportJsonModel?
+        logger.writeLog(value = "We are going to generate export mock json model.")
         when (mockDatabaseType) {
             DATABASE_TYPE_NORMAL -> {
                 val mockInformation = normalMockDataSource.getMockInformationById(id)
                 if (mockInformation == null) {
+                    logger.writeLog(value = "normal mock information is null!!")
                     emit(Failure(DATABASE_EMPTY_MOCK_INFORMATION))
                     return@flow
                 }
                 val positionsInformation = normalMockDataSource.getMockPositionInformationById(id)
                 if (positionsInformation.isEmpty()) {
+                    logger.writeLog(value = "normal mock route information is null!!")
                     emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
                     return@flow
                 }
@@ -386,11 +419,13 @@ class MockRepositoryImpl @Inject constructor(
             DATABASE_TYPE_IMPORTED -> {
                 val mockInformation = importedMockDataSource.getMockInformationById(id)
                 if (mockInformation == null) {
+                    logger.writeLog(value = "imported mock information is null!!")
                     emit(Failure(DATABASE_EMPTY_MOCK_INFORMATION))
                     return@flow
                 }
                 val positionsInformation = importedMockDataSource.getMockPositionInformationById(id)
                 if (positionsInformation.isEmpty()) {
+                    logger.writeLog(value = "imported mock route information is null!!")
                     emit(Failure(DATABASE_EMPTY_LINE_EXCEPTION))
                     return@flow
                 }
