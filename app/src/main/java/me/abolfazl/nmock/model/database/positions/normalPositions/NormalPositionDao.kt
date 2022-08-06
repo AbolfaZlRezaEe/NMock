@@ -1,6 +1,9 @@
 package me.abolfazl.nmock.model.database.positions.normalPositions
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 @Dao
 interface NormalPositionDao {

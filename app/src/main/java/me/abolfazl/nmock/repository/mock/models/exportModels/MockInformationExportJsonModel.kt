@@ -2,8 +2,8 @@ package me.abolfazl.nmock.repository.mock.models.exportModels
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import me.abolfazl.nmock.model.database.mocks.MockProvider
 import me.abolfazl.nmock.model.database.mocks.MockCreationType
+import me.abolfazl.nmock.model.database.mocks.MockProvider
 
 @JsonClass(generateAdapter = true)
 data class MockInformationExportJsonModel(

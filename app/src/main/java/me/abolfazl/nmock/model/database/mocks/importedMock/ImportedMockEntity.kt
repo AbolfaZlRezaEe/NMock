@@ -3,8 +3,8 @@ package me.abolfazl.nmock.model.database.mocks.importedMock
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import me.abolfazl.nmock.model.database.mocks.MockProvider
 import me.abolfazl.nmock.model.database.mocks.MockCreationType
+import me.abolfazl.nmock.model.database.mocks.MockProvider
 
 @Entity(tableName = "imported_mock_table")
 data class ImportedMockEntity(

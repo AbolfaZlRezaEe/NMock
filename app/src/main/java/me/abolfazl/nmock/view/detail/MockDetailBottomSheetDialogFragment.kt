@@ -8,8 +8,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentMockDetailBinding
-import me.abolfazl.nmock.model.database.mocks.MockProvider
 import me.abolfazl.nmock.model.database.mocks.MockCreationType
+import me.abolfazl.nmock.model.database.mocks.MockProvider
 import me.abolfazl.nmock.utils.changeStringTo
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import javax.inject.Inject
