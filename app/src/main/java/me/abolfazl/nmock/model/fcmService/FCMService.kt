@@ -52,7 +52,7 @@ class FCMService : FirebaseMessagingService() {
         command?.let { cmd ->
             when (cmd) {
                 COMMAND_KEY_SEND_LOGS -> {
-                    logger.captureEventWithLogFile(fromPush = true)
+                    logger.sendLogsFileToSentry()
                 }
                 COMMAND_KEY_CLEAR_LOGS -> {
                     logger.clearLogsFile()

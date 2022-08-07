@@ -175,36 +175,31 @@ class NMockLogger constructor(
         this.className = className
     }
 
-    fun captureEventWithLogFile(
-        fromExceptionHandler: Boolean = false,
-        fromPush: Boolean = false,
-        fromRepository: Boolean = false,
-        message: String? = null,
-        exception: Exception? = null,
-        sentryEventLevel: SentryLevel = SentryLevel.INFO
+    fun captureExceptionWithLogFile(
+        message: String,
+        sentryEventLevel: SentryLevel = SentryLevel.FATAL
     ) {
-        if (fromRepository || fromExceptionHandler || fromPush || logCanSend()) {
-            Sentry.configureScope {
-                it.addAttachment(Attachment(filePath))
-            }
-            var eventTitle: String? = null
+        Sentry.configureScope {
+            it.addAttachment(Attachment(filePath))
+        }
 
-            if (fromPush) {
-                eventTitle = "Logs sent from Push"
-            } else if (fromExceptionHandler || fromRepository) {
-                message?.let {
-                    eventTitle = message
-                }
-                eventTitle =
-                    if (eventTitle == null) exception?.message
-                    else "$eventTitle: ${exception?.message}"
-            }
+        writeLog(value = message)
+        Sentry.captureMessage(message, sentryEventLevel)
 
-            Sentry.captureMessage(eventTitle ?: "Logs Reported from $androidId", sentryEventLevel)
+        Sentry.configureScope {
+            it.clearAttachments()
+        }
+    }
 
-            Sentry.configureScope {
-                it.clearAttachments()
-            }
+    fun sendLogsFileToSentry() {
+        Sentry.configureScope {
+            it.addAttachment(Attachment(filePath))
+        }
+
+        Sentry.captureMessage("Logs from $androidId", SentryLevel.INFO)
+
+        Sentry.configureScope {
+            it.clearAttachments()
         }
     }
 

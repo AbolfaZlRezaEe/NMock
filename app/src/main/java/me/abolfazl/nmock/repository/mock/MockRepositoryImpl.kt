@@ -320,10 +320,8 @@ class MockRepositoryImpl @Inject constructor(
                         moshi.adapter(MockExportJsonModel::class.java)
                     finalJson = jsonAdapter.toJson(mockExportJsonModel)
                 } catch (exception: Exception) {
-                    logger.writeLog(value = "we had problem on creating json from model: ${exception.message}")
-                    logger.captureEventWithLogFile(
-                        fromRepository = true,
-                        exception = exception,
+                    logger.captureExceptionWithLogFile(
+                        message = "we had problem on creating json from model: ${exception.message}",
                         sentryEventLevel = SentryLevel.ERROR
                     )
                     emit(Failure(CONVERT_MOCK_TO_JSON_EXCEPTION))
@@ -339,10 +337,8 @@ class MockRepositoryImpl @Inject constructor(
                         )
                         emit(Success(file))
                     } catch (exception: Exception) {
-                        logger.writeLog(value = "we had a problem on creating export mock file: ${exception.message}")
-                        logger.captureEventWithLogFile(
-                            fromRepository = true,
-                            exception = exception,
+                        logger.captureExceptionWithLogFile(
+                            message = "we had a problem on creating export mock file: ${exception.message}",
                             sentryEventLevel = SentryLevel.ERROR
                         )
                         emit(Failure(CREATE_EXPORT_FILE_EXCEPTION))

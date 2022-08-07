@@ -72,14 +72,5 @@ class HomeFragment : Fragment() {
         binding.mockImportMaterialButton.setOnClickListener {
             activity?.startActivity(Intent(activity, MockImportActivity::class.java))
         }
-
-        binding.reportLogsMaterialButton.setOnClickListener {
-            logger.captureEventWithLogFile()
-            showSnackBar(
-                message = resources.getString(R.string.thankYouForYourHelp),
-                rootView = binding.root,
-                duration = Snackbar.LENGTH_SHORT
-            )
-        }
     }
 }
