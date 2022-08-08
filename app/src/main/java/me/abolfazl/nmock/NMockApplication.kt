@@ -41,16 +41,6 @@ class NMockApplication : Application() {
             else Constant.ENVIRONMENT_RELEASE
             option.tracesSampleRate = 1.0
         }
-
-        Sentry.configureScope { scope ->
-            scope.user = provideUserInformation()
-        }
-    }
-
-    private fun provideUserInformation(): User {
-        return User().apply {
-            username = androidId
-        }
     }
 
     override fun onLowMemory() {
