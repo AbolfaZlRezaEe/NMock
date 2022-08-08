@@ -6,7 +6,6 @@ import androidx.room.PrimaryKey
 import me.abolfazl.nmock.model.database.mocks.MockCreationType
 import me.abolfazl.nmock.model.database.mocks.MockProvider
 import me.abolfazl.nmock.model.database.mocks.TYPE_CUSTOM_CREATION
-import me.abolfazl.nmock.utils.Constant
 
 @Entity(tableName = "mock_table")
 data class NormalMockEntity(

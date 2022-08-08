@@ -53,6 +53,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -60,6 +62,8 @@
             android:id="@+id/signInMaterialButton"
             android:layout_width="match_parent"
             android:layout_height="55dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:fontFamily="@font/roboto_medium"
             android:text="@string/signIn"
             android:textAllCaps="false"
@@ -71,6 +75,8 @@
             android:id="@+id/signUpMaterialButton"
             android:layout_width="match_parent"
             android:layout_height="55dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:fontFamily="@font/roboto_medium"
             android:text="@string/signUp"
             android:textAllCaps="false"

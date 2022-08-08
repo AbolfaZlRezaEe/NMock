@@ -89,7 +89,9 @@
         android:layout_gravity="center"
         android:fontFamily="@font/roboto_medium"
         android:text="@string/nothingToShowHere"
-        android:textColor="@color/colorPrimaryDark" />
+        android:textColor="@color/colorPrimaryDark"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contentRecyclerView"
