@@ -3,8 +3,10 @@ package me.abolfazl.nmock.repository.auth
 import android.content.SharedPreferences
 import io.sentry.Sentry
 import io.sentry.SentryLevel
+import io.sentry.protocol.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import me.abolfazl.nmock.di.UtilsModule
 import me.abolfazl.nmock.model.apiService.AuthApiService
 import me.abolfazl.nmock.repository.models.SignUpDataclass
 import me.abolfazl.nmock.utils.SHARED_AUTH_TOKEN
@@ -13,10 +15,13 @@ import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.SharedManager
 import me.abolfazl.nmock.utils.response.*
 import javax.inject.Inject
+import javax.inject.Named
 
 class AuthRepositoryImpl @Inject constructor(
     private val authApiService: AuthApiService,
     private val sharedPreferences: SharedPreferences,
+    @Named(UtilsModule.INJECT_STRING_ANDROID_ID)
+    private val androidId: String,
     private val logger: NMockLogger
 ) : AuthRepository {
 
@@ -55,6 +60,12 @@ class AuthRepositoryImpl @Inject constructor(
                     key = SHARED_AUTH_TOKEN,
                     value = result.token
                 )
+                Sentry.configureScope {
+                    val user: User = if (it.user != null) it.user!! else User()
+                    user.email = email
+                    user.id = androidId
+                    it.user = user
+                }
                 logger.writeLog(value = "token successfully received! we are going to save it!")
                 emit(Success(true))
             }
@@ -85,6 +96,11 @@ class AuthRepositoryImpl @Inject constructor(
         )
         if (response.isSuccessful) {
             logger.writeLog(value = "user successfully registered")
+            Sentry.configureScope {
+                val user = User()
+                user.username = "${signUpDataclass.firstName} ${signUpDataclass.lastName}"
+                it.user = user
+            }
             signIn(
                 email = signUpDataclass.email,
                 password = signUpDataclass.password

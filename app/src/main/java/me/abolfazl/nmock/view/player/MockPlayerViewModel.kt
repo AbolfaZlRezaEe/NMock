@@ -42,11 +42,8 @@ class MockPlayerViewModel @Inject constructor(
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        logger.writeLog(value = "Exception thrown in MockPlayerViewModel: ${throwable.message}")
-        logger.captureEventWithLogFile(
-            fromExceptionHandler = true,
+        logger.captureExceptionWithLogFile(
             message = "Exception thrown in MockPlayerViewModel: ${throwable.message}",
-            sentryEventLevel = SentryLevel.ERROR
         )
         viewModelScope.launch {
             _oneTimeEmitter.emit(

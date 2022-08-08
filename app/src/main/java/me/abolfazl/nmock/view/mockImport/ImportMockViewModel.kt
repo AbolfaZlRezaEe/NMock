@@ -3,7 +3,6 @@ package me.abolfazl.nmock.view.mockImport
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.sentry.SentryLevel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,11 +41,8 @@ class ImportMockViewModel @Inject constructor(
     val oneTimeEmitter = _oneTimeEmitter.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        logger.writeLog(value = "Exception thrown in ImportMockViewModel: ${throwable.message}")
-        logger.captureEventWithLogFile(
-            fromExceptionHandler = true,
+        logger.captureExceptionWithLogFile(
             message = "Exception thrown in ImportMockViewModel: ${throwable.message}",
-            sentryEventLevel = SentryLevel.ERROR
         )
         viewModelScope.launch {
             _oneTimeEmitter.emit(
