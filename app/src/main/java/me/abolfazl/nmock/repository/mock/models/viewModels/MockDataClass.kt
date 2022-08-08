@@ -8,7 +8,7 @@ import org.neshan.common.model.LatLng
 data class MockDataClass(
     var id: Long? = null,
     @MockDatabaseType val mockDatabaseType: String?,
-    val name: String,
+    var name: String,
     val description: String,
     val originLocation: LatLng,
     val destinationLocation: LatLng,

@@ -85,6 +85,14 @@ class ImportMockViewModel @Inject constructor(
         }
     }
 
+    fun setImportedMockTitle(
+        title: String?
+    ) {
+        if (title != null) {
+            _importedMockState.value.mockImportedInformation?.getRawValue()?.name = title
+        }
+    }
+
     fun saveMockInformation(
         shouldOpenOnEditor: Boolean
     ) = viewModelScope.launch(exceptionHandler) {

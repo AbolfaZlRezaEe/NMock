@@ -527,7 +527,6 @@ class MockEditorActivity : AppCompatActivity() {
                 if (fromImplicitIntent) {
                     startActivity(Intent(this, HomeActivity::class.java))
                 }
-                viewModel.deleteMock()
                 dialog.dismiss()
                 this.finish()
             },

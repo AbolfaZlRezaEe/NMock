@@ -75,9 +75,15 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private fun initListeners() {
         /* We save the mock first in the database for passing that to MockEditorActivity and
            We read that in MockEditorActivity! */
-        binding.openInEditorMaterialButton.setOnClickListener { viewModel.saveMockInformation(true) }
+        binding.openInEditorMaterialButton.setOnClickListener {
+            viewModel.setImportedMockTitle(title = binding.titleTextInputEditText.text?.toString())
+            viewModel.saveMockInformation(true)
+        }
 
-        binding.saveMaterialButton.setOnClickListener { viewModel.saveMockInformation(false) }
+        binding.saveMaterialButton.setOnClickListener {
+            viewModel.setImportedMockTitle(title = binding.titleTextInputEditText.text?.toString())
+            viewModel.saveMockInformation(false)
+        }
     }
 
     private fun showMockInformationPreview(
