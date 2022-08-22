@@ -103,8 +103,6 @@
     <string name="password">Password</string>
     <string name="firstName">First name</string>
     <string name="lastName">Last name</string>
-    <string name="emailOrPasswordIsWrongMessage">Your email or password isn\'t correct!</string>
-    <string name="authExceptionMessage">We had a problem on getting data from server. please try again.</string>
     <string name="justTakeAMoment">Just take a moment…</string>
     <string name="gps">GPS</string>
     <string name="network">NETWORK</string>
@@ -129,4 +127,6 @@
     <string name="exportingMockProblem">Umm… we have a problem on sharing Mock. please try again…</string>
     <string name="jsonStructureProblemMessage">Your json file has a problem in structure. please check it and try again…</string>
     <string name="jsonParseProcessMessage">Umm… we have a problem on processing Mock json file. please try again…</string>
+    <string name="emailOrPasswordIsWrongMessage">Your email or password isn\'t correct!</string>
+    <string name="authExceptionMessage">We had a problem on getting data from server. please try again.</string>
 </resources>

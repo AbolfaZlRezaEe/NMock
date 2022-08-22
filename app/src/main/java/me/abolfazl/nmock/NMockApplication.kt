@@ -4,7 +4,6 @@ import android.app.Application
 import com.pusher.pushnotifications.PushNotifications
 import dagger.hilt.android.HiltAndroidApp
 import io.sentry.android.core.SentryAndroid
-import io.sentry.protocol.User
 import me.abolfazl.nmock.di.NetworkModule
 import me.abolfazl.nmock.di.UtilsModule
 import me.abolfazl.nmock.utils.Constant

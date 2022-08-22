@@ -12,8 +12,8 @@ import io.sentry.SentryLevel
 import io.sentry.protocol.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import me.abolfazl.nmock.di.UtilsModule
 import me.abolfazl.nmock.di.NetworkModule
+import me.abolfazl.nmock.di.UtilsModule
 import me.abolfazl.nmock.model.apiService.AuthApiService
 import me.abolfazl.nmock.repository.auth.models.SignUpDataclass
 import me.abolfazl.nmock.utils.SHARED_AUTH_TOKEN
@@ -23,7 +23,6 @@ import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.SharedManager
 import me.abolfazl.nmock.utils.response.*
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Named
 
 class AuthRepositoryImpl @Inject constructor(
@@ -199,10 +198,8 @@ class AuthRepositoryImpl @Inject constructor(
             tokenProvider,
             object : BeamsCallback<Void, PusherCallbackError> {
                 override fun onFailure(error: PusherCallbackError) {
-                    logger.captureEventWithLogFile(
-                        fromRepository = true,
-                        message = "We had an exception on set user id in pusher! ${error.message}",
-                        sentryEventLevel = SentryLevel.FATAL
+                    logger.captureExceptionWithLogFile(
+                        message = "We had an exception on set user id in pusher! ${error.message}"
                     )
                 }
 

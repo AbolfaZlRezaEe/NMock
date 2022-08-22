@@ -126,10 +126,9 @@ class AuthViewModel @Inject constructor(
 
     private fun actionMapper(exceptionType: Int): Int {
         return when (exceptionType) {
+            AuthRepositoryImpl.SIGNIN_PROCESS_FAILED_EXCEPTION,
             AuthRepositoryImpl.EMAIL_OR_PASSWORD_IS_NOT_VALID_EXCEPTION ->
                 SignInFragment.EMAIL_OR_PASSWORD_IS_NOT_VALID_MESSAGE
-            AuthRepositoryImpl.SIGNIN_PROCESS_FAILED_EXCEPTION ->
-                SignInFragment.SIGNIN_PROCESS_FAILED_MESSAGE
             AuthRepositoryImpl.SIGNUP_PROCESS_FAILED_EXCEPTION ->
                 SignUpFragment.SIGNUP_PROCESS_FAILED_MESSAGE
             else -> AuthActivity.UNKNOWN_ERROR_MESSAGE
