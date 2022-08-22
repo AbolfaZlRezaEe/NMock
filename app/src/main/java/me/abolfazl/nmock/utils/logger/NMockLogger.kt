@@ -3,11 +3,11 @@ package me.abolfazl.nmock.utils.logger
 import android.content.Context
 import android.content.SharedPreferences
 import io.sentry.Attachment
+import io.sentry.Breadcrumb
 import io.sentry.Sentry
 import io.sentry.SentryLevel
 import me.abolfazl.nmock.utils.SHARED_FIREBASE_TOKEN
 import me.abolfazl.nmock.utils.SHARED_LOG_CODE
-import me.abolfazl.nmock.utils.SHARED_LOG_TIME
 import me.abolfazl.nmock.utils.managers.SharedManager
 import timber.log.Timber
 import java.io.File
@@ -31,6 +31,9 @@ class NMockLogger constructor(
         private const val KEY_LOG_ANDROID_ID = "Android-Id"
         private const val KEY_LOG_END_TIME_TITLE = "END time/data"
         private const val KEY_LOG_FIREBASE_TOKEN = "Firebase Token"
+
+        // Sentry Tags keys
+        const val SENTRY_TAG_KEY_USER_ID = "UserId"
 
         private const val TIME_SEPARATOR =
             "***************************************************************************"
@@ -94,15 +97,25 @@ class NMockLogger constructor(
                 attachLogger(name, true)
             }
         }
+
         if (!loggerAttached && !attachingProcessDisabled) {
             throw IllegalStateException("Writing log into file was failed. you should attach logger to this class or you should disable log header!")
         }
+
         file?.let { nonNullFile ->
             var message = if (key != null) "${key}: $value" else value
             message = if (setTime) "${getRealTime()}-> $message" else message
             message = if (className != null && setClassName) "$className: $message" else message
             nonNullFile.appendText("${message}\n")
             Timber.i(message)
+        }
+
+        Sentry.configureScope {
+            val breadcrumb = Breadcrumb()
+            val message = if (className != null && setClassName) "$className: $value" else value
+            breadcrumb.message = message
+            breadcrumb.level = SentryLevel.INFO
+            it.addBreadcrumb(breadcrumb)
         }
     }
 
@@ -207,48 +220,6 @@ class NMockLogger constructor(
         file?.delete()
         file = null
         logsRemoved = true
-    }
-
-    private fun logCanSend(): Boolean {
-        if (logsRemoved || file == null) return false
-        val simpleDateFormat = SimpleDateFormat(SHARED_TIME_PATTERN)
-        val startTime = SharedManager.getString(
-            sharedPreferences = sharedPreferences,
-            key = SHARED_LOG_TIME,
-            defaultValue = null
-        )
-        if (startTime == null) {
-            SharedManager.putString(
-                sharedPreferences = sharedPreferences,
-                key = SHARED_LOG_TIME,
-                value = simpleDateFormat.format(calendar.time)
-            )
-            return true
-        }
-        val result = calculateTimes(
-            data1 = simpleDateFormat.parse(startTime),
-            data2 = simpleDateFormat.parse(simpleDateFormat.format(calendar.time))
-        )
-        if (result >= 1) {
-            // Save new time to shared...
-            SharedManager.putString(
-                sharedPreferences = sharedPreferences,
-                key = SHARED_LOG_TIME,
-                value = simpleDateFormat.format(calendar.time)
-            )
-        }
-        return result >= 1 // User can send report every one hour(avoiding to spam!)
-    }
-
-    private fun calculateTimes(
-        data1: Date?,
-        data2: Date?
-    ): Int {
-        if (data1 == null || data2 == null) return -1
-        val difference = data2.time - data1.time
-        val days = (difference / (1000 * 60 * 60 * 24)).toInt()
-        val hours = ((difference - (1000 * 60 * 60 * 24 * days)) / (1000 * 60 * 60)).toInt()
-        return if (hours < 0) -hours else hours
     }
 
     private fun getRealTime() = dataFormat.format(calendar.time)

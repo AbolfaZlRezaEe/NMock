@@ -51,12 +51,8 @@ class RoutingInfoRepositoryImpl @Inject constructor(
             )
             emit(Failure(UNKNOWN_EXCEPTION))
         } else {
-            logger.writeLog(
-                value = "getRoutingInformation was failed. response code is-> ${response.code()}"
-            )
-            Sentry.captureMessage(
-                "getRoutingInformation failed! response code is-> ${response.code()}",
-                SentryLevel.FATAL
+            logger.captureExceptionWithLogFile(
+                message = "getRoutingInformation was failed. response code is-> ${response.code()}"
             )
         }
     }
