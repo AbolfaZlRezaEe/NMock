@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_primary10">
+    android:background="@color/color_primary10"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -116,6 +118,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -125,6 +129,8 @@
             android:id="@+id/signInMaterialButton"
             android:layout_width="match_parent"
             android:layout_height="55dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:fontFamily="@font/roboto_medium"
             android:text="@string/signIn"
             android:textAllCaps="false"

@@ -9,6 +9,8 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -172,6 +174,8 @@
                 android:layout_gravity="bottom|center_horizontal"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/signUp"
                 android:textAllCaps="false"

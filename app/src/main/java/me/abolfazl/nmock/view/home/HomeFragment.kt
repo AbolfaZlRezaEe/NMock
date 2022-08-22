@@ -15,6 +15,7 @@ import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.archive.MockArchiveActivity
 import me.abolfazl.nmock.view.editor.MockEditorActivity
+import me.abolfazl.nmock.view.mockImport.MockImportActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -69,20 +70,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.mockImportMaterialButton.setOnClickListener {
-            showSnackBar(
-                message = resources.getString(R.string.comingSoon),
-                rootView = binding.root,
-                duration = Snackbar.LENGTH_LONG
-            )
-        }
-
-        binding.reportLogsMaterialButton.setOnClickListener {
-            logger.captureEventWithLogFile()
-            showSnackBar(
-                message = resources.getString(R.string.thankYouForYourHelp),
-                rootView = binding.root,
-                duration = Snackbar.LENGTH_SHORT
-            )
+            activity?.startActivity(Intent(activity, MockImportActivity::class.java))
         }
     }
 }

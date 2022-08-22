@@ -73,9 +73,11 @@ an important thing that these Sharedflows can do is when an action receives from
 
 ![error architecture](https://user-images.githubusercontent.com/73066290/172200355-c851739b-7dbd-4ce2-a419-22a66a0b2bf3.png)
 
-## Mock Export file structure
+## :arrow_left::arrow_right: Mock Import/Export file structure
 
 In some situations, you need to share your trip with your friends or your team workers. we have a feature that gives access you, to share your mock and send it everywhere you want. but what's the structure of this export file?
+
+### Exporting Structure
 
 as you maybe know, we save your mock trip and the state of that. for exporting the mock trip, we use **JSON** as a format of the file. the structure of this file is like this:
 
@@ -114,7 +116,7 @@ as you maybe know, we save your mock trip and the state of that. for exporting t
         "longitude": 51.34763,
         "time": 1658157488803,
         "elapsed_real_time": 1517906684490742
-      },...
+      },
     ]
   }
 }
@@ -131,6 +133,16 @@ as you maybe know, we save your mock trip and the state of that. for exporting t
 5. **route_information(Object)**: For saving route information and lines, we use this object for it. the important field of this object is **route_lines**. this object contains a list of positions that we should have for drawing lines on the map. every line has a **latitude** and **longitude** for its position.
 
 we save this file in the format of `.json`. you can share it everywhere you want. maybe you think how can we import it?
+
+### Importing structure
+
+as you can see in exporting section, you can share a `.json` file to your friends everywhere you want. for importing it, we can **Only** receive this `.json` file in the import section of the application(for the future, We have a plan for importing mocks in many ways!).
+
+We save this `Json` file information like normal mocks but in a different table in the application database. We also save some extra information like: `fileCreatedAt`, `fileOwner` and `versionCode` in imported mock table. the reason that We split these mocks from normal mocks that you create in the application is, maybe the information of imported mocks can be less than normal mocks in the future. also, We have a plan for a new UI to show imported mocks in a different place in the application. so we create a new place for saving these mocks to managing them very easily in the future.
+
+The structure of **Mock** model section of application is now like this:
+
+![mock model instruction](https://user-images.githubusercontent.com/73066290/183247981-327e3280-d966-4908-aa95-49f2ca74f5be.png)
 
 ## :bookmark_tabs: Tips that help you...
 

@@ -3,7 +3,6 @@ package me.abolfazl.nmock
 import android.app.Application
 import com.pusher.pushnotifications.PushNotifications
 import dagger.hilt.android.HiltAndroidApp
-import io.sentry.Sentry
 import io.sentry.android.core.SentryAndroid
 import io.sentry.protocol.User
 import me.abolfazl.nmock.di.NetworkModule
@@ -48,16 +47,6 @@ class NMockApplication : Application() {
             option.environment = if (BuildConfig.DEBUG) Constant.ENVIRONMENT_DEBUG
             else Constant.ENVIRONMENT_RELEASE
             option.tracesSampleRate = 1.0
-        }
-
-        Sentry.configureScope { scope ->
-            scope.user = provideUserInformation()
-        }
-    }
-
-    private fun provideUserInformation(): User {
-        return User().apply {
-            username = androidId
         }
     }
 

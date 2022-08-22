@@ -13,19 +13,10 @@ android {
         applicationId "me.abolfazl.nmock"
         minSdk 21
         targetSdk 31
-        versionCode 7
-        versionName "1.0.4-beta02"
+        versionCode 8
+        versionName "2.0.0"
         vectorDrawables.useSupportLibrary true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    splits {
-        abi {
-            enable true
-            reset()
-            include 'armeabi-v7a'
-            universalApk false
-        }
     }
 
     buildTypes {

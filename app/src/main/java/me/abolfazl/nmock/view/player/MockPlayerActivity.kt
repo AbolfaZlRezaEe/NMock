@@ -20,7 +20,8 @@ import io.sentry.SentryLevel
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockPlayerBinding
-import me.abolfazl.nmock.repository.mock.models.MockDataClass
+import me.abolfazl.nmock.model.database.DATABASE_TYPE_IMPORTED
+import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.*
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.*
@@ -56,6 +57,7 @@ class MockPlayerActivity : AppCompatActivity() {
 
     companion object {
         const val KEY_MOCK_ID_PLAYER = "MOCK_PLAYER_ID"
+        const val KEY_MOCK_IS_IMPORTED = "MOCK_IS_IMPORTED"
         const val RESET_COMMAND = "RESET_SERVICE!"
 
         // error messages
@@ -99,12 +101,18 @@ class MockPlayerActivity : AppCompatActivity() {
 
     private fun initViewsFromBundle() {
         var mockId = intent.getLongExtra(KEY_MOCK_ID_PLAYER, -1)
+        var mockIsImported = intent.getBooleanExtra(KEY_MOCK_IS_IMPORTED, false)
         if (mockId == -1L) {
             logger.writeLog(value = "We couldn't find mock id for loading information of that!")
             mockId = SharedManager.getLong(
                 sharedPreferences = sharedPreferences,
                 key = SHARED_MOCK_ID,
                 defaultValue = -1L
+            )
+            mockIsImported = SharedManager.getBoolean(
+                sharedPreferences = sharedPreferences,
+                key = SHARED_MOCK_IS_IMPORTED,
+                defaultValue = false
             )
             fromNotificationOpened = true
             if (mockId == -1L) {
@@ -121,7 +129,10 @@ class MockPlayerActivity : AppCompatActivity() {
             }
         }
         showProgressbar(true)
-        viewModel.getMockInformation(mockId)
+        viewModel.getMockInformation(
+            mockId = mockId,
+            mockIsImported = mockIsImported
+        )
     }
 
     private val serviceConnection = object : ServiceConnection {
@@ -241,7 +252,7 @@ class MockPlayerActivity : AppCompatActivity() {
         LineManager.drawLineOnMap(
             mapView = binding.mapview,
             polylineLayer = polylineLayer,
-            vector = mockInformation.lineVector
+            vector = mockInformation.lineVector!!
         )
         CameraManager.moveCameraToTripLine(
             mapView = binding.mapview,
@@ -256,6 +267,11 @@ class MockPlayerActivity : AppCompatActivity() {
             sharedPreferences = sharedPreferences,
             key = SHARED_MOCK_ID,
             value = mockInformation.id!!
+        )
+        SharedManager.putBoolean(
+            sharedPreferences = sharedPreferences,
+            key = SHARED_MOCK_IS_IMPORTED,
+            value = mockInformation.mockDatabaseType == DATABASE_TYPE_IMPORTED
         )
     }
 
@@ -360,7 +376,7 @@ class MockPlayerActivity : AppCompatActivity() {
             title = viewModel.mockPlayerState.value.mockInformation?.name!!,
             description = viewModel.mockPlayerState.value.mockInformation?.description!!,
             provider = viewModel.mockPlayerState.value.mockInformation?.provider!!,
-            type = viewModel.mockPlayerState.value.mockInformation?.type!!,
+            type = viewModel.mockPlayerState.value.mockInformation?.creationType!!,
             createdAt = viewModel.mockPlayerState.value.mockInformation?.createdAt!!,
             updatedAt = viewModel.mockPlayerState.value.mockInformation?.updatedAt!!
         )
@@ -462,9 +478,13 @@ class MockPlayerActivity : AppCompatActivity() {
             onActionButtonClicked = {
                 logger.writeLog(value = "User stop the mock!")
                 mockPlayerService?.stopIdleService()
-                SharedManager.deleteLong(
+                SharedManager.deleteParameterFromShared(
                     sharedPreferences = sharedPreferences,
                     key = SHARED_MOCK_ID
+                )
+                SharedManager.deleteParameterFromShared(
+                    sharedPreferences = sharedPreferences,
+                    key = SHARED_MOCK_IS_IMPORTED
                 )
                 dialog.dismiss()
                 this.finish()

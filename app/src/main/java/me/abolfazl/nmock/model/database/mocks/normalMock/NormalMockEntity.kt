@@ -1,20 +1,20 @@
-package me.abolfazl.nmock.model.database.models
+package me.abolfazl.nmock.model.database.mocks.normalMock
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import me.abolfazl.nmock.model.database.MockProvider
-import me.abolfazl.nmock.model.database.MockType
-import me.abolfazl.nmock.utils.Constant
+import me.abolfazl.nmock.model.database.mocks.MockCreationType
+import me.abolfazl.nmock.model.database.mocks.MockProvider
+import me.abolfazl.nmock.model.database.mocks.TYPE_CUSTOM_CREATION
 
 @Entity(tableName = "mock_table")
-data class MockEntity(
+data class NormalMockEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Long? = null,
     @ColumnInfo(name = "mock_type")
-    @MockType
-    val type: String = Constant.TYPE_CUSTOM_CREATE,
+    @MockCreationType
+    val creationType: String = TYPE_CUSTOM_CREATION,
     @ColumnInfo(name = "mock_name")
     val name: String,
     @ColumnInfo(name = "description")
