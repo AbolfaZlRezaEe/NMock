@@ -42,12 +42,8 @@ class LocationInfoRepositoryImpl @Inject constructor(
             )
             emit(Failure(UNKNOWN_EXCEPTION))
         } else {
-            logger.writeLog(
-                value = "getLocationInformation was failed. response code is-> ${response.code()}"
-            )
-            Sentry.captureMessage(
-                "getLocationInformation failed! response code is-> ${response.code()}",
-                SentryLevel.FATAL
+            logger.captureExceptionWithLogFile(
+                message = "getLocationInformation was failed. response code is-> ${response.code()}"
             )
         }
     }

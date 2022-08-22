@@ -8,7 +8,6 @@ import com.pusher.pushnotifications.auth.AuthData
 import com.pusher.pushnotifications.auth.AuthDataGetter
 import com.pusher.pushnotifications.auth.BeamsTokenProvider
 import io.sentry.Sentry
-import io.sentry.SentryLevel
 import io.sentry.protocol.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,6 +17,7 @@ import me.abolfazl.nmock.model.apiService.AuthApiService
 import me.abolfazl.nmock.repository.auth.models.SignUpDataclass
 import me.abolfazl.nmock.utils.SHARED_AUTH_TOKEN
 import me.abolfazl.nmock.utils.SHARED_USER_ID_TOKEN
+import me.abolfazl.nmock.utils.getMessage
 import me.abolfazl.nmock.utils.isValidEmail
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.SharedManager
@@ -82,13 +82,9 @@ class AuthRepositoryImpl @Inject constructor(
         } else {
             if (response.code() == LOGIN_FAILED_HTTP_CODE) {
                 emit(Failure(SIGNIN_PROCESS_FAILED_EXCEPTION))
-                logger.writeLog(value = "email or password is wrong!")
+                logger.writeLog(value = response.getMessage())
             } else {
-                logger.writeLog(value = "unknown exception thrown from server for signIn. exception-> ${response.errorBody()}")
-                Sentry.captureMessage(
-                    "unknown exception thrown from server for signIn. exception-> ${response.errorBody()}",
-                    SentryLevel.FATAL
-                )
+                logger.captureExceptionWithLogFile(message = response.getMessage())
                 emit(Failure(UNKNOWN_EXCEPTION))
             }
         }
@@ -127,11 +123,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
         } else {
             emit(Failure(SIGNUP_PROCESS_FAILED_EXCEPTION))
-            logger.writeLog(value = "unknown exception thrown from server for signUp. exception-> ${response.errorBody()}")
-            Sentry.captureMessage(
-                "unknown exception thrown from server for signUp. exception-> ${response.errorBody()}",
-                SentryLevel.FATAL
-            )
+            logger.captureExceptionWithLogFile(message = response.getMessage())
         }
     }
 
@@ -157,6 +149,9 @@ class AuthRepositoryImpl @Inject constructor(
                     key = SHARED_USER_ID_TOKEN,
                     value = userInformation.userId
                 )
+                Sentry.configureScope {
+                    it.setTag(NMockLogger.SENTRY_TAG_KEY_USER_ID, userInformation.userId.toString())
+                }
                 initializePusher(
                     userToken = provideUserToken(token),
                     userId = userInformation.userId.toString()
@@ -165,11 +160,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
             return false
         } else {
-            logger.writeLog(value = "unknown exception thrown from server for loadUserInformation. exception-> ${response.errorBody()}")
-            Sentry.captureMessage(
-                "unknown exception thrown from server for loadUserInformation. exception-> ${response.errorBody()}",
-                SentryLevel.FATAL
-            )
+            logger.captureExceptionWithLogFile(message = response.getMessage())
             return false
         }
     }

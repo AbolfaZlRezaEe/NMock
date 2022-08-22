@@ -9,7 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import org.json.JSONObject
 import org.neshan.common.model.LatLng
+import retrofit2.Response
 import java.io.File
 import kotlin.math.ceil
 
@@ -85,3 +87,9 @@ fun CharSequence.isValidEmail() =
 val File.size get() = if (!exists()) 0.0 else length().toDouble()
 val File.sizeInKb get() = size / 1024
 val File.sizeInMb get() = sizeInKb / 1024
+
+fun <T> Response<T>.getMessage(): String {
+    val errorObject = this.errorBody()?.charStream()?.readText()
+    return if (errorObject == null) "We had an exception and the message was null! :/"
+    else JSONObject(errorObject).getString("message")
+}

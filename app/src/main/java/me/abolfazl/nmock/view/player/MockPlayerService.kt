@@ -252,9 +252,11 @@ class MockPlayerService : Service(), LocationListener {
                         startCreatingMockLocations()
                     }, delay.toLong())
                 }
-            } catch (e: Exception) {
-                logger.writeLog(value = "We have a problem on processing mock location! exception-> ${e.message}")
-                Sentry.captureException(e)
+            } catch (exception: Exception) {
+                if (exception !is SecurityException){
+                    Sentry.captureException(exception)
+                }
+                logger.writeLog(value = "We have a problem on processing mock location! exception-> ${exception.message}")
                 locationListener?.invoke(
                     null, OneTimeEmitter(
                         actionId = ACTION_DEVELOPER_OPTION_PROBLEM,
