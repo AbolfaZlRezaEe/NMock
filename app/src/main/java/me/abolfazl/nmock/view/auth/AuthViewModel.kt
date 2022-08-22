@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.repository.auth.AuthRepository
 import me.abolfazl.nmock.repository.auth.AuthRepositoryImpl
-import me.abolfazl.nmock.repository.models.SignUpDataclass
+import me.abolfazl.nmock.repository.auth.models.SignUpDataclass
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
@@ -26,6 +26,8 @@ class AuthViewModel @Inject constructor(
         const val ACTION_UNKNOWN = "UNKNOWN_EXCEPTION"
         const val ACTION_AUTH_SUCCESSFULLY = "AUTH_SUCCESSFULLY"
         const val ACTION_AUTH_FAILED = "AUTH_FAILED"
+        const val ACTION_USER_LOGGED_IN = "USER_LOGGED_IN"
+        const val ACTION_USER_DOES_NOT_LOGGED_IN = "USER_DOES_NOT_LOGGED_IN"
     }
 
     // for errors and actions..
@@ -111,16 +113,22 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun isUserLoggedIn(): Boolean {
-        return authRepository.isUserLoggedIn()
+    fun isUserLoggedIn() = viewModelScope.launch(exceptionHandler) {
+        val result = authRepository.isUserLoggedIn()
+        val actionId = if (result) ACTION_USER_LOGGED_IN else ACTION_USER_DOES_NOT_LOGGED_IN
+        _oneTimeEmitter.emit(
+            OneTimeEmitter(
+                actionId = actionId,
+                message = 0
+            )
+        )
     }
 
     private fun actionMapper(exceptionType: Int): Int {
         return when (exceptionType) {
+            AuthRepositoryImpl.SIGNIN_PROCESS_FAILED_EXCEPTION,
             AuthRepositoryImpl.EMAIL_OR_PASSWORD_IS_NOT_VALID_EXCEPTION ->
                 SignInFragment.EMAIL_OR_PASSWORD_IS_NOT_VALID_MESSAGE
-            AuthRepositoryImpl.SIGNIN_PROCESS_FAILED_EXCEPTION ->
-                SignInFragment.SIGNIN_PROCESS_FAILED_MESSAGE
             AuthRepositoryImpl.SIGNUP_PROCESS_FAILED_EXCEPTION ->
                 SignUpFragment.SIGNUP_PROCESS_FAILED_MESSAGE
             else -> AuthActivity.UNKNOWN_ERROR_MESSAGE

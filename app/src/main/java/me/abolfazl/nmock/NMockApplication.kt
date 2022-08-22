@@ -1,8 +1,10 @@
 package me.abolfazl.nmock
 
 import android.app.Application
+import com.pusher.pushnotifications.PushNotifications
 import dagger.hilt.android.HiltAndroidApp
 import io.sentry.android.core.SentryAndroid
+import me.abolfazl.nmock.di.NetworkModule
 import me.abolfazl.nmock.di.UtilsModule
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.logger.NMockLogger
@@ -21,6 +23,10 @@ class NMockApplication : Application() {
     @Named(UtilsModule.INJECT_STRING_ANDROID_ID)
     lateinit var androidId: String
 
+    @Inject
+    @Named(NetworkModule.PUSHER_INSTANCE_ID_NAME)
+    lateinit var pusherInstanceId: String
+
     override fun onCreate() {
         super.onCreate()
 
@@ -29,6 +35,8 @@ class NMockApplication : Application() {
         logger.attachLogger(javaClass.simpleName)
 
         initializeSentry()
+
+        PushNotifications.start(applicationContext, pusherInstanceId);
     }
 
     private fun initializeSentry() {

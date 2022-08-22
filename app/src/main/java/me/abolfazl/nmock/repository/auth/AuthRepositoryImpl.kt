@@ -1,15 +1,23 @@
 package me.abolfazl.nmock.repository.auth
 
 import android.content.SharedPreferences
+import com.pusher.pushnotifications.BeamsCallback
+import com.pusher.pushnotifications.PushNotifications
+import com.pusher.pushnotifications.PusherCallbackError
+import com.pusher.pushnotifications.auth.AuthData
+import com.pusher.pushnotifications.auth.AuthDataGetter
+import com.pusher.pushnotifications.auth.BeamsTokenProvider
 import io.sentry.Sentry
 import io.sentry.SentryLevel
 import io.sentry.protocol.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import me.abolfazl.nmock.di.NetworkModule
 import me.abolfazl.nmock.di.UtilsModule
 import me.abolfazl.nmock.model.apiService.AuthApiService
-import me.abolfazl.nmock.repository.models.SignUpDataclass
+import me.abolfazl.nmock.repository.auth.models.SignUpDataclass
 import me.abolfazl.nmock.utils.SHARED_AUTH_TOKEN
+import me.abolfazl.nmock.utils.SHARED_USER_ID_TOKEN
 import me.abolfazl.nmock.utils.isValidEmail
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.SharedManager
@@ -22,6 +30,8 @@ class AuthRepositoryImpl @Inject constructor(
     private val sharedPreferences: SharedPreferences,
     @Named(UtilsModule.INJECT_STRING_ANDROID_ID)
     private val androidId: String,
+    @Named(NetworkModule.BEAMS_AUTH_URL_INSTANCE)
+    private val beamsAuthURL: String,
     private val logger: NMockLogger
 ) : AuthRepository {
 
@@ -125,11 +135,82 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun isUserLoggedIn(): Boolean {
-        return SharedManager.getString(
+    override suspend fun isUserLoggedIn(): Boolean {
+        val userToken = SharedManager.getString(
             sharedPreferences = sharedPreferences,
             key = SHARED_AUTH_TOKEN,
             defaultValue = null
-        ) != null
+        ) ?: return false
+
+        return loadUserInformation(token = userToken)
     }
+
+    private suspend fun loadUserInformation(
+        token: String
+    ): Boolean {
+        val response = authApiService.getUserInformation(provideUserToken(token))
+        if (response.isSuccessful) {
+            response.body()?.let { userInformation ->
+                logger.writeLog(value = "We receive user information successfully! userId-> ${userInformation.userId}")
+                SharedManager.putInt(
+                    sharedPreferences = sharedPreferences,
+                    key = SHARED_USER_ID_TOKEN,
+                    value = userInformation.userId
+                )
+                initializePusher(
+                    userToken = provideUserToken(token),
+                    userId = userInformation.userId.toString()
+                )
+                return true
+            }
+            return false
+        } else {
+            logger.writeLog(value = "unknown exception thrown from server for loadUserInformation. exception-> ${response.errorBody()}")
+            Sentry.captureMessage(
+                "unknown exception thrown from server for loadUserInformation. exception-> ${response.errorBody()}",
+                SentryLevel.FATAL
+            )
+            return false
+        }
+    }
+
+    private fun initializePusher(
+        userToken: String,
+        userId: String
+    ) {
+        val tokenProvider = BeamsTokenProvider(
+            beamsAuthURL,
+            object : AuthDataGetter {
+                override fun getAuthData(): AuthData {
+                    return AuthData(
+                        headers = hashMapOf(
+                            NetworkModule.AUTH_HEADER_ACCEPT_KEY to NetworkModule.AUTH_HEADER_VALUE_ACCEPT,
+                            NetworkModule.AUTH_HEADER_AUTHORIZATION_KEY to userToken
+                        ),
+                        queryParams = hashMapOf()
+                    )
+                }
+            }
+        )
+
+        PushNotifications.setUserId(
+            userId,
+            tokenProvider,
+            object : BeamsCallback<Void, PusherCallbackError> {
+                override fun onFailure(error: PusherCallbackError) {
+                    logger.captureExceptionWithLogFile(
+                        message = "We had an exception on set user id in pusher! ${error.message}"
+                    )
+                }
+
+                override fun onSuccess(vararg values: Void) {
+                    logger.writeLog(value = "We successfully set user id for the user!")
+                }
+            }
+        )
+    }
+
+    private fun provideUserToken(
+        rawToken: String
+    ): String = "Bearer $rawToken"
 }
