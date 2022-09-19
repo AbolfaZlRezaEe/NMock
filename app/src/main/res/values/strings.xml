@@ -116,6 +116,7 @@
     <string name="submit">Submit</string>
     <string name="openInEditor">Open in editor</string>
     <string name="pleaseWait">Please wait…</string>
+    <string name="outOfIranGeocodingMessage">Unfortunately, Our service can\'t provide addresses for locations that are out of Iran. but you can still save and use your mocks!</string>
 
     <!-- Exception messages -->
     <string name="unknownException">Unexpected Error occurred! Please try again…</string>

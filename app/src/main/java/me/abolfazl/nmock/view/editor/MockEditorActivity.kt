@@ -1,6 +1,7 @@
 package me.abolfazl.nmock.view.editor
 
 import android.Manifest
+import android.animation.Animator
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -436,6 +437,25 @@ class MockEditorActivity : AppCompatActivity() {
                 )
                 Handler(Looper.getMainLooper()).postDelayed({ this.finish() }, 3000)
             }
+            MockEditorViewModel.ACTION_LOCATION_INFORMATION -> {
+                if (response.message != 0) {
+                    // normal exceptions thrown
+                    showSnackBar(
+                        message = resources.getString(response.message),
+                        rootView = binding.root,
+                        duration = Snackbar.LENGTH_SHORT
+                    )
+                } else {
+                    // out of iran exception thrown
+                    binding.outOfIranHelperTextMaterialCardView.alpha = 0f
+                    binding.outOfIranHelperTextMaterialCardView.visibility = View.VISIBLE
+                    showAnimationForHelperBox(true) {
+                        showAnimationForHelperBox(false) {
+                            binding.outOfIranHelperTextMaterialCardView.visibility = View.GONE
+                        }
+                    }
+                }
+            }
             else -> {
                 showSnackBar(
                     message = resources.getString(response.message),
@@ -640,6 +660,36 @@ class MockEditorActivity : AppCompatActivity() {
             binding.mapview.removePolyline(polyline)
         }
         polylineLayer.clear()
+    }
+
+    private fun showAnimationForHelperBox(show: Boolean, animationEndedListener: () -> Unit) {
+        if (show) {
+            binding.outOfIranHelperTextMaterialCardView.animate()
+                .alpha(1f)
+                .setListener(object : Animator.AnimatorListener {
+                    override fun onAnimationStart(p0: Animator?) {}
+                    override fun onAnimationEnd(p0: Animator?) {
+                        animationEndedListener.invoke()
+                    }
+
+                    override fun onAnimationCancel(p0: Animator?) {}
+                    override fun onAnimationRepeat(p0: Animator?) {}
+                })
+        } else {
+            binding.outOfIranHelperTextMaterialCardView.postDelayed({
+                binding.outOfIranHelperTextMaterialCardView.animate()
+                    .alpha(0f)
+                    .setListener(object : Animator.AnimatorListener {
+                        override fun onAnimationStart(p0: Animator?) {}
+                        override fun onAnimationEnd(p0: Animator?) {
+                            animationEndedListener.invoke()
+                        }
+
+                        override fun onAnimationCancel(p0: Animator?) {}
+                        override fun onAnimationRepeat(p0: Animator?) {}
+                    })
+            }, 5000)
+        }
     }
 
     override fun onResume() {

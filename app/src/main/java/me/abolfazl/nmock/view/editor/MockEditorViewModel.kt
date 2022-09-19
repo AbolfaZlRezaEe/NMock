@@ -347,6 +347,7 @@ class MockEditorViewModel @Inject constructor(
 
     private fun actionMapper(errorType: Int): Int {
         return when (errorType) {
+            LocationInfoRepositoryImpl.OUT_OF_IRAN_EXCEPTION -> 0
             LocationInfoRepositoryImpl.UNKNOWN_EXCEPTION -> MockEditorActivity.LOCATION_INFORMATION_EXCEPTION_MESSAGE
             RoutingInfoRepositoryImpl.UNKNOWN_EXCEPTION -> MockEditorActivity.ROUTE_INFORMATION_EXCEPTION_MESSAGE
             MockRepositoryImpl.LINE_VECTOR_NULL_EXCEPTION,
