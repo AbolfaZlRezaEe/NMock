@@ -20,6 +20,9 @@ class LocationInfoRepositoryImpl @Inject constructor(
 
     companion object {
         const val UNKNOWN_EXCEPTION = 110
+        const val OUT_OF_IRAN_EXCEPTION = 111
+
+        const val RESPONSE_CODE_OUT_OF_IRAN = 470;
     }
 
     init {
@@ -45,6 +48,11 @@ class LocationInfoRepositoryImpl @Inject constructor(
             logger.captureExceptionWithLogFile(
                 message = "getLocationInformation was failed. response code is-> ${response.code()}"
             )
+            if (response.code() == RESPONSE_CODE_OUT_OF_IRAN) {
+                emit(Failure(OUT_OF_IRAN_EXCEPTION))
+            } else {
+                emit(Failure(UNKNOWN_EXCEPTION))
+            }
         }
     }
 
