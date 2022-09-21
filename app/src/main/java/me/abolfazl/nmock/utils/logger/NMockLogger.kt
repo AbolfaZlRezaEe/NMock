@@ -8,6 +8,7 @@ import io.sentry.Sentry
 import io.sentry.SentryLevel
 import me.abolfazl.nmock.utils.SHARED_FIREBASE_TOKEN
 import me.abolfazl.nmock.utils.SHARED_LOG_CODE
+import me.abolfazl.nmock.utils.managers.FileManager
 import me.abolfazl.nmock.utils.managers.SharedManager
 import timber.log.Timber
 import java.io.File
@@ -61,28 +62,14 @@ class NMockLogger constructor(
 
     private fun initializeLoggerPlace() {
         try {
-            createDirectoryIfNotExist()
-            file = createFileIfNotExist()
+            FileManager.checkDirectoryExistAndCreateIfNot(directoryPath)
+            file = FileManager.checkFileExistAndCreateIfNot(filePath)
             if (logsRemoved) logsRemoved = false
         } catch (exception: Exception) {
             // todo: try to reinitialize that...
             Sentry.captureMessage("we couldn't create file/directory. message was-> ${exception.message}")
             exception.printStackTrace()
         }
-    }
-
-    private fun createDirectoryIfNotExist() {
-        val directory = File(directoryPath)
-        if (directory.exists() && directory.isDirectory) return
-        directory.mkdir()
-    }
-
-    private fun createFileIfNotExist(): File {
-        val file = File(filePath)
-        if (!file.exists()) {
-            file.createNewFile()
-        }
-        return file
     }
 
     fun writeLog(
