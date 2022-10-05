@@ -16,6 +16,5 @@ local.properties
 /.idea/
 /release/
 /attachment/
-/app/google-services.json
 /Key/NMockKey.jks
 /Key/

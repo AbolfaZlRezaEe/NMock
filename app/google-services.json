@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "274800470901",
+    "project_id": "nmock-e12c2",
+    "storage_bucket": "nmock-e12c2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274800470901:android:fef7abf02a552f132a013c",
+        "android_client_info": {
+          "package_name": "me.abolfazl.nmock"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "274800470901-io3ntvq7fiu8sjkh91ibc5tscggrt77c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "me.abolfazl.nmock",
+            "certificate_hash": "0cfe96da045374b9e3b16c24e9a9de891e4d4d02"
+          }
+        },
+        {
+          "client_id": "274800470901-lh9q0227581cq7jl3185mg2femqek0on.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpQXAr-FQpMaE0yn630SNReYCc71x3fZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "274800470901-lh9q0227581cq7jl3185mg2femqek0on.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
