@@ -1,11 +1,10 @@
-- name: Build & Publish Debug APK
-  uses: ShaunLWM/action-release-debugapk@0.0.7
+name: Build & Publish Debug APK
 
 
 on:
-  push:
-    branches:
-      - action-process
+ push:
+  branches:
+   - master
 
 jobs:
   build:
