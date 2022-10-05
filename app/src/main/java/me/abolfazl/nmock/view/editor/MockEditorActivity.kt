@@ -25,6 +25,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockEditorBinding
+import me.abolfazl.nmock.di.ReceiverModule
+import me.abolfazl.nmock.receiver.GPSBroadcastReceiver
 import me.abolfazl.nmock.utils.*
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.*
@@ -39,6 +41,7 @@ import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
 import javax.inject.Inject
+import javax.inject.Named
 
 @AndroidEntryPoint
 class MockEditorActivity : AppCompatActivity() {
@@ -69,6 +72,12 @@ class MockEditorActivity : AppCompatActivity() {
 
     private var mockSaverDialog: SaveMockBottomSheetDialogFragment? = null
     private var fromImplicitIntent = false
+
+    @Inject
+    @Named(ReceiverModule.GPS_LISTENER_RECEIVER)
+    lateinit var gpsBroadcastReceiver: GPSBroadcastReceiver
+
+    private var gpsSnackBar: Snackbar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,10 +139,12 @@ class MockEditorActivity : AppCompatActivity() {
     private fun managePermissions(): Boolean {
         if (PermissionManager.permissionsIsGranted(this)) {
             return if (PermissionManager.locationIsEnabled(this)) {
+                logger.writeLog(value = "GPS is turned on!")
+                gpsSnackBar?.dismiss()
                 true
             } else {
                 logger.writeLog(value = "User should be turn on the location in phone!")
-                showSnackBar(
+                gpsSnackBar = showSnackBar(
                     message = resources.getString(R.string.pleaseTurnOnLocation),
                     rootView = binding.root,
                     duration = Snackbar.LENGTH_INDEFINITE,
@@ -141,6 +152,7 @@ class MockEditorActivity : AppCompatActivity() {
                 ) {
                     startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                 }
+                initializeGPSReceiver()
                 false
             }
         } else {
@@ -171,6 +183,14 @@ class MockEditorActivity : AppCompatActivity() {
             }
             return false
         }
+    }
+
+    private fun initializeGPSReceiver() {
+        gpsBroadcastReceiver.setLocationStateChangeListener {
+            // We check the location with a little delay because system may not updated yet!
+            Handler(Looper.getMainLooper()).postDelayed(this::attachToLocationService, 500)
+        }
+        gpsBroadcastReceiver.registerReceiver(this)
     }
 
     private fun handlingIntent() {
@@ -495,17 +515,19 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onCurrentLocationClicked() {
-        if (locationServiceIsAlive && mockLocationService != null) {
-            if (mockLocationService?.getLastLocation() == null) return
-            CameraManager.focusOnUserLocation(
-                mapView = binding.mapview,
-                location = LatLng(
-                    mockLocationService?.getLastLocation()?.latitude!!,
-                    mockLocationService?.getLastLocation()?.longitude!!
+        if (managePermissions()) {
+            if (locationServiceIsAlive && mockLocationService != null) {
+                if (mockLocationService?.getLastLocation() == null) return
+                CameraManager.focusOnUserLocation(
+                    mapView = binding.mapview,
+                    location = LatLng(
+                        mockLocationService?.getLastLocation()?.latitude!!,
+                        mockLocationService?.getLastLocation()?.longitude!!
+                    )
                 )
-            )
-        } else {
-            attachToLocationService()
+            } else {
+                attachToLocationService()
+            }
         }
     }
 
@@ -696,7 +718,7 @@ class MockEditorActivity : AppCompatActivity() {
         if (locationServiceIsAlive) {
             mockLocationService?.startProvidingLocation()
         } else {
-            attachToLocationService()
+            gpsBroadcastReceiver.registerReceiver(this)
         }
         super.onResume()
     }
@@ -705,6 +727,7 @@ class MockEditorActivity : AppCompatActivity() {
         if (locationServiceIsAlive) {
             mockLocationService?.stopProvidingLocation()
         }
+        gpsBroadcastReceiver.unregisterReceiver(this)
         super.onPause()
     }
 

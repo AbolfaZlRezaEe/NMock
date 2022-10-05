@@ -39,7 +39,7 @@ fun showSnackBar(
     @BaseTransientBottomBar.Duration duration: Int,
     actionText: String? = null,
     actionListener: View.OnClickListener? = null
-) {
+): Snackbar {
     val snackBar = Snackbar.make(
         rootView, message, duration
     )
@@ -47,6 +47,7 @@ fun showSnackBar(
         snackBar.setAction(actionText, actionListener)
     }
     snackBar.show()
+    return snackBar
 }
 
 fun <T> AppCompatActivity.isServiceStillRunning(service: Class<T>): Boolean {
