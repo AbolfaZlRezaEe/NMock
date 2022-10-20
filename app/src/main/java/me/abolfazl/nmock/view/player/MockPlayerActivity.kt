@@ -226,7 +226,7 @@ class MockPlayerActivity : AppCompatActivity() {
         binding.destinationTextView.text =
             mockInformation.destinationAddress?.changeStringTo(resources.getString(R.string.to))
                 ?: resources.getString(R.string.unknownAddress)
-        LineManager.drawLineOnMap(
+        PolylineManager.drawLineOnMap(
             mapView = binding.mapview,
             polylineLayer = polylineLayer,
             vector = mockInformation.lineVector!!
@@ -249,7 +249,7 @@ class MockPlayerActivity : AppCompatActivity() {
             binding.mapview.addMarker(originMarker)
             binding.mapview.addMarker(destinationMarker)
         }
-        LineManager.drawLineOnMap(
+        PolylineManager.drawLineOnMap(
             mapView = binding.mapview,
             polylineLayer = polylineLayer,
             vector = mockInformation.lineVector!!

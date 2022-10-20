@@ -21,7 +21,7 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentImportPreviewBinding
 import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.managers.CameraManager
-import me.abolfazl.nmock.utils.managers.LineManager
+import me.abolfazl.nmock.utils.managers.PolylineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
 import me.abolfazl.nmock.utils.toPixel
 
@@ -112,7 +112,7 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
             context = context,
             elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER
         )
-        LineManager.drawLineOnMap(
+        PolylineManager.drawLineOnMap(
             mapView = binding.mapview,
             vector = mockDataClass.lineVector!!,
         )

@@ -20,6 +20,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.carto.core.ScreenPos
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -38,13 +41,12 @@ import me.abolfazl.nmock.view.player.MockPlayerActivity
 import me.abolfazl.nmock.view.player.MockPlayerService
 import me.abolfazl.nmock.view.saverDialog.SaveMockBottomSheetDialogFragment
 import org.neshan.common.model.LatLng
-import org.neshan.mapsdk.model.Marker
 import org.neshan.mapsdk.model.Polyline
 import javax.inject.Inject
 import javax.inject.Named
 
 @AndroidEntryPoint
-class MockEditorActivity : AppCompatActivity() {
+class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         const val KEY_MOCK_INFORMATION = "MOCK_INFORMATION"
@@ -63,9 +65,20 @@ class MockEditorActivity : AppCompatActivity() {
     @Inject
     lateinit var logger: NMockLogger
 
+    // Map
+    private lateinit var mapView: GoogleMap
+
+    // Map Markers
+    private var currentUserLocationMarker: com.google.android.gms.maps.model.Marker? = null
+    private var originMarker: com.google.android.gms.maps.model.Marker? = null
+    private var destinationMarker: com.google.android.gms.maps.model.Marker? = null
+
+    // Polyline
+    private var tripPolyline: com.google.android.gms.maps.model.Polyline? = null
+
     // Layers
-    private val markerLayer = ArrayList<Marker>()
-    private val polylineLayer = ArrayList<Polyline>()
+//    private val markerLayer = ArrayList<MarkerOptions>()
+//    private val polylineLayer = ArrayList<Polyline>()
 
     private var mockLocationService: MockLocationService? = null
     private var locationServiceIsAlive: Boolean = false
@@ -87,6 +100,20 @@ class MockEditorActivity : AppCompatActivity() {
 
         logger.disableLogHeaderForThisClass()
         logger.setClassInformationForEveryLog(javaClass.simpleName)
+
+        attachMapToView()
+    }
+
+    private fun attachMapToView() {
+        val mapFragment = SupportMapFragment.newInstance(MapManager.getMapOptions())
+        supportFragmentManager.beginTransaction()
+            .add(R.id.mapContainer, mapFragment)
+            .commit()
+    }
+
+    override fun onMapReady(map: GoogleMap) {
+        mapView = map
+        MapManager.setTrafficLayerVisibility(mapView)
 
         attachToLocationService()
 
@@ -253,7 +280,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun initListeners() {
-        binding.mapview.setOnMapLongClickListener(this::onMapLongClicked)
+        mapView.setOnMapLongClickListener(this::onMapLongClicked)
 
         binding.currentLocationFloatingActionButton.setOnClickListener { onCurrentLocationClicked() }
 
@@ -326,12 +353,16 @@ class MockEditorActivity : AppCompatActivity() {
         viewModel.getRouteInformation()
     }
 
-    private fun processLineVector(lineVector: ArrayList<List<LatLng>>) {
+    private fun processLineVector(lineVector: ArrayList<List<com.google.android.gms.maps.model.LatLng>>) {
         logger.writeLog(value = "We receive route information!")
-        LineManager.drawLineOnMap(
-            mapView = binding.mapview,
-            polylineLayer = polylineLayer,
-            vector = lineVector
+//        PolylineManager.drawLineOnMap(
+//            mapView = binding.mapview,
+//            polylineLayer = polylineLayer,
+//            vector = lineVector
+//        )
+        val polyline = PolylineManager.createPolylineOption(lineVector[0])
+        tripPolyline = mapView.addPolyline(
+            PolylineManager.setPolylineStyle(polylineOptions = polyline)
         )
         binding.titleTextView.text = resources.getString(R.string.youCanSaveNow)
         CameraManager.moveCameraToTripLine(
@@ -387,7 +418,7 @@ class MockEditorActivity : AppCompatActivity() {
 
     private fun processMarker(
         isOrigin: Boolean,
-        location: LatLng
+        location: com.google.android.gms.maps.model.LatLng
     ) {
         logger.writeLog(value = "We are going to show marker on the map.")
         val markerFromMap = MarkerManager.getMarkerFromLayer(
@@ -397,17 +428,14 @@ class MockEditorActivity : AppCompatActivity() {
         if (markerFromMap != null) {
             markerFromMap.latLng = location
         } else {
-            val marker = MarkerManager.createMarker(
-                location = location,
-                drawableRes = if (isOrigin) R.drawable.ic_origin_marker
-                else R.drawable.ic_destination_marker,
-                elementId = if (isOrigin) MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-                else MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
-                context = this@MockEditorActivity
-            )
-            marker?.let {
-                markerLayer.add(it)
-                binding.mapview.addMarker(it)
+            if (destinationMarker == null) {
+                val destinationMarkerOption = MarkerManager.createMarkerOption(
+                    icon = R.drawable.ic_destination_marker,
+                    position = location
+                )
+                destinationMarker = mapView.addMarker(destinationMarkerOption)
+            } else {
+                originMarker?.position = location
             }
         }
     }
@@ -486,16 +514,30 @@ class MockEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun onMapLongClicked(latLng: LatLng) {
-        logger.writeLog(value = "User long pressed on map!")
-        val originMarker = MarkerManager.getMarkerFromLayer(
-            layer = markerLayer,
-            id = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-        )
-        val destinationMarker = MarkerManager.getMarkerFromLayer(
-            layer = markerLayer,
-            id = MarkerManager.ELEMENT_ID_DESTINATION_MARKER
-        )
+    private fun onMapLongClicked(latLng: com.google.android.gms.maps.model.LatLng) {
+//        logger.writeLog(value = "User long pressed on map!")
+//        val originMarker = MarkerManager.getMarkerFromLayer(
+//            layer = markerLayer,
+//            id = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
+//        )
+//        val destinationMarker = MarkerManager.getMarkerFromLayer(
+//            layer = markerLayer,
+//            id = MarkerManager.ELEMENT_ID_DESTINATION_MARKER
+//        )
+//        if (originMarker != null && destinationMarker != null) {
+//            logger.writeLog(
+//                value = "User has origin and destination Marker. " +
+//                        "we are going to show an error to user!"
+//            )
+//            // we have origin and destination
+//            showSnackBar(
+//                message = resources.getString(R.string.originDestinationProblem),
+//                rootView = binding.root,
+//                duration = Snackbar.LENGTH_SHORT
+//            )
+//            return
+//        }
+
         if (originMarker != null && destinationMarker != null) {
             logger.writeLog(
                 value = "User has origin and destination Marker. " +
@@ -532,24 +574,35 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun processUserCurrentLocation(location: Location) {
-        val oldMarker = MarkerManager.getMarkerFromLayer(
-            markerLayer,
-            MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
-        )
-        val latLngLocation = LatLng(location.latitude, location.longitude)
-        if (oldMarker != null) {
-            oldMarker.latLng = latLngLocation
-            return
-        }
-        val marker = MarkerManager.createMarker(
-            location = latLngLocation,
-            drawableRes = R.drawable.current_location_marker,
-            context = this,
-            elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
-        )
-        marker?.let {
-            markerLayer.add(marker)
-            binding.mapview.addMarker(marker)
+//        val oldMarker = MarkerManager.getMarkerFromLayer(
+//            markerLayer,
+//            MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+//        )
+//        val latLngLocation = com.google.android.gms.maps.model.LatLng(location.latitude, location.longitude)
+//        if (oldMarker != null) {
+//            oldMarker.latLng = latLngLocation
+//            return
+//        }
+//        val marker = MarkerManager.createMarker(
+//            location = latLngLocation,
+//            drawableRes = R.drawable.current_location_marker,
+//            context = this,
+//            elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
+//        )
+//        marker?.let {
+//            markerLayer.add(marker)
+//            binding.mapview.addMarker(marker)
+//        }
+        val currentLatLng =
+            com.google.android.gms.maps.model.LatLng(location.latitude, location.longitude)
+        if (currentUserLocationMarker == null) {
+            val currentUserLocationMarkerOption = MarkerManager.createMarkerOption(
+                icon = R.drawable.current_location_marker,
+                position = currentLatLng
+            )
+            currentUserLocationMarker = mapView.addMarker(currentUserLocationMarkerOption)
+        } else {
+            currentUserLocationMarker?.position = currentLatLng
         }
     }
 
@@ -604,33 +657,40 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onUndoClicked() {
-        val destinationMarker =
-            MarkerManager.getMarkerFromLayer(
-                markerLayer,
-                MarkerManager.ELEMENT_ID_DESTINATION_MARKER
-            )
+//        val destinationMarker =
+//            MarkerManager.getMarkerFromLayer(
+//                markerLayer,
+//                MarkerManager.ELEMENT_ID_DESTINATION_MARKER
+//            )
         if (destinationMarker != null) {
-            binding.mapview.removeMarker(destinationMarker)
-            markerLayer.remove(destinationMarker)
-            polylineLayer.forEach { polyline ->
-                binding.mapview.removePolyline(polyline)
-            }
-            polylineLayer.clear()
+            destinationMarker?.remove()
+            destinationMarker = null
+//            markerLayer.remove(destinationMarker)
+//            polylineLayer.forEach { polyline ->
+//                binding.mapview.removePolyline(polyline)
+//            }
+            tripPolyline?.remove()
+            tripPolyline = null
+//            polylineLayer.clear()
             binding.saveExtendedFab.hide()
             viewModel.clearMockInformation(false)
             binding.titleTextView.text = resources.getString(R.string.chooseDestinationLocation)
             binding.destinationTextView.visibility = View.GONE
         } else {
-            val originMarker =
-                MarkerManager.getMarkerFromLayer(
-                    markerLayer,
-                    MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-                )
-            originMarker?.let { marker ->
-                binding.mapview.removeMarker(marker)
-                markerLayer.remove(marker)
-                binding.undoExtendedFab.hide()
+//            val originMarker =
+//                MarkerManager.getMarkerFromLayer(
+//                    markerLayer,
+//                    MarkerManager.ELEMENT_ID_ORIGIN_MARKER
+//                )
+            if (originMarker != null) {
+                originMarker?.remove()
+                originMarker = null
             }
+//            originMarker?.let { marker ->
+//                binding.mapview.removeMarker(marker)
+//                markerLayer.remove(marker)
+//            }
+            binding.undoExtendedFab.hide()
             binding.destinationTextView.visibility = View.GONE
             binding.titleTextView.text = resources.getString(R.string.chooseOriginLocation)
             binding.originTextView.text = resources.getString(R.string.withoutOriginInformation)
@@ -674,14 +734,20 @@ class MockEditorActivity : AppCompatActivity() {
         binding.destinationTextView.visibility = View.GONE
         binding.saveExtendedFab.hide()
         binding.undoExtendedFab.hide()
-        markerLayer.forEach { marker ->
-            binding.mapview.removeMarker(marker)
-        }
-        markerLayer.clear()
-        polylineLayer.forEach { polyline ->
-            binding.mapview.removePolyline(polyline)
-        }
-        polylineLayer.clear()
+//        markerLayer.forEach { marker ->
+//            binding.mapview.removeMarker(marker)
+//        }
+//        markerLayer.clear()
+//        polylineLayer.forEach { polyline ->
+//            binding.mapview.removePolyline(polyline)
+//        }
+        originMarker?.remove()
+        destinationMarker?.remove()
+        originMarker = null
+        destinationMarker = null
+//        polylineLayer.clear()
+        tripPolyline?.remove()
+        tripPolyline = null
     }
 
     private fun showAnimationForHelperBox(show: Boolean, animationEndedListener: () -> Unit) {

@@ -7,6 +7,8 @@ import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import com.carto.graphics.Bitmap
 import com.carto.styles.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.MarkerOptions
 import org.neshan.common.model.LatLng
 import org.neshan.mapsdk.internal.utils.BitmapUtils
 import org.neshan.mapsdk.model.Marker
@@ -19,6 +21,19 @@ object MarkerManager {
     const val ELEMENT_ID_CURRENT_LOCATION_MARKER = "CURRENT_LOCATION_MARKER"
 
     private const val NORMAL_MARKER_SIZE = 32F
+
+    @NonNull
+    fun createMarkerOption(
+        @DrawableRes icon: Int,
+        position: com.google.android.gms.maps.model.LatLng,
+        alpha: Float = 1f,
+    ): MarkerOptions {
+        return MarkerOptions().apply {
+            icon(BitmapDescriptorFactory.fromResource(icon))
+            position(position)
+            alpha(alpha)
+        }
+    }
 
     fun createMarker(
         @NonNull location: LatLng,
