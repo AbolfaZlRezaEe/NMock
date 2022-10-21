@@ -19,5 +19,6 @@ data class MockEditorState(
     @MockDatabaseType var mockDatabaseType: String? = null,
     val fileCreatedAt: String? = null,
     val fileOwner: String? = null,
-    val applicationVersionCode: Int = 0
+    val applicationVersionCode: Int = 0,
+    @EditorOpeningReason var openingReason : Int = EDITOR_REASON_NON
 )

@@ -80,7 +80,6 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
     private var locationServiceIsAlive: Boolean = false
 
     private var mockSaverDialog: SaveMockBottomSheetDialogFragment? = null
-    private var fromImplicitIntent = false
 
     @Inject
     @Named(ReceiverModule.GPS_LISTENER_RECEIVER)
@@ -267,7 +266,6 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
                     this.finish()
                 }, 3000)
             }
-            fromImplicitIntent = true
             viewModel.loadMockWithOriginAndDestinationLocation(
                 originLocation = originLocation!!,
                 destinationLocation = destinationLocation!!,
@@ -346,8 +344,10 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
             destinationAddress?.changeStringTo(resources.getString(R.string.to))
                 ?: resources.getString(R.string.unknownAddress)
 
-        showLoadingProgressbar(true)
-        viewModel.getRouteInformation()
+        if (viewModel.mockEditorState.value.openingReason != EDITOR_REASON_BUNDLE) {
+            showLoadingProgressbar(true)
+            viewModel.getRouteInformation()
+        }
     }
 
     private fun processLineVector(lineVector: ArrayList<List<LatLng>>) {
@@ -583,7 +583,7 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         dialog.isCancelable = true
         dialog.setDialogListener(
             onActionButtonClicked = {
-                if (fromImplicitIntent) {
+                if (viewModel.mockEditorState.value.openingReason == EDITOR_REASON_INTENT) {
                     startActivity(Intent(this, HomeActivity::class.java))
                 }
                 dialog.dismiss()
