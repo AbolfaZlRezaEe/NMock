@@ -9,6 +9,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.*
+import com.google.android.gms.maps.model.LatLng
 import com.vividsolutions.jts.geom.Coordinate
 import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.LineString
@@ -19,7 +20,6 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import org.neshan.common.model.LatLng
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.*
@@ -46,7 +46,7 @@ class MockPlayerService : Service(), LocationListener {
     lateinit var logger: NMockLogger
 
     private val nMockBinder = MockPlayerBinder()
-    private var lineVector: List<com.google.android.gms.maps.model.LatLng>? = null
+    private var lineVector: List<LatLng>? = null
     private var lengthIndexedLine: LengthIndexedLine? = null
 
     private var locationManager: LocationManager? = null
@@ -149,7 +149,7 @@ class MockPlayerService : Service(), LocationListener {
         }
     }
 
-    private fun convertLineVectorToLineString(locations: List<com.google.android.gms.maps.model.LatLng>): LineString {
+    private fun convertLineVectorToLineString(locations: List<LatLng>): LineString {
         val lineCoordinates = Array(locations.size) { Coordinate() }
         locations.forEachIndexed { index, latLng ->
             lineCoordinates[index] = Coordinate(latLng.latitude, latLng.longitude)
@@ -253,7 +253,7 @@ class MockPlayerService : Service(), LocationListener {
                     }, delay.toLong())
                 }
             } catch (exception: Exception) {
-                if (exception !is SecurityException){
+                if (exception !is SecurityException) {
                     Sentry.captureException(exception)
                 }
                 logger.writeLog(value = "We have a problem on processing mock location! exception-> ${exception.message}")
@@ -271,7 +271,7 @@ class MockPlayerService : Service(), LocationListener {
         fun getService(): MockPlayerService = this@MockPlayerService
     }
 
-    fun setLineVectorForProcessing(lineVector: List<com.google.android.gms.maps.model.LatLng>) {
+    fun setLineVectorForProcessing(lineVector: List<LatLng>) {
         this.lineVector = lineVector
     }
 

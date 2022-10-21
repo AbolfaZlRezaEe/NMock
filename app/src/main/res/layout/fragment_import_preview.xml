@@ -66,9 +66,9 @@
                     app:cardElevation="0dp">
 
                     <FrameLayout
+                        android:id="@+id/mapContainer"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:id="@+id/mapContainer"/>
+                        android:layout_height="match_parent" />
 
                 </com.google.android.material.card.MaterialCardView>
 

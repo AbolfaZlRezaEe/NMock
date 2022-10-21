@@ -1,6 +1,7 @@
 package me.abolfazl.nmock.repository.mock
 
 import android.os.SystemClock
+import com.google.android.gms.maps.model.LatLng
 import me.abolfazl.nmock.BuildConfig
 import me.abolfazl.nmock.model.database.DATABASE_TYPE_IMPORTED
 import me.abolfazl.nmock.model.database.DATABASE_TYPE_NORMAL
@@ -14,7 +15,6 @@ import me.abolfazl.nmock.repository.mock.models.exportModels.MockInformationExpo
 import me.abolfazl.nmock.repository.mock.models.exportModels.RouteInformationExportJsonModel
 import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.locationFormat
-import org.neshan.common.model.LatLng
 
 object MockRepositoryTypeConverter {
 
@@ -84,11 +84,16 @@ object MockRepositoryTypeConverter {
 
     fun fromNormalPositionEntity(
         normalPositionEntities: List<NormalPositionEntity>
-    ): ArrayList<List<com.google.android.gms.maps.model.LatLng>> {
-        return ArrayList<List<com.google.android.gms.maps.model.LatLng>>().apply {
-            val list = mutableListOf<com.google.android.gms.maps.model.LatLng>()
+    ): ArrayList<List<LatLng>> {
+        return ArrayList<List<LatLng>>().apply {
+            val list = mutableListOf<LatLng>()
             normalPositionEntities.forEach { positionEntity ->
-                list.add(com.google.android.gms.maps.model.LatLng(positionEntity.latitude, positionEntity.longitude))
+                list.add(
+                    LatLng(
+                        positionEntity.latitude,
+                        positionEntity.longitude
+                    )
+                )
             }
             add(list)
         }
@@ -163,11 +168,16 @@ object MockRepositoryTypeConverter {
 
     fun fromImportedPositionEntity(
         importedPositionEntities: List<ImportedPositionEntity>
-    ): ArrayList<List<com.google.android.gms.maps.model.LatLng>> {
-        return ArrayList<List<com.google.android.gms.maps.model.LatLng>>().apply {
-            val list = mutableListOf<com.google.android.gms.maps.model.LatLng>()
+    ): ArrayList<List<LatLng>> {
+        return ArrayList<List<LatLng>>().apply {
+            val list = mutableListOf<LatLng>()
             importedPositionEntities.forEach { positionEntity ->
-                list.add(com.google.android.gms.maps.model.LatLng(positionEntity.latitude, positionEntity.longitude))
+                list.add(
+                    LatLng(
+                        positionEntity.latitude,
+                        positionEntity.longitude
+                    )
+                )
             }
             add(list)
         }
@@ -318,11 +328,16 @@ object MockRepositoryTypeConverter {
 
     private fun fromLineExportJsonModel(
         routeLines: List<LineExportJsonModel>
-    ): ArrayList<List<com.google.android.gms.maps.model.LatLng>> {
-        val result = java.util.ArrayList<List<com.google.android.gms.maps.model.LatLng>>()
-        val list = mutableListOf<com.google.android.gms.maps.model.LatLng>()
+    ): ArrayList<List<LatLng>> {
+        val result = java.util.ArrayList<List<LatLng>>()
+        val list = mutableListOf<LatLng>()
         routeLines.forEach { lineExportedJsonModel ->
-            list.add(com.google.android.gms.maps.model.LatLng(lineExportedJsonModel.latitude, lineExportedJsonModel.longitude))
+            list.add(
+                LatLng(
+                    lineExportedJsonModel.latitude,
+                    lineExportedJsonModel.longitude
+                )
+            )
         }
         result.add(list)
         return result

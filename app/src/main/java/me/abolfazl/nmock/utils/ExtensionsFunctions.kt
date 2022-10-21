@@ -7,10 +7,10 @@ import android.view.View
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import org.json.JSONObject
-import org.neshan.common.model.LatLng
 import retrofit2.Response
 import java.io.File
 import kotlin.math.ceil
@@ -59,11 +59,11 @@ fun <T> AppCompatActivity.isServiceStillRunning(service: Class<T>): Boolean {
     return false
 }
 
-fun com.google.android.gms.maps.model.LatLng.locationFormat(): String {
+fun LatLng.locationFormat(): String {
     return "${this.latitude},${this.longitude}"
 }
 
-fun String.locationFormat(): com.google.android.gms.maps.model.LatLng {
+fun String.locationFormat(): LatLng {
     val origin = StringBuilder()
     var destination: String? = null
     run operation@{
@@ -75,7 +75,10 @@ fun String.locationFormat(): com.google.android.gms.maps.model.LatLng {
             origin.append(character)
         }
     }
-    return com.google.android.gms.maps.model.LatLng(origin.toString().toDouble(), destination.toString().toDouble())
+    return LatLng(
+        origin.toString().toDouble(),
+        destination.toString().toDouble()
+    )
 }
 
 fun Int.toPixel(context: Context): Int {

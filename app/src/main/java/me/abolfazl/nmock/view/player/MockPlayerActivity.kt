@@ -12,10 +12,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.carto.core.ScreenPos
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.sentry.Sentry
@@ -33,9 +33,6 @@ import me.abolfazl.nmock.view.detail.MockDetailBottomSheetDialogFragment
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.home.HomeActivity
 import me.abolfazl.nmock.view.speedDialog.MockSpeedBottomSheetDialogFragment
-import org.neshan.common.model.LatLng
-import org.neshan.mapsdk.model.Marker
-import org.neshan.mapsdk.model.Polyline
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -216,7 +213,7 @@ class MockPlayerActivity : AppCompatActivity(), OnMapReadyCallback {
 //            currentLocationMarker.latLng = latLng
 //        }
         val currentLatLng =
-            com.google.android.gms.maps.model.LatLng(location.latitude, location.longitude)
+            LatLng(location.latitude, location.longitude)
         if (currentLocationMarker == null) {
             val currentLocationMarkerOption = MarkerManager.createMarkerOption(
                 icon = R.drawable.current_mock_location,

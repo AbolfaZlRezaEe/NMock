@@ -19,10 +19,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.carto.core.ScreenPos
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -40,8 +40,6 @@ import me.abolfazl.nmock.view.location.MockLocationService
 import me.abolfazl.nmock.view.player.MockPlayerActivity
 import me.abolfazl.nmock.view.player.MockPlayerService
 import me.abolfazl.nmock.view.saverDialog.SaveMockBottomSheetDialogFragment
-import org.neshan.common.model.LatLng
-import org.neshan.mapsdk.model.Polyline
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -353,7 +351,7 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         viewModel.getRouteInformation()
     }
 
-    private fun processLineVector(lineVector: ArrayList<List<com.google.android.gms.maps.model.LatLng>>) {
+    private fun processLineVector(lineVector: ArrayList<List<LatLng>>) {
         logger.writeLog(value = "We receive route information!")
 //        PolylineManager.drawLineOnMap(
 //            mapView = binding.mapview,
@@ -419,7 +417,7 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun processMarker(
         isOrigin: Boolean,
-        location: com.google.android.gms.maps.model.LatLng
+        location: LatLng
     ) {
         logger.writeLog(value = "We are going to show marker on the map.")
 //        val markerFromMap = MarkerManager.getMarkerFromLayer(
@@ -523,7 +521,7 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun onMapLongClicked(latLng: com.google.android.gms.maps.model.LatLng) {
+    private fun onMapLongClicked(latLng: LatLng) {
 //        logger.writeLog(value = "User long pressed on map!")
 //        val originMarker = MarkerManager.getMarkerFromLayer(
 //            layer = markerLayer,
@@ -588,7 +586,7 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
 //            markerLayer,
 //            MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
 //        )
-//        val latLngLocation = com.google.android.gms.maps.model.LatLng(location.latitude, location.longitude)
+//        val latLngLocation = LatLng(location.latitude, location.longitude)
 //        if (oldMarker != null) {
 //            oldMarker.latLng = latLngLocation
 //            return
@@ -604,7 +602,7 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
 //            binding.mapview.addMarker(marker)
 //        }
         val currentLatLng =
-            com.google.android.gms.maps.model.LatLng(location.latitude, location.longitude)
+            LatLng(location.latitude, location.longitude)
         if (currentUserLocationMarker == null) {
             val currentUserLocationMarkerOption = MarkerManager.createMarkerOption(
                 icon = R.drawable.current_location_marker,

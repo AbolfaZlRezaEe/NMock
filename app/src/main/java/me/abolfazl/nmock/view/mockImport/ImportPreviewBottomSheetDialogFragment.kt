@@ -11,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.carto.core.ScreenPos
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -25,11 +24,9 @@ import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentImportPreviewBinding
 import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
-import me.abolfazl.nmock.utils.managers.CameraManager
 import me.abolfazl.nmock.utils.managers.MapManager
-import me.abolfazl.nmock.utils.managers.PolylineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
-import me.abolfazl.nmock.utils.toPixel
+import me.abolfazl.nmock.utils.managers.PolylineManager
 
 @AndroidEntryPoint
 class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment(), OnMapReadyCallback {

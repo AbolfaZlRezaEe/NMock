@@ -5,7 +5,7 @@ import com.google.android.gms.maps.GoogleMapOptions
 
 object MapManager {
 
-    fun getMapOptions():GoogleMapOptions{
+    fun getMapOptions(): GoogleMapOptions {
         return GoogleMapOptions().apply {
             mapType(GoogleMap.MAP_TYPE_NORMAL)
             compassEnabled(true)
@@ -15,7 +15,7 @@ object MapManager {
         }
     }
 
-    fun setTrafficLayerVisibility(map:GoogleMap){
+    fun setTrafficLayerVisibility(map: GoogleMap) {
         map.isTrafficEnabled = true
     }
 }

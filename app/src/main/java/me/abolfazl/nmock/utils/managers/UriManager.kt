@@ -1,7 +1,7 @@
 package me.abolfazl.nmock.utils.managers
 
 import android.net.Uri
-import org.neshan.common.model.LatLng
+import com.google.android.gms.maps.model.LatLng
 
 object UriManager {
 
@@ -13,8 +13,8 @@ object UriManager {
     const val SHARED_URI_DESTINATION_KEY = "destination"
 
     fun createShareUri(
-        origin: com.google.android.gms.maps.model.LatLng,
-        destination: com.google.android.gms.maps.model.LatLng,
+        origin: LatLng,
+        destination: LatLng,
         speed: Int
     ): Uri {
         return Uri.Builder()
@@ -31,7 +31,7 @@ object UriManager {
     }
 
     fun createNavigationUri(
-        destination: com.google.android.gms.maps.model.LatLng
+        destination: LatLng
     ): Uri {
         return Uri.parse("geo:${destination.latitude},${destination.longitude}")
     }
