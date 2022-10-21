@@ -7,11 +7,11 @@
     android:layout_height="match_parent"
     tools:context=".view.player.MockPlayerActivity">
 
-    <org.neshan.mapsdk.MapView
-        android:id="@+id/mapview"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="52dp" />
+        android:layout_marginTop="52dp"
+        android:id="@+id/mapContainer"/>
 
     <FrameLayout
         android:layout_width="match_parent"

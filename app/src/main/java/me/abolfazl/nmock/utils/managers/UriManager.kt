@@ -13,8 +13,8 @@ object UriManager {
     const val SHARED_URI_DESTINATION_KEY = "destination"
 
     fun createShareUri(
-        origin: LatLng,
-        destination: LatLng,
+        origin: com.google.android.gms.maps.model.LatLng,
+        destination: com.google.android.gms.maps.model.LatLng,
         speed: Int
     ): Uri {
         return Uri.Builder()
@@ -31,7 +31,7 @@ object UriManager {
     }
 
     fun createNavigationUri(
-        destination: LatLng
+        destination: com.google.android.gms.maps.model.LatLng
     ): Uri {
         return Uri.parse("geo:${destination.latitude},${destination.longitude}")
     }

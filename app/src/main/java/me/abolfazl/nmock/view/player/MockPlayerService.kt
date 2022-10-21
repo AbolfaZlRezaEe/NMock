@@ -46,7 +46,7 @@ class MockPlayerService : Service(), LocationListener {
     lateinit var logger: NMockLogger
 
     private val nMockBinder = MockPlayerBinder()
-    private var lineVector: List<LatLng>? = null
+    private var lineVector: List<com.google.android.gms.maps.model.LatLng>? = null
     private var lengthIndexedLine: LengthIndexedLine? = null
 
     private var locationManager: LocationManager? = null
@@ -149,7 +149,7 @@ class MockPlayerService : Service(), LocationListener {
         }
     }
 
-    private fun convertLineVectorToLineString(locations: List<LatLng>): LineString {
+    private fun convertLineVectorToLineString(locations: List<com.google.android.gms.maps.model.LatLng>): LineString {
         val lineCoordinates = Array(locations.size) { Coordinate() }
         locations.forEachIndexed { index, latLng ->
             lineCoordinates[index] = Coordinate(latLng.latitude, latLng.longitude)
@@ -271,7 +271,7 @@ class MockPlayerService : Service(), LocationListener {
         fun getService(): MockPlayerService = this@MockPlayerService
     }
 
-    fun setLineVectorForProcessing(lineVector: List<LatLng>) {
+    fun setLineVectorForProcessing(lineVector: List<com.google.android.gms.maps.model.LatLng>) {
         this.lineVector = lineVector
     }
 

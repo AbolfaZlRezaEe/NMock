@@ -65,10 +65,10 @@
                     app:cardCornerRadius="8dp"
                     app:cardElevation="0dp">
 
-                    <org.neshan.mapsdk.MapView
-                        android:id="@+id/mapview"
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+                        android:id="@+id/mapContainer"/>
 
                 </com.google.android.material.card.MaterialCardView>
 

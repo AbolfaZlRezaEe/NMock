@@ -12,6 +12,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.carto.core.ScreenPos
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -21,15 +26,26 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentImportPreviewBinding
 import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
 import me.abolfazl.nmock.utils.managers.CameraManager
+import me.abolfazl.nmock.utils.managers.MapManager
 import me.abolfazl.nmock.utils.managers.PolylineManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
 import me.abolfazl.nmock.utils.toPixel
 
 @AndroidEntryPoint
-class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
+class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment(), OnMapReadyCallback {
 
     private var _binding: FragmentImportPreviewBinding? = null
     private val binding get() = _binding!!
+
+    // Map
+    private lateinit var mapView: GoogleMap
+
+    // Map Markers
+    private var originMarker: Marker? = null
+    private var destinationMarker: Marker? = null
+
+    // Polyline
+    private var tripPolyline: Polyline? = null
 
     private val viewModel: ImportMockViewModel by activityViewModels()
 
@@ -47,11 +63,7 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         showBottomSheetFullyExpanded()
 
-        initListeners()
-
-        initObservers()
-
-        showMockInformationPreview(viewModel.importMockState.value.mockImportedInformation?.getRawValue())
+        attachMapToView()
     }
 
     private fun showBottomSheetFullyExpanded() {
@@ -60,6 +72,23 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
             dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
         val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    private fun attachMapToView() {
+        val mapFragment = SupportMapFragment.newInstance(MapManager.getMapOptions())
+        childFragmentManager.beginTransaction()
+            .add(R.id.mapContainer, mapFragment)
+            .commit()
+    }
+
+    override fun onMapReady(map: GoogleMap) {
+        this.mapView = map
+
+        initListeners()
+
+        initObservers()
+
+        showMockInformationPreview(viewModel.importMockState.value.mockImportedInformation?.getRawValue())
     }
 
     private fun initObservers() {
@@ -100,38 +129,57 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
             binding.titleTextInputEditText.setText(mockDataClass.name)
         }
 
-        val originMarker = MarkerManager.createMarker(
-            location = mockDataClass.originLocation,
-            drawableRes = R.drawable.ic_origin_marker,
-            context = context,
-            elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
+        val originMarkerOption = MarkerManager.createMarkerOption(
+            icon = R.drawable.ic_origin_marker,
+            position = mockDataClass.originLocation
         )
-        val destinationMarker = MarkerManager.createMarker(
-            location = mockDataClass.destinationLocation,
-            drawableRes = R.drawable.ic_destination_marker,
-            context = context,
-            elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER
+
+        val destinationMarkerOption = MarkerManager.createMarkerOption(
+            icon = R.drawable.ic_destination_marker,
+            position = mockDataClass.destinationLocation
         )
-        PolylineManager.drawLineOnMap(
-            mapView = binding.mapview,
-            vector = mockDataClass.lineVector!!,
+
+        // todo: check this, we have a problem i think
+        val tripPolylineOption = PolylineManager.createPolylineOption(
+            positionList = mockDataClass.lineVector!![0]
         )
-        binding.mapview.addMarker(originMarker)
-        binding.mapview.addMarker(destinationMarker)
+
+        originMarker = mapView.addMarker(originMarkerOption)
+        destinationMarker = mapView.addMarker(destinationMarkerOption)
+        tripPolyline = mapView.addPolyline(tripPolylineOption)
+//
+//        val originMarker = MarkerManager.createMarker(
+//            location = mockDataClass.originLocation,
+//            drawableRes = R.drawable.ic_origin_marker,
+//            context = context,
+//            elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
+//        )
+//        val destinationMarker = MarkerManager.createMarker(
+//            location = mockDataClass.destinationLocation,
+//            drawableRes = R.drawable.ic_destination_marker,
+//            context = context,
+//            elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER
+//        )
+//        PolylineManager.drawLineOnMap(
+//            mapView = binding.mapview,
+//            vector = mockDataClass.lineVector!!,
+//        )
+//        binding.mapview.addMarker(originMarker)
+//        binding.mapview.addMarker(destinationMarker)
 
         binding.originAddressTextView.text = mockDataClass.originAddress
         binding.destinationAddressTextView.text = mockDataClass.destinationAddress
 
         Handler(Looper.getMainLooper()).postDelayed({
-            CameraManager.moveCameraToTripLine(
-                mapView = binding.mapview,
-                screenPos = ScreenPos(
-                    binding.mapview.x - 20.toPixel(context!!),
-                    binding.mapview.y - 20.toPixel(context!!)
-                ),
-                origin = mockDataClass.originLocation,
-                destination = mockDataClass.destinationLocation
-            )
+//            CameraManager.moveCameraToTripLine(
+//                mapView = binding.mapview,
+//                screenPos = ScreenPos(
+//                    binding.mapview.x - 20.toPixel(context!!),
+//                    binding.mapview.y - 20.toPixel(context!!)
+//                ),
+//                origin = mockDataClass.originLocation,
+//                destination = mockDataClass.destinationLocation
+//            ) //todo: move camera with google map
         }, 500)
 
         showLoading(false)

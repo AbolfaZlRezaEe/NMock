@@ -13,6 +13,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.carto.core.ScreenPos
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.sentry.Sentry
@@ -36,10 +39,21 @@ import org.neshan.mapsdk.model.Polyline
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MockPlayerActivity : AppCompatActivity() {
+class MockPlayerActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var binding: ActivityMockPlayerBinding
     private val viewModel: MockPlayerViewModel by viewModels()
+
+    // Map
+    private lateinit var mapView: GoogleMap
+
+    // Markers
+    private var originMarker: com.google.android.gms.maps.model.Marker? = null
+    private var destinationMarker: com.google.android.gms.maps.model.Marker? = null
+    private var currentLocationMarker: com.google.android.gms.maps.model.Marker? = null
+
+    // Polyline
+    private var tripPolyline: com.google.android.gms.maps.model.Polyline? = null
 
     @Inject
     lateinit var logger: NMockLogger
@@ -47,10 +61,10 @@ class MockPlayerActivity : AppCompatActivity() {
     @Inject
     lateinit var sharedPreferences: SharedPreferences
     private var fromNotificationOpened = false
-
-    //Layers
-    private val markerLayer = ArrayList<Marker>()
-    private val polylineLayer = ArrayList<Polyline>()
+//
+//    //Layers
+//    private val markerLayer = ArrayList<Marker>()
+//    private val polylineLayer = ArrayList<Polyline>()
 
     private var serviceIsRunning = false
     private var mockPlayerService: MockPlayerService? = null
@@ -73,6 +87,19 @@ class MockPlayerActivity : AppCompatActivity() {
 
         logger.disableLogHeaderForThisClass()
         logger.setClassInformationForEveryLog(javaClass.simpleName)
+
+        attachMapToView()
+    }
+
+    private fun attachMapToView() {
+        val mapFragment = SupportMapFragment.newInstance(MapManager.getMapOptions())
+        supportFragmentManager.beginTransaction()
+            .add(R.id.mapContainer, mapFragment)
+            .commit()
+    }
+
+    override fun onMapReady(map: GoogleMap) {
+        this.mapView = map
 
         if (!isServiceStillRunning(MockPlayerService::class.java)) {
             logger.writeLog(value = "Player service is off! We are going to turn it on.")
@@ -169,24 +196,35 @@ class MockPlayerActivity : AppCompatActivity() {
     }
 
     private fun processLocation(location: Location) {
-        var currentLocationMarker = MarkerManager.getMarkerFromLayer(
-            layer = markerLayer,
-            id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
-        )
-        val latLng = LatLng(location.latitude, location.longitude)
+//        var currentLocationMarker = MarkerManager.getMarkerFromLayer(
+//            layer = markerLayer,
+//            id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+//        )
+//        val latLng = LatLng(location.latitude, location.longitude)
+//        if (currentLocationMarker == null) {
+//            currentLocationMarker = MarkerManager.createMarker(
+//                location = latLng,
+//                drawableRes = R.drawable.current_mock_location,
+//                context = this@MockPlayerActivity,
+//                elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
+//            )
+//            currentLocationMarker?.let {
+//                markerLayer.add(it)
+//                binding.mapview.addMarker(currentLocationMarker)
+//            }
+//        } else {
+//            currentLocationMarker.latLng = latLng
+//        }
+        val currentLatLng =
+            com.google.android.gms.maps.model.LatLng(location.latitude, location.longitude)
         if (currentLocationMarker == null) {
-            currentLocationMarker = MarkerManager.createMarker(
-                location = latLng,
-                drawableRes = R.drawable.current_mock_location,
-                context = this@MockPlayerActivity,
-                elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
+            val currentLocationMarkerOption = MarkerManager.createMarkerOption(
+                icon = R.drawable.current_mock_location,
+                position = currentLatLng
             )
-            currentLocationMarker?.let {
-                markerLayer.add(it)
-                binding.mapview.addMarker(currentLocationMarker)
-            }
+            currentLocationMarker = mapView.addMarker(currentLocationMarkerOption)
         } else {
-            currentLocationMarker.latLng = latLng
+            currentLocationMarker?.position = currentLatLng
         }
     }
 
@@ -226,43 +264,62 @@ class MockPlayerActivity : AppCompatActivity() {
         binding.destinationTextView.text =
             mockInformation.destinationAddress?.changeStringTo(resources.getString(R.string.to))
                 ?: resources.getString(R.string.unknownAddress)
-        PolylineManager.drawLineOnMap(
-            mapView = binding.mapview,
-            polylineLayer = polylineLayer,
-            vector = mockInformation.lineVector!!
+
+        val originMarkerOption = MarkerManager.createMarkerOption(
+            icon = R.drawable.ic_origin_marker,
+            position = mockInformation.originLocation
         )
-        val originMarker = MarkerManager.createMarker(
-            location = mockInformation.originLocation,
-            drawableRes = R.drawable.ic_origin_marker,
-            elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER,
-            context = this@MockPlayerActivity
+
+        val destinationMarkerOption = MarkerManager.createMarkerOption(
+            icon = R.drawable.ic_destination_marker,
+            position = mockInformation.destinationLocation
         )
-        val destinationMarker = MarkerManager.createMarker(
-            location = mockInformation.destinationLocation,
-            drawableRes = R.drawable.ic_destination_marker,
-            elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
-            context = this@MockPlayerActivity
+        // todo: check this line vector
+        val tripPolylineOption = PolylineManager.createPolylineOption(
+            positionList = mockInformation.lineVector!![0]
         )
-        if (originMarker != null && destinationMarker != null) {
-            markerLayer.add(originMarker)
-            markerLayer.add(destinationMarker)
-            binding.mapview.addMarker(originMarker)
-            binding.mapview.addMarker(destinationMarker)
-        }
-        PolylineManager.drawLineOnMap(
-            mapView = binding.mapview,
-            polylineLayer = polylineLayer,
-            vector = mockInformation.lineVector!!
-        )
-        CameraManager.moveCameraToTripLine(
-            mapView = binding.mapview,
-            screenPos = ScreenPos(
-                binding.root.x + 32.toPixel(this@MockPlayerActivity),
-                binding.root.y + 32.toPixel(this@MockPlayerActivity)
-            ),
-            origin = mockInformation.originLocation,
-            destination = mockInformation.destinationLocation
-        )
+
+        tripPolyline = mapView.addPolyline(tripPolylineOption)
+        originMarker = mapView.addMarker(originMarkerOption)
+        destinationMarker = mapView.addMarker(destinationMarkerOption)
+
+//        PolylineManager.drawLineOnMap(
+//            mapView = binding.mapview,
+//            polylineLayer = polylineLayer,
+//            vector = mockInformation.lineVector!!
+//        )
+//        val originMarker = MarkerManager.createMarker(
+//            location = mockInformation.originLocation,
+//            drawableRes = R.drawable.ic_origin_marker,
+//            elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER,
+//            context = this@MockPlayerActivity
+//        )
+//        val destinationMarker = MarkerManager.createMarker(
+//            location = mockInformation.destinationLocation,
+//            drawableRes = R.drawable.ic_destination_marker,
+//            elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
+//            context = this@MockPlayerActivity
+//        )
+//        if (originMarker != null && destinationMarker != null) {
+//            markerLayer.add(originMarker)
+//            markerLayer.add(destinationMarker)
+//            binding.mapview.addMarker(originMarker)
+//            binding.mapview.addMarker(destinationMarker)
+//        }
+//        PolylineManager.drawLineOnMap(
+//            mapView = binding.mapview,
+//            polylineLayer = polylineLayer,
+//            vector = mockInformation.lineVector!!
+//        )
+//        CameraManager.moveCameraToTripLine(
+//            mapView = binding.mapview,
+//            screenPos = ScreenPos(
+//                binding.root.x + 32.toPixel(this@MockPlayerActivity),
+//                binding.root.y + 32.toPixel(this@MockPlayerActivity)
+//            ),
+//            origin = mockInformation.originLocation,
+//            destination = mockInformation.destinationLocation
+//        ) todo: move camera with google map
         SharedManager.putLong(
             sharedPreferences = sharedPreferences,
             key = SHARED_MOCK_ID,
@@ -299,14 +356,16 @@ class MockPlayerActivity : AppCompatActivity() {
                     Snackbar.LENGTH_SHORT
                 )
                 binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
-                val currentLocationMarker = MarkerManager.getMarkerFromLayer(
-                    layer = markerLayer,
-                    id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
-                )
-                currentLocationMarker?.let {
-                    markerLayer.remove(it)
-                    binding.mapview.removeMarker(it)
-                }
+//                val currentLocationMarker = MarkerManager.getMarkerFromLayer(
+//                    layer = markerLayer,
+//                    id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+//                )
+//                currentLocationMarker?.let {
+//                    markerLayer.remove(it)
+//                    binding.mapview.removeMarker(it)
+//                }
+                currentLocationMarker?.remove()
+                currentLocationMarker = null
             }
             MockPlayerService.ACTION_DEVELOPER_OPTION_PROBLEM -> {
                 val dialog = NMockDialog.newInstance(
@@ -408,14 +467,16 @@ class MockPlayerActivity : AppCompatActivity() {
         mockPlayerService?.pauseOrPlayMock()
         mockPlayerService?.removeMockProvider()
         mockPlayerService?.resetResources()
-        val currentLocationMarker = MarkerManager.getMarkerFromLayer(
-            layer = markerLayer,
-            id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
-        )
-        currentLocationMarker?.let { marker ->
-            markerLayer.remove(marker)
-            binding.mapview.removeMarker(marker)
-        }
+//        val currentLocationMarker = MarkerManager.getMarkerFromLayer(
+//            layer = markerLayer,
+//            id = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
+//        )
+//        currentLocationMarker?.let { marker ->
+//            markerLayer.remove(marker)
+//            binding.mapview.removeMarker(marker)
+//        }
+        currentLocationMarker?.remove()
+        currentLocationMarker = null
         binding.playPauseFloatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_play_24))
         showSnackBar(
             message = resources.getString(R.string.mockPlayerServiceStoppedCompletely),
