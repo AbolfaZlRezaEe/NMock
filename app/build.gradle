@@ -46,10 +46,9 @@ dependencies {
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    //Neshan sdk library
-    implementation 'neshan-android-sdk:mobile-sdk:1.0.1'
-    implementation 'neshan-android-sdk:services-sdk:1.0.0'
-    implementation 'neshan-android-sdk:common-sdk:0.0.2'
+    // Google Map SDK
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.maps.android:android-maps-utils:2.4.0'
 
     //Play Services (Don't change these versions, i will check this later...)
     implementation 'com.google.android.gms:play-services-gcm:16.1.0'

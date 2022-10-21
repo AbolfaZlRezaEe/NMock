@@ -7,10 +7,10 @@ import android.view.View
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import org.json.JSONObject
-import org.neshan.common.model.LatLng
 import retrofit2.Response
 import java.io.File
 import kotlin.math.ceil
@@ -75,7 +75,10 @@ fun String.locationFormat(): LatLng {
             origin.append(character)
         }
     }
-    return LatLng(origin.toString().toDouble(), destination.toString().toDouble())
+    return LatLng(
+        origin.toString().toDouble(),
+        destination.toString().toDouble()
+    )
 }
 
 fun Int.toPixel(context: Context): Int {

@@ -1,7 +1,7 @@
 package me.abolfazl.nmock.utils.managers
 
 import android.net.Uri
-import org.neshan.common.model.LatLng
+import com.google.android.gms.maps.model.LatLng
 
 object UriManager {
 

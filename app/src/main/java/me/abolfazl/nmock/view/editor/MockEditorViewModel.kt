@@ -2,6 +2,7 @@ package me.abolfazl.nmock.view.editor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,6 @@ import me.abolfazl.nmock.utils.response.OneTimeEmitter
 import me.abolfazl.nmock.utils.response.SingleEvent
 import me.abolfazl.nmock.utils.response.ifNotSuccessful
 import me.abolfazl.nmock.utils.response.ifSuccessful
-import org.neshan.common.model.LatLng
 import javax.inject.Inject
 
 @HiltViewModel
@@ -302,7 +302,8 @@ class MockEditorViewModel @Inject constructor(
                     mockDatabaseType = mockData.mockDatabaseType,
                     fileCreatedAt = mockData.fileCreatedAt,
                     fileOwner = mockData.fileOwner,
-                    applicationVersionCode = mockData.applicationVersionCode
+                    applicationVersionCode = mockData.applicationVersionCode,
+                    openingReason = EDITOR_REASON_BUNDLE
                 )
             }
             response.ifNotSuccessful { exceptionType ->
@@ -335,6 +336,7 @@ class MockEditorViewModel @Inject constructor(
         val realSpeed = speed.toInt()
         _mockEditorState.value = _mockEditorState.value.copy(
             speed = realSpeed,
+            openingReason = EDITOR_REASON_INTENT
         )
         withContext(Dispatchers.Default) { getLocationInformation(realOrigin, true) }
         withContext(Dispatchers.Default) { getLocationInformation(realDestination, false) }

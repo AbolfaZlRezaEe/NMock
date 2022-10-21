@@ -1,9 +1,9 @@
 package me.abolfazl.nmock.repository.mock.models.viewModels
 
+import com.google.android.gms.maps.model.LatLng
 import me.abolfazl.nmock.model.database.MockDatabaseType
 import me.abolfazl.nmock.model.database.mocks.MockCreationType
 import me.abolfazl.nmock.model.database.mocks.MockProvider
-import org.neshan.common.model.LatLng
 
 data class MockDataClass(
     var id: Long? = null,

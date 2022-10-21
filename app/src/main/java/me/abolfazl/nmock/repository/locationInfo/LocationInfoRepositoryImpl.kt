@@ -1,7 +1,5 @@
 package me.abolfazl.nmock.repository.locationInfo
 
-import io.sentry.Sentry
-import io.sentry.SentryLevel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import me.abolfazl.nmock.model.apiService.RoutingApiService

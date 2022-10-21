@@ -9,6 +9,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.*
+import com.google.android.gms.maps.model.LatLng
 import com.vividsolutions.jts.geom.Coordinate
 import com.vividsolutions.jts.geom.GeometryFactory
 import com.vividsolutions.jts.geom.LineString
@@ -19,7 +20,6 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.utils.Constant
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
-import org.neshan.common.model.LatLng
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.*
@@ -253,7 +253,7 @@ class MockPlayerService : Service(), LocationListener {
                     }, delay.toLong())
                 }
             } catch (exception: Exception) {
-                if (exception !is SecurityException){
+                if (exception !is SecurityException) {
                     Sentry.captureException(exception)
                 }
                 logger.writeLog(value = "We have a problem on processing mock location! exception-> ${exception.message}")

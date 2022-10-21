@@ -1,6 +1,6 @@
 package me.abolfazl.nmock.repository.routingInfo.models
 
-import org.neshan.common.model.LatLng
+import com.google.android.gms.maps.model.LatLng
 
 data class RouteDataclass(
     val legModels: List<LegDataclass>,

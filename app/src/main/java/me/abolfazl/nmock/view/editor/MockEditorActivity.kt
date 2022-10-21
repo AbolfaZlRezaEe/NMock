@@ -19,7 +19,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.carto.core.ScreenPos
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -37,14 +42,11 @@ import me.abolfazl.nmock.view.location.MockLocationService
 import me.abolfazl.nmock.view.player.MockPlayerActivity
 import me.abolfazl.nmock.view.player.MockPlayerService
 import me.abolfazl.nmock.view.saverDialog.SaveMockBottomSheetDialogFragment
-import org.neshan.common.model.LatLng
-import org.neshan.mapsdk.model.Marker
-import org.neshan.mapsdk.model.Polyline
 import javax.inject.Inject
 import javax.inject.Named
 
 @AndroidEntryPoint
-class MockEditorActivity : AppCompatActivity() {
+class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         const val KEY_MOCK_INFORMATION = "MOCK_INFORMATION"
@@ -63,15 +65,21 @@ class MockEditorActivity : AppCompatActivity() {
     @Inject
     lateinit var logger: NMockLogger
 
-    // Layers
-    private val markerLayer = ArrayList<Marker>()
-    private val polylineLayer = ArrayList<Polyline>()
+    // Map
+    private lateinit var mapView: GoogleMap
+
+    // Map Markers
+    private var currentUserLocationMarker: Marker? = null
+    private var originMarker: Marker? = null
+    private var destinationMarker: Marker? = null
+
+    // Polyline
+    private var tripPolyline: Polyline? = null
 
     private var mockLocationService: MockLocationService? = null
     private var locationServiceIsAlive: Boolean = false
 
     private var mockSaverDialog: SaveMockBottomSheetDialogFragment? = null
-    private var fromImplicitIntent = false
 
     @Inject
     @Named(ReceiverModule.GPS_LISTENER_RECEIVER)
@@ -87,6 +95,21 @@ class MockEditorActivity : AppCompatActivity() {
 
         logger.disableLogHeaderForThisClass()
         logger.setClassInformationForEveryLog(javaClass.simpleName)
+
+        attachMapToView()
+    }
+
+    private fun attachMapToView() {
+        val mapFragment = SupportMapFragment.newInstance(MapManager.getMapOptions())
+        supportFragmentManager.beginTransaction()
+            .add(R.id.mapContainer, mapFragment)
+            .commit()
+        mapFragment.getMapAsync(this)
+    }
+
+    override fun onMapReady(map: GoogleMap) {
+        mapView = map
+        MapManager.setTrafficLayerVisibility(mapView)
 
         attachToLocationService()
 
@@ -243,7 +266,6 @@ class MockEditorActivity : AppCompatActivity() {
                     this.finish()
                 }, 3000)
             }
-            fromImplicitIntent = true
             viewModel.loadMockWithOriginAndDestinationLocation(
                 originLocation = originLocation!!,
                 destinationLocation = destinationLocation!!,
@@ -253,7 +275,7 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun initListeners() {
-        binding.mapview.setOnMapLongClickListener(this::onMapLongClicked)
+        mapView.setOnMapLongClickListener(this::onMapLongClicked)
 
         binding.currentLocationFloatingActionButton.setOnClickListener { onCurrentLocationClicked() }
 
@@ -322,26 +344,31 @@ class MockEditorActivity : AppCompatActivity() {
             destinationAddress?.changeStringTo(resources.getString(R.string.to))
                 ?: resources.getString(R.string.unknownAddress)
 
-        showLoadingProgressbar(true)
-        viewModel.getRouteInformation()
+        if (viewModel.mockEditorState.value.openingReason != EDITOR_REASON_BUNDLE) {
+            showLoadingProgressbar(true)
+            viewModel.getRouteInformation()
+        }
     }
 
     private fun processLineVector(lineVector: ArrayList<List<LatLng>>) {
         logger.writeLog(value = "We receive route information!")
-        LineManager.drawLineOnMap(
-            mapView = binding.mapview,
-            polylineLayer = polylineLayer,
-            vector = lineVector
+
+        tripPolyline = mapView.addPolyline(
+            PolylineManager.createPolylineOption(
+                vector = lineVector,
+                context = this
+            )
         )
+
         binding.titleTextView.text = resources.getString(R.string.youCanSaveNow)
-        CameraManager.moveCameraToTripLine(
-            mapView = binding.mapview,
-            screenPos = ScreenPos(
-                binding.root.x + 32.toPixel(this@MockEditorActivity),
-                binding.root.y + 32.toPixel(this@MockEditorActivity)
-            ),
-            origin = viewModel.mockEditorState.value.originLocation?.getRawValue()!!,
-            destination = viewModel.mockEditorState.value.destinationLocation?.getRawValue()!!
+        CameraManager.fitCameraToPath(
+            originPoint = viewModel.mockEditorState.value.originLocation?.getRawValue()!!,
+            destinationPoint = viewModel.mockEditorState.value.destinationLocation?.getRawValue()!!,
+            padding = CameraManager.NORMAL_PATH_FIT_PADDING,
+            mapView = mapView,
+            widthMapView = binding.mapContainer.width,
+            heightMapView = binding.mapContainer.height,
+            duration = CameraManager.NORMAL_CAMERA_ANIMATION_DURATION
         )
         binding.saveExtendedFab.show()
         binding.saveExtendedFab.postDelayed({
@@ -390,24 +417,27 @@ class MockEditorActivity : AppCompatActivity() {
         location: LatLng
     ) {
         logger.writeLog(value = "We are going to show marker on the map.")
-        val markerFromMap = MarkerManager.getMarkerFromLayer(
-            markerLayer,
-            if (isOrigin) MarkerManager.ELEMENT_ID_ORIGIN_MARKER else MarkerManager.ELEMENT_ID_DESTINATION_MARKER
-        )
-        if (markerFromMap != null) {
-            markerFromMap.latLng = location
+        if (isOrigin) {
+            if (originMarker == null) {
+                val originMarkerOption = MarkerManager.createMarkerOption(
+                    context = this,
+                    drawableName = MarkerManager.MARKER_DRAWABLE_NAME_ORIGIN,
+                    position = location
+                )
+                originMarker = mapView.addMarker(originMarkerOption)
+            } else {
+                originMarker?.position = location
+            }
         } else {
-            val marker = MarkerManager.createMarker(
-                location = location,
-                drawableRes = if (isOrigin) R.drawable.ic_origin_marker
-                else R.drawable.ic_destination_marker,
-                elementId = if (isOrigin) MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-                else MarkerManager.ELEMENT_ID_DESTINATION_MARKER,
-                context = this@MockEditorActivity
-            )
-            marker?.let {
-                markerLayer.add(it)
-                binding.mapview.addMarker(it)
+            if (destinationMarker == null) {
+                val destinationMarkerOption = MarkerManager.createMarkerOption(
+                    context = this,
+                    drawableName = MarkerManager.MARKER_DRAWABLE_NAME_DESTINATION,
+                    position = location
+                )
+                destinationMarker = mapView.addMarker(destinationMarkerOption)
+            } else {
+                originMarker?.position = location
             }
         }
     }
@@ -487,15 +517,6 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onMapLongClicked(latLng: LatLng) {
-        logger.writeLog(value = "User long pressed on map!")
-        val originMarker = MarkerManager.getMarkerFromLayer(
-            layer = markerLayer,
-            id = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-        )
-        val destinationMarker = MarkerManager.getMarkerFromLayer(
-            layer = markerLayer,
-            id = MarkerManager.ELEMENT_ID_DESTINATION_MARKER
-        )
         if (originMarker != null && destinationMarker != null) {
             logger.writeLog(
                 value = "User has origin and destination Marker. " +
@@ -518,12 +539,15 @@ class MockEditorActivity : AppCompatActivity() {
         if (managePermissions()) {
             if (locationServiceIsAlive && mockLocationService != null) {
                 if (mockLocationService?.getLastLocation() == null) return
-                CameraManager.focusOnUserLocation(
-                    mapView = binding.mapview,
-                    location = LatLng(
-                        mockLocationService?.getLastLocation()?.latitude!!,
-                        mockLocationService?.getLastLocation()?.longitude!!
-                    )
+                val userLocation = LatLng(
+                    mockLocationService?.getLastLocation()?.latitude!!,
+                    mockLocationService?.getLastLocation()?.longitude!!
+                )
+                CameraManager.focusOnLocation(
+                    location = userLocation,
+                    mapView = mapView,
+                    zoom = CameraManager.USER_CURRENT_LOCATION_NORMAL_ZOOM,
+                    duration = CameraManager.NORMAL_CAMERA_ANIMATION_DURATION
                 )
             } else {
                 attachToLocationService()
@@ -532,24 +556,17 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun processUserCurrentLocation(location: Location) {
-        val oldMarker = MarkerManager.getMarkerFromLayer(
-            markerLayer,
-            MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER
-        )
-        val latLngLocation = LatLng(location.latitude, location.longitude)
-        if (oldMarker != null) {
-            oldMarker.latLng = latLngLocation
-            return
-        }
-        val marker = MarkerManager.createMarker(
-            location = latLngLocation,
-            drawableRes = R.drawable.current_location_marker,
-            context = this,
-            elementId = MarkerManager.ELEMENT_ID_CURRENT_LOCATION_MARKER,
-        )
-        marker?.let {
-            markerLayer.add(marker)
-            binding.mapview.addMarker(marker)
+        val currentLatLng =
+            LatLng(location.latitude, location.longitude)
+        if (currentUserLocationMarker == null) {
+            val currentUserLocationMarkerOption = MarkerManager.createMarkerOption(
+                context = this,
+                drawableName = MarkerManager.MARKER_DRAWABLE_NAME_CURRENT_USER_LOCATION,
+                position = currentLatLng
+            )
+            currentUserLocationMarker = mapView.addMarker(currentUserLocationMarkerOption)
+        } else {
+            currentUserLocationMarker?.position = currentLatLng
         }
     }
 
@@ -566,7 +583,7 @@ class MockEditorActivity : AppCompatActivity() {
         dialog.isCancelable = true
         dialog.setDialogListener(
             onActionButtonClicked = {
-                if (fromImplicitIntent) {
+                if (viewModel.mockEditorState.value.openingReason == EDITOR_REASON_INTENT) {
                     startActivity(Intent(this, HomeActivity::class.java))
                 }
                 dialog.dismiss()
@@ -604,33 +621,21 @@ class MockEditorActivity : AppCompatActivity() {
     }
 
     private fun onUndoClicked() {
-        val destinationMarker =
-            MarkerManager.getMarkerFromLayer(
-                markerLayer,
-                MarkerManager.ELEMENT_ID_DESTINATION_MARKER
-            )
         if (destinationMarker != null) {
-            binding.mapview.removeMarker(destinationMarker)
-            markerLayer.remove(destinationMarker)
-            polylineLayer.forEach { polyline ->
-                binding.mapview.removePolyline(polyline)
-            }
-            polylineLayer.clear()
+            destinationMarker?.remove()
+            destinationMarker = null
+            tripPolyline?.remove()
+            tripPolyline = null
             binding.saveExtendedFab.hide()
             viewModel.clearMockInformation(false)
             binding.titleTextView.text = resources.getString(R.string.chooseDestinationLocation)
             binding.destinationTextView.visibility = View.GONE
         } else {
-            val originMarker =
-                MarkerManager.getMarkerFromLayer(
-                    markerLayer,
-                    MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-                )
-            originMarker?.let { marker ->
-                binding.mapview.removeMarker(marker)
-                markerLayer.remove(marker)
-                binding.undoExtendedFab.hide()
+            if (originMarker != null) {
+                originMarker?.remove()
+                originMarker = null
             }
+            binding.undoExtendedFab.hide()
             binding.destinationTextView.visibility = View.GONE
             binding.titleTextView.text = resources.getString(R.string.chooseOriginLocation)
             binding.originTextView.text = resources.getString(R.string.withoutOriginInformation)
@@ -674,14 +679,12 @@ class MockEditorActivity : AppCompatActivity() {
         binding.destinationTextView.visibility = View.GONE
         binding.saveExtendedFab.hide()
         binding.undoExtendedFab.hide()
-        markerLayer.forEach { marker ->
-            binding.mapview.removeMarker(marker)
-        }
-        markerLayer.clear()
-        polylineLayer.forEach { polyline ->
-            binding.mapview.removePolyline(polyline)
-        }
-        polylineLayer.clear()
+        originMarker?.remove()
+        destinationMarker?.remove()
+        originMarker = null
+        destinationMarker = null
+        tripPolyline?.remove()
+        tripPolyline = null
     }
 
     private fun showAnimationForHelperBox(show: Boolean, animationEndedListener: () -> Unit) {

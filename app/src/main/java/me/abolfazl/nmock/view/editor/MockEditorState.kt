@@ -1,8 +1,8 @@
 package me.abolfazl.nmock.view.editor
 
+import com.google.android.gms.maps.model.LatLng
 import me.abolfazl.nmock.model.database.MockDatabaseType
 import me.abolfazl.nmock.utils.response.SingleEvent
-import org.neshan.common.model.LatLng
 
 data class MockEditorState(
     val id: SingleEvent<Long>? = null,
@@ -19,5 +19,6 @@ data class MockEditorState(
     @MockDatabaseType var mockDatabaseType: String? = null,
     val fileCreatedAt: String? = null,
     val fileOwner: String? = null,
-    val applicationVersionCode: Int = 0
+    val applicationVersionCode: Int = 0,
+    @EditorOpeningReason var openingReason: Int = EDITOR_REASON_NON
 )
