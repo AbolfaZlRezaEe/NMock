@@ -1,30 +1,53 @@
 package me.abolfazl.nmock.utils.managers
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.NonNull
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 
 object MarkerManager {
 
-    private const val ID_ELEMENT_META_DATA = "id"
-    const val ELEMENT_ID_ORIGIN_MARKER = "ORIGIN_MARKER"
-    const val ELEMENT_ID_DESTINATION_MARKER = "DESTINATION_MARKER"
-    const val ELEMENT_ID_CURRENT_LOCATION_MARKER = "CURRENT_LOCATION_MARKER"
+    // Marker Names
+    const val MARKER_DRAWABLE_NAME_ORIGIN = "ic_origin_marker"
+    const val MARKER_DRAWABLE_NAME_DESTINATION = "ic_destination_marker"
+    const val MARKER_DRAWABLE_NAME_CURRENT_USER_LOCATION  = "current_location_marker"
+    const val MARKER_DRAWABLE_NAME_CURRENT_MOCK_LOCATION = "current_mock_location"
 
-    private const val NORMAL_MARKER_SIZE = 32F
+    // Marker Size
+    private const val MARKER_WIDTH_SIZE = 55
+    private const val MARKER_HEIGHT_SIZE = 55
 
-    @NonNull
     fun createMarkerOption(
-        @DrawableRes icon: Int,
+        context: Context,
+        drawableName: String,
         position: LatLng,
         alpha: Float = 1f,
     ): MarkerOptions {
+        val iconBitmap = resizeMarkerIcon(
+            context = context,
+            width = MARKER_WIDTH_SIZE,
+            height = MARKER_HEIGHT_SIZE,
+            drawableName = drawableName
+        )
         return MarkerOptions().apply {
-            icon(BitmapDescriptorFactory.fromResource(icon))
+            icon(BitmapDescriptorFactory.fromBitmap(iconBitmap))
             position(position)
             alpha(alpha)
         }
+    }
+
+    private fun resizeMarkerIcon(
+        context: Context,
+        width: Int,
+        height: Int,
+        drawableName: String
+    ): Bitmap {
+        val iconBitmap = BitmapFactory.decodeResource(
+            context.resources,
+            context.resources.getIdentifier(drawableName, "drawable", context.packageName)
+        )
+        return Bitmap.createScaledBitmap(iconBitmap, width, height, false)
     }
 }

@@ -93,6 +93,7 @@ class MockPlayerActivity : AppCompatActivity(), OnMapReadyCallback {
         supportFragmentManager.beginTransaction()
             .add(R.id.mapContainer, mapFragment)
             .commit()
+        mapFragment.getMapAsync(this)
     }
 
     override fun onMapReady(map: GoogleMap) {
@@ -216,7 +217,8 @@ class MockPlayerActivity : AppCompatActivity(), OnMapReadyCallback {
             LatLng(location.latitude, location.longitude)
         if (currentLocationMarker == null) {
             val currentLocationMarkerOption = MarkerManager.createMarkerOption(
-                icon = R.drawable.current_mock_location,
+                context = this,
+                drawableName = MarkerManager.MARKER_DRAWABLE_NAME_CURRENT_MOCK_LOCATION,
                 position = currentLatLng
             )
             currentLocationMarker = mapView.addMarker(currentLocationMarkerOption)
@@ -263,12 +265,14 @@ class MockPlayerActivity : AppCompatActivity(), OnMapReadyCallback {
                 ?: resources.getString(R.string.unknownAddress)
 
         val originMarkerOption = MarkerManager.createMarkerOption(
-            icon = R.drawable.ic_origin_marker,
+            context = this,
+            drawableName = MarkerManager.MARKER_DRAWABLE_NAME_ORIGIN,
             position = mockInformation.originLocation
         )
 
         val destinationMarkerOption = MarkerManager.createMarkerOption(
-            icon = R.drawable.ic_destination_marker,
+            context = this,
+            drawableName = MarkerManager.MARKER_DRAWABLE_NAME_DESTINATION,
             position = mockInformation.destinationLocation
         )
         // todo: check this line vector

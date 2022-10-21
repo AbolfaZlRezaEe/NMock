@@ -1,6 +1,7 @@
 package me.abolfazl.nmock
 
 import android.app.Application
+import com.google.android.gms.maps.MapsInitializer
 import com.pusher.pushnotifications.PushNotifications
 import dagger.hilt.android.HiltAndroidApp
 import io.sentry.android.core.SentryAndroid
@@ -33,6 +34,12 @@ class NMockApplication : Application() {
         Timber.plant(Timber.DebugTree())
 
         logger.attachLogger(javaClass.simpleName)
+
+        MapsInitializer.initialize(applicationContext, MapsInitializer.Renderer.LATEST) {
+            if (it == MapsInitializer.Renderer.LATEST){
+                logger.writeLog(value = "Google Map initialized with LATEST renderer")
+            }
+        }
 
         initializeSentry()
 

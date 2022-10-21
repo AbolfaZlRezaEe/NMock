@@ -76,6 +76,7 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment(), OnMa
         childFragmentManager.beginTransaction()
             .add(R.id.mapContainer, mapFragment)
             .commit()
+        mapFragment.getMapAsync(this)
     }
 
     override fun onMapReady(map: GoogleMap) {
@@ -127,12 +128,14 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment(), OnMa
         }
 
         val originMarkerOption = MarkerManager.createMarkerOption(
-            icon = R.drawable.ic_origin_marker,
+            context = requireContext(),
+            drawableName =MarkerManager.MARKER_DRAWABLE_NAME_ORIGIN,
             position = mockDataClass.originLocation
         )
 
         val destinationMarkerOption = MarkerManager.createMarkerOption(
-            icon = R.drawable.ic_destination_marker,
+            context = requireContext(),
+            drawableName = MarkerManager.MARKER_DRAWABLE_NAME_DESTINATION,
             position = mockDataClass.destinationLocation
         )
 

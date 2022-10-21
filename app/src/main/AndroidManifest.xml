@@ -99,7 +99,7 @@
              for developing your application, you should have your own Key. -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA49EwtBhM4kkX1qgJmgt9rVolKEf7SjOA" />
+            android:value="${MAPS_API_KEY}" />
 
         <meta-data
             android:name="com.google.android.gms.version"

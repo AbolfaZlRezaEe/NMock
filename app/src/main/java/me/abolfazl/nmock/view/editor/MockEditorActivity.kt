@@ -107,6 +107,7 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         supportFragmentManager.beginTransaction()
             .add(R.id.mapContainer, mapFragment)
             .commit()
+        mapFragment.getMapAsync(this)
     }
 
     override fun onMapReady(map: GoogleMap) {
@@ -427,7 +428,8 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         if (isOrigin) {
             if (originMarker == null) {
                 val originMarkerOption = MarkerManager.createMarkerOption(
-                    icon = R.drawable.ic_origin_marker,
+                    context = this,
+                    drawableName = MarkerManager.MARKER_DRAWABLE_NAME_ORIGIN,
                     position = location
                 )
                 originMarker = mapView.addMarker(originMarkerOption)
@@ -437,7 +439,8 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         } else {
             if (destinationMarker == null) {
                 val destinationMarkerOption = MarkerManager.createMarkerOption(
-                    icon = R.drawable.ic_destination_marker,
+                    context = this,
+                    drawableName = MarkerManager.MARKER_DRAWABLE_NAME_DESTINATION,
                     position = location
                 )
                 destinationMarker = mapView.addMarker(destinationMarkerOption)
@@ -605,7 +608,8 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
             LatLng(location.latitude, location.longitude)
         if (currentUserLocationMarker == null) {
             val currentUserLocationMarkerOption = MarkerManager.createMarkerOption(
-                icon = R.drawable.current_location_marker,
+                context = this,
+                drawableName = MarkerManager.MARKER_DRAWABLE_NAME_CURRENT_USER_LOCATION,
                 position = currentLatLng
             )
             currentUserLocationMarker = mapView.addMarker(currentUserLocationMarkerOption)
