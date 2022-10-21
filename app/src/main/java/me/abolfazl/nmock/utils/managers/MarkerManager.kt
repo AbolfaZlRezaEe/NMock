@@ -12,7 +12,7 @@ object MarkerManager {
     // Marker Names
     const val MARKER_DRAWABLE_NAME_ORIGIN = "ic_origin_marker"
     const val MARKER_DRAWABLE_NAME_DESTINATION = "ic_destination_marker"
-    const val MARKER_DRAWABLE_NAME_CURRENT_USER_LOCATION  = "current_location_marker"
+    const val MARKER_DRAWABLE_NAME_CURRENT_USER_LOCATION = "current_location_marker"
     const val MARKER_DRAWABLE_NAME_CURRENT_MOCK_LOCATION = "current_mock_location"
 
     // Marker Size

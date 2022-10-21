@@ -20,5 +20,5 @@ data class MockEditorState(
     val fileCreatedAt: String? = null,
     val fileOwner: String? = null,
     val applicationVersionCode: Int = 0,
-    @EditorOpeningReason var openingReason : Int = EDITOR_REASON_NON
+    @EditorOpeningReason var openingReason: Int = EDITOR_REASON_NON
 )

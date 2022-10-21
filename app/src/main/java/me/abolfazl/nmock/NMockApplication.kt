@@ -36,7 +36,7 @@ class NMockApplication : Application() {
         logger.attachLogger(javaClass.simpleName)
 
         MapsInitializer.initialize(applicationContext, MapsInitializer.Renderer.LATEST) {
-            if (it == MapsInitializer.Renderer.LATEST){
+            if (it == MapsInitializer.Renderer.LATEST) {
                 logger.writeLog(value = "Google Map initialized with LATEST renderer")
             }
         }
