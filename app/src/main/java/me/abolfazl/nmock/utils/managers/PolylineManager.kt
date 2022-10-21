@@ -1,34 +1,34 @@
 package me.abolfazl.nmock.utils.managers
 
+import android.content.Context
 import androidx.annotation.ColorRes
-import androidx.annotation.NonNull
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.RoundCap
 import me.abolfazl.nmock.R
 
 object PolylineManager {
 
-    fun createPolylineOption(
-        positionList: List<LatLng>,
-    ): PolylineOptions {
-        return PolylineOptions().apply {
-            positionList.forEach { latLng ->
-                add(latLng)
-            }
-        }
-    }
+    const val POLYLINE_NORMAL_WIDTH_SIZE = 12F
 
-    fun setPolylineStyle(
-        @NonNull polylineOptions: PolylineOptions,
-        width: Float = 8f,
-        @ColorRes color: Int = R.color.colorPrimaryDark,
+    fun createPolylineOption(
+        vector: ArrayList<List<LatLng>>,
+        width: Float = POLYLINE_NORMAL_WIDTH_SIZE,
+        @ColorRes colorResource: Int = R.color.colorPrimaryDark,
+        context: Context,
         jointType: Int = JointType.ROUND
     ): PolylineOptions {
-        return polylineOptions.apply {
+        return PolylineOptions().apply {
             width(width)
-            color(color)
+            color(ContextCompat.getColor(context, colorResource))
+            startCap(RoundCap())
+            endCap(RoundCap())
             jointType(jointType)
+            vector.forEach { line ->
+                addAll(line)
+            }
         }
     }
 }

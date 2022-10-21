@@ -129,7 +129,7 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment(), OnMa
 
         val originMarkerOption = MarkerManager.createMarkerOption(
             context = requireContext(),
-            drawableName =MarkerManager.MARKER_DRAWABLE_NAME_ORIGIN,
+            drawableName = MarkerManager.MARKER_DRAWABLE_NAME_ORIGIN,
             position = mockDataClass.originLocation
         )
 
@@ -139,34 +139,16 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment(), OnMa
             position = mockDataClass.destinationLocation
         )
 
-        // todo: check this, we have a problem i think
-        val tripPolylineOption = PolylineManager.createPolylineOption(
-            positionList = mockDataClass.lineVector!![0]
-        )
-
         originMarker = mapView.addMarker(originMarkerOption)
         destinationMarker = mapView.addMarker(destinationMarkerOption)
-        tripPolyline = mapView.addPolyline(tripPolylineOption)
-//
-//        val originMarker = MarkerManager.createMarker(
-//            location = mockDataClass.originLocation,
-//            drawableRes = R.drawable.ic_origin_marker,
-//            context = context,
-//            elementId = MarkerManager.ELEMENT_ID_ORIGIN_MARKER
-//        )
-//        val destinationMarker = MarkerManager.createMarker(
-//            location = mockDataClass.destinationLocation,
-//            drawableRes = R.drawable.ic_destination_marker,
-//            context = context,
-//            elementId = MarkerManager.ELEMENT_ID_DESTINATION_MARKER
-//        )
-//        PolylineManager.drawLineOnMap(
-//            mapView = binding.mapview,
-//            vector = mockDataClass.lineVector!!,
-//        )
-//        binding.mapview.addMarker(originMarker)
-//        binding.mapview.addMarker(destinationMarker)
 
+
+        tripPolyline = mapView.addPolyline(
+            PolylineManager.createPolylineOption(
+                vector = mockDataClass.lineVector!!,
+                context = requireContext()
+            )
+        )
         binding.originAddressTextView.text = mockDataClass.originAddress
         binding.destinationAddressTextView.text = mockDataClass.destinationAddress
 
