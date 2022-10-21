@@ -84,11 +84,11 @@ object MockRepositoryTypeConverter {
 
     fun fromNormalPositionEntity(
         normalPositionEntities: List<NormalPositionEntity>
-    ): ArrayList<List<LatLng>> {
-        return ArrayList<List<LatLng>>().apply {
-            val list = mutableListOf<LatLng>()
+    ): ArrayList<List<com.google.android.gms.maps.model.LatLng>> {
+        return ArrayList<List<com.google.android.gms.maps.model.LatLng>>().apply {
+            val list = mutableListOf<com.google.android.gms.maps.model.LatLng>()
             normalPositionEntities.forEach { positionEntity ->
-                list.add(LatLng(positionEntity.latitude, positionEntity.longitude))
+                list.add(com.google.android.gms.maps.model.LatLng(positionEntity.latitude, positionEntity.longitude))
             }
             add(list)
         }
@@ -163,11 +163,11 @@ object MockRepositoryTypeConverter {
 
     fun fromImportedPositionEntity(
         importedPositionEntities: List<ImportedPositionEntity>
-    ): ArrayList<List<LatLng>> {
-        return ArrayList<List<LatLng>>().apply {
-            val list = mutableListOf<LatLng>()
+    ): ArrayList<List<com.google.android.gms.maps.model.LatLng>> {
+        return ArrayList<List<com.google.android.gms.maps.model.LatLng>>().apply {
+            val list = mutableListOf<com.google.android.gms.maps.model.LatLng>()
             importedPositionEntities.forEach { positionEntity ->
-                list.add(LatLng(positionEntity.latitude, positionEntity.longitude))
+                list.add(com.google.android.gms.maps.model.LatLng(positionEntity.latitude, positionEntity.longitude))
             }
             add(list)
         }
@@ -318,11 +318,11 @@ object MockRepositoryTypeConverter {
 
     private fun fromLineExportJsonModel(
         routeLines: List<LineExportJsonModel>
-    ): ArrayList<List<LatLng>> {
-        val result = java.util.ArrayList<List<LatLng>>()
-        val list = mutableListOf<LatLng>()
+    ): ArrayList<List<com.google.android.gms.maps.model.LatLng>> {
+        val result = java.util.ArrayList<List<com.google.android.gms.maps.model.LatLng>>()
+        val list = mutableListOf<com.google.android.gms.maps.model.LatLng>()
         routeLines.forEach { lineExportedJsonModel ->
-            list.add(LatLng(lineExportedJsonModel.latitude, lineExportedJsonModel.longitude))
+            list.add(com.google.android.gms.maps.model.LatLng(lineExportedJsonModel.latitude, lineExportedJsonModel.longitude))
         }
         result.add(list)
         return result

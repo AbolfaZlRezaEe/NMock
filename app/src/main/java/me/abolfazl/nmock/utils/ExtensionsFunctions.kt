@@ -59,11 +59,11 @@ fun <T> AppCompatActivity.isServiceStillRunning(service: Class<T>): Boolean {
     return false
 }
 
-fun LatLng.locationFormat(): String {
+fun com.google.android.gms.maps.model.LatLng.locationFormat(): String {
     return "${this.latitude},${this.longitude}"
 }
 
-fun String.locationFormat(): LatLng {
+fun String.locationFormat(): com.google.android.gms.maps.model.LatLng {
     val origin = StringBuilder()
     var destination: String? = null
     run operation@{
@@ -75,7 +75,7 @@ fun String.locationFormat(): LatLng {
             origin.append(character)
         }
     }
-    return LatLng(origin.toString().toDouble(), destination.toString().toDouble())
+    return com.google.android.gms.maps.model.LatLng(origin.toString().toDouble(), destination.toString().toDouble())
 }
 
 fun Int.toPixel(context: Context): Int {

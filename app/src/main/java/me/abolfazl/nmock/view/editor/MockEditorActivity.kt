@@ -365,15 +365,16 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
             PolylineManager.setPolylineStyle(polylineOptions = polyline)
         )
         binding.titleTextView.text = resources.getString(R.string.youCanSaveNow)
-        CameraManager.moveCameraToTripLine(
-            mapView = binding.mapview,
-            screenPos = ScreenPos(
-                binding.root.x + 32.toPixel(this@MockEditorActivity),
-                binding.root.y + 32.toPixel(this@MockEditorActivity)
-            ),
-            origin = viewModel.mockEditorState.value.originLocation?.getRawValue()!!,
-            destination = viewModel.mockEditorState.value.destinationLocation?.getRawValue()!!
-        )
+//        CameraManager.moveCameraToTripLine(
+//            mapView = binding.mapview,
+//            screenPos = ScreenPos(
+//                binding.root.x + 32.toPixel(this@MockEditorActivity),
+//                binding.root.y + 32.toPixel(this@MockEditorActivity)
+//            ),
+//            origin = viewModel.mockEditorState.value.originLocation?.getRawValue()!!,
+//            destination = viewModel.mockEditorState.value.destinationLocation?.getRawValue()!!
+//        )
+        // todo: move camera with google map sdk
         binding.saveExtendedFab.show()
         binding.saveExtendedFab.postDelayed({
             binding.saveExtendedFab.shrink()
@@ -421,12 +422,20 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         location: com.google.android.gms.maps.model.LatLng
     ) {
         logger.writeLog(value = "We are going to show marker on the map.")
-        val markerFromMap = MarkerManager.getMarkerFromLayer(
-            markerLayer,
-            if (isOrigin) MarkerManager.ELEMENT_ID_ORIGIN_MARKER else MarkerManager.ELEMENT_ID_DESTINATION_MARKER
-        )
-        if (markerFromMap != null) {
-            markerFromMap.latLng = location
+//        val markerFromMap = MarkerManager.getMarkerFromLayer(
+//            markerLayer,
+//            if (isOrigin) MarkerManager.ELEMENT_ID_ORIGIN_MARKER else MarkerManager.ELEMENT_ID_DESTINATION_MARKER
+//        )
+        if (isOrigin) {
+            if (originMarker == null) {
+                val originMarkerOption = MarkerManager.createMarkerOption(
+                    icon = R.drawable.ic_origin_marker,
+                    position = location
+                )
+                originMarker = mapView.addMarker(originMarkerOption)
+            } else {
+                originMarker?.position = location
+            }
         } else {
             if (destinationMarker == null) {
                 val destinationMarkerOption = MarkerManager.createMarkerOption(
@@ -560,13 +569,14 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         if (managePermissions()) {
             if (locationServiceIsAlive && mockLocationService != null) {
                 if (mockLocationService?.getLastLocation() == null) return
-                CameraManager.focusOnUserLocation(
-                    mapView = binding.mapview,
-                    location = LatLng(
-                        mockLocationService?.getLastLocation()?.latitude!!,
-                        mockLocationService?.getLastLocation()?.longitude!!
-                    )
-                )
+//                CameraManager.focusOnUserLocation(
+//                    mapView = binding.mapview,
+//                    location = LatLng(
+//                        mockLocationService?.getLastLocation()?.latitude!!,
+//                        mockLocationService?.getLastLocation()?.longitude!!
+//                    )
+//                )
+                // todo: move camera to the current user location
             } else {
                 attachToLocationService()
             }

@@ -76,7 +76,7 @@ class MockEditorViewModel @Inject constructor(
     }
 
     fun getLocationInformation(
-        location: LatLng,
+        location: com.google.android.gms.maps.model.LatLng,
         isOrigin: Boolean
     ) = viewModelScope.launch(exceptionHandler) {
         logger.writeLog(
