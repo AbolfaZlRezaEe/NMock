@@ -361,16 +361,15 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         )
 
         binding.titleTextView.text = resources.getString(R.string.youCanSaveNow)
-//        CameraManager.moveCameraToTripLine(
-//            mapView = binding.mapview,
-//            screenPos = ScreenPos(
-//                binding.root.x + 32.toPixel(this@MockEditorActivity),
-//                binding.root.y + 32.toPixel(this@MockEditorActivity)
-//            ),
-//            origin = viewModel.mockEditorState.value.originLocation?.getRawValue()!!,
-//            destination = viewModel.mockEditorState.value.destinationLocation?.getRawValue()!!
-//        )
-        // todo: move camera with google map sdk
+        CameraManager.fitCameraToPath(
+            originPoint = viewModel.mockEditorState.value.originLocation?.getRawValue()!!,
+            destinationPoint = viewModel.mockEditorState.value.destinationLocation?.getRawValue()!!,
+            padding = CameraManager.NORMAL_PATH_FIT_PADDING,
+            mapView = mapView,
+            widthMapView = binding.mapContainer.width,
+            heightMapView = binding.mapContainer.height,
+            duration = CameraManager.NORMAL_CAMERA_ANIMATION_DURATION
+        )
         binding.saveExtendedFab.show()
         binding.saveExtendedFab.postDelayed({
             binding.saveExtendedFab.shrink()
@@ -540,14 +539,16 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         if (managePermissions()) {
             if (locationServiceIsAlive && mockLocationService != null) {
                 if (mockLocationService?.getLastLocation() == null) return
-//                CameraManager.focusOnUserLocation(
-//                    mapView = binding.mapview,
-//                    location = LatLng(
-//                        mockLocationService?.getLastLocation()?.latitude!!,
-//                        mockLocationService?.getLastLocation()?.longitude!!
-//                    )
-//                )
-                // todo: move camera to the current user location
+                val userLocation = LatLng(
+                    mockLocationService?.getLastLocation()?.latitude!!,
+                    mockLocationService?.getLastLocation()?.longitude!!
+                )
+                CameraManager.focusOnLocation(
+                    location = userLocation,
+                    mapView = mapView,
+                    zoom = CameraManager.USER_CURRENT_LOCATION_NORMAL_ZOOM,
+                    duration = CameraManager.NORMAL_CAMERA_ANIMATION_DURATION
+                )
             } else {
                 attachToLocationService()
             }

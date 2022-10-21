@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.FragmentImportPreviewBinding
 import me.abolfazl.nmock.repository.mock.models.viewModels.MockDataClass
+import me.abolfazl.nmock.utils.managers.CameraManager
 import me.abolfazl.nmock.utils.managers.MapManager
 import me.abolfazl.nmock.utils.managers.MarkerManager
 import me.abolfazl.nmock.utils.managers.PolylineManager
@@ -81,6 +82,7 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment(), OnMa
 
     override fun onMapReady(map: GoogleMap) {
         this.mapView = map
+        MapManager.setTrafficLayerVisibility(mapView)
 
         initListeners()
 
@@ -153,15 +155,15 @@ class ImportPreviewBottomSheetDialogFragment : BottomSheetDialogFragment(), OnMa
         binding.destinationAddressTextView.text = mockDataClass.destinationAddress
 
         Handler(Looper.getMainLooper()).postDelayed({
-//            CameraManager.moveCameraToTripLine(
-//                mapView = binding.mapview,
-//                screenPos = ScreenPos(
-//                    binding.mapview.x - 20.toPixel(context!!),
-//                    binding.mapview.y - 20.toPixel(context!!)
-//                ),
-//                origin = mockDataClass.originLocation,
-//                destination = mockDataClass.destinationLocation
-//            ) //todo: move camera with google map
+            CameraManager.fitCameraToPath(
+                originPoint = mockDataClass.originLocation,
+                destinationPoint = mockDataClass.destinationLocation,
+                mapView = mapView,
+                padding = CameraManager.NORMAL_PATH_FIT_PADDING,
+                widthMapView = binding.mapContainer.width,
+                heightMapView = binding.mapContainer.height,
+                duration = CameraManager.NORMAL_CAMERA_ANIMATION_DURATION
+            )
         }, 500)
 
         showLoading(false)

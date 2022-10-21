@@ -16,6 +16,6 @@ object MapManager {
     }
 
     fun setTrafficLayerVisibility(map: GoogleMap) {
-        map.isTrafficEnabled = true
+        map.isTrafficEnabled = false
     }
 }

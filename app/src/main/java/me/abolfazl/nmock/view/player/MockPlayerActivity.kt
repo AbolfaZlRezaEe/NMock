@@ -96,6 +96,7 @@ class MockPlayerActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap) {
         this.mapView = map
+        MapManager.setTrafficLayerVisibility(mapView)
 
         if (!isServiceStillRunning(MockPlayerService::class.java)) {
             logger.writeLog(value = "Player service is off! We are going to turn it on.")
@@ -264,15 +265,15 @@ class MockPlayerActivity : AppCompatActivity(), OnMapReadyCallback {
                 context = this
             )
         )
-//        CameraManager.moveCameraToTripLine(
-//            mapView = binding.mapview,
-//            screenPos = ScreenPos(
-//                binding.root.x + 32.toPixel(this@MockPlayerActivity),
-//                binding.root.y + 32.toPixel(this@MockPlayerActivity)
-//            ),
-//            origin = mockInformation.originLocation,
-//            destination = mockInformation.destinationLocation
-//        ) todo: move camera with google map
+        CameraManager.fitCameraToPath(
+            originPoint = mockInformation.originLocation,
+            destinationPoint = mockInformation.destinationLocation,
+            padding = CameraManager.TOMUCH_PATH_FIT_PADDING,
+            mapView = mapView,
+            widthMapView = binding.mapContainer.width,
+            heightMapView = binding.mapContainer.height,
+            duration = CameraManager.NORMAL_CAMERA_ANIMATION_DURATION
+        )
         SharedManager.putLong(
             sharedPreferences = sharedPreferences,
             key = SHARED_MOCK_ID,
