@@ -221,7 +221,6 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun handlingIntent() {
         if (intent == null) return
-        showLoadingProgressbar(true)
         // Reading intent data from Extras:
         val mockId = intent.getLongExtra(KEY_MOCK_INFORMATION, -1)
         if (mockId != -1L) {
@@ -295,7 +294,6 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.mockEditorState.collect { state ->
-                    showLoadingProgressbar(false)
 
                     state.originAddress?.let {
                         it.ifNotHandled { address -> processOriginAddress(address) }
@@ -315,6 +313,10 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     state.destinationLocation?.let {
                         it.ifNotHandled { location -> processMarker(false, location) }
+                    }
+
+                    state.loadingState?.let {
+                        it.ifNotHandled { loadingState -> showLoadingProgressbar(loadingState) }
                     }
                 }
             }
@@ -348,7 +350,6 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
                 ?: resources.getString(R.string.unknownAddress)
 
         if (viewModel.mockEditorState.value.openingReason != EDITOR_REASON_BUNDLE) {
-            showLoadingProgressbar(true)
             viewModel.getRouteInformation()
         }
     }
@@ -446,8 +447,6 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun processAction(response: OneTimeEmitter) {
-        showLoadingProgressbar(false)
-
         when (response.actionId) {
             MockEditorViewModel.ACTION_MOCK_SAVED -> {
                 processAfterMockSaved()
@@ -460,7 +459,6 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
                 )
                 dialog.isCancelable = false
                 dialog.setDialogListener(onActionButtonClicked = {
-                    showLoadingProgressbar(true)
                     viewModel.getRouteInformation()
                     dialog.dismiss()
                 }, onSecondaryButtonClicked = {
@@ -520,22 +518,24 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun onMapLongClicked(latLng: LatLng) {
-        if (originMarker != null && destinationMarker != null) {
-            logger.writeLog(
-                value = "User has origin and destination Marker. " +
-                        "we are going to show an error to user!"
-            )
-            // we have origin and destination
-            showSnackBar(
-                message = resources.getString(R.string.originDestinationProblem),
-                rootView = binding.root,
-                duration = Snackbar.LENGTH_SHORT
-            )
-            return
+        if (!viewModel.mockEditorState.value.loadingState.getRawValue()) {
+            if (originMarker != null && destinationMarker != null) {
+                logger.writeLog(
+                    value = "User has origin and destination Marker. " +
+                            "we are going to show an error to user!"
+                )
+                // we have origin and destination
+                showSnackBar(
+                    message = resources.getString(R.string.originDestinationProblem),
+                    rootView = binding.root,
+                    duration = Snackbar.LENGTH_SHORT
+                )
+                return
+            }
+            viewModel.getLocationInformation(latLng, originMarker == null)
+        } else {
+            logger.writeLog(value = "We have a process right now. long-press ignored!")
         }
-
-        showLoadingProgressbar(true)
-        viewModel.getLocationInformation(latLng, originMarker == null)
     }
 
     private fun onCurrentLocationClicked() {

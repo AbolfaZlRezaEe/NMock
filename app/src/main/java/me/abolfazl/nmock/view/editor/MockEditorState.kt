@@ -20,5 +20,6 @@ data class MockEditorState(
     val fileCreatedAt: String? = null,
     val fileOwner: String? = null,
     val applicationVersionCode: Int = 0,
+    val loadingState: SingleEvent<Boolean> = SingleEvent(false),
     @EditorOpeningReason var openingReason: Int = EDITOR_REASON_NON
 )
