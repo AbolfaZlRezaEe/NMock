@@ -85,10 +85,12 @@ class MockEditorViewModel @Inject constructor(
                     " latitude: ${location.latitude}," +
                     " longitude: ${location.longitude}"
         )
+        setLoadingState(true)
         locationInfoRepository.getLocationInformation(
             location.latitude,
             location.longitude
         ).collect { response ->
+            setLoadingState(false)
             response.ifSuccessful { result ->
                 logger.writeLog(
                     value = "locationInformationReceived!" +
@@ -133,10 +135,12 @@ class MockEditorViewModel @Inject constructor(
             )
             return@launch
         }
+        setLoadingState(true)
         routingInfoRepository.getRoutingInformation(
             origin = originLocation.locationFormat(),
             destination = destinationLocation.locationFormat()
         ).collect { response ->
+            setLoadingState(false)
             response.ifSuccessful { result ->
                 logger.writeLog(
                     value = "getRouteInformation was successful!"
@@ -176,6 +180,7 @@ class MockEditorViewModel @Inject constructor(
             )
             return@launch
         }
+        setLoadingState(true)
         // For updating mock:
         if (id != null) {
             mockRepository.updateMockInformation(
@@ -201,6 +206,7 @@ class MockEditorViewModel @Inject constructor(
                     applicationVersionCode = _mockEditorState.value.applicationVersionCode
                 )
             ).collect { response ->
+                setLoadingState(false)
                 response.ifSuccessful { mockId ->
                     _mockEditorState.value = _mockEditorState.value.copy(
                         id = SingleEvent(mockId)
@@ -234,6 +240,7 @@ class MockEditorViewModel @Inject constructor(
                     mockDatabaseType = DATABASE_TYPE_NORMAL
                 )
             ).collect { response ->
+                setLoadingState(false)
                 response.ifSuccessful { mockId ->
                     _mockEditorState.value = _mockEditorState.value.copy(
                         id = SingleEvent(mockId)
@@ -282,10 +289,12 @@ class MockEditorViewModel @Inject constructor(
         mockIsImported: Boolean
     ) = viewModelScope.launch(exceptionHandler) {
         val mockDatabaseType = if (mockIsImported) DATABASE_TYPE_IMPORTED else DATABASE_TYPE_NORMAL
+        setLoadingState(true)
         mockRepository.getMockInformationFromId(
             id = id,
             mockDatabaseType = mockDatabaseType
         ).collect { response ->
+            setLoadingState(false)
             response.ifSuccessful { mockData ->
                 _mockEditorState.value = _mockEditorState.value.copy(
                     id = SingleEvent(mockData.id!!),
@@ -345,6 +354,12 @@ class MockEditorViewModel @Inject constructor(
 
     fun hasMockData(): Boolean {
         return _mockEditorState.value.lineVector != null
+    }
+
+    private fun setLoadingState(loading: Boolean) {
+        _mockEditorState.value = _mockEditorState.value.copy(
+            loadingState = SingleEvent(loading)
+        )
     }
 
     private fun actionMapper(errorType: Int): Int {
