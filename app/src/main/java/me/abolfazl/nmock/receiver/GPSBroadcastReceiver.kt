@@ -11,7 +11,7 @@ class GPSBroadcastReceiver : BroadcastReceiver() {
     private var receiverRegistered = false
 
     override fun onReceive(context: Context, intent: Intent?) {
-        if (intent != null && intent?.action != null) {
+        if (intent != null && intent.action != null) {
             if (intent.action.equals("android.location.PROVIDERS_CHANGED")) {
                 callBack?.invoke()
             }
