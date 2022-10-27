@@ -4,7 +4,7 @@
 
 ## :collision: What is the NMock?
 
-**NMock** is an Application that helps you to generate fake locations, share fake trips to your friends, test your Map product, and so on... we build this application with **[Neshan SDK](https://platform.neshan.org/)**, **[Kotlin Language](https://kotlinlang.org/)**, **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** and also **[Dagger-Hilt Dependency Injection](https://dagger.dev/hilt/)**. follow this document to know how this application developed and works!
+**NMock** is an Application that helps you to generate fake locations, share fake trips to your friends, test your Map product, and so on... we build this application with **[Google Map SDK](https://developers.google.com/maps/documentation)**, **[Kotlin Language](https://kotlinlang.org/)**, **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** and also **[Dagger-Hilt Dependency Injection](https://dagger.dev/hilt/)**. follow this document to know how this application developed and works!
 
 ## :v: Contribute
 
