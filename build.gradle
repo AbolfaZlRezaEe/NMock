@@ -2,10 +2,10 @@
 
 buildscript {
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
         classpath 'com.google.dagger:hilt-android-gradle-plugin:2.40.5'
         classpath 'io.sentry:sentry-android-gradle-plugin:3.1.0-beta.1'
-        classpath 'com.google.gms:google-services:4.3.8'
+        classpath 'com.google.gms:google-services:4.3.8' // DO NOT CHANGE THE VERSION OF THIS!
     }
 }
 

@@ -32,10 +32,13 @@ import me.abolfazl.nmock.R
 import me.abolfazl.nmock.databinding.ActivityMockEditorBinding
 import me.abolfazl.nmock.di.ReceiverModule
 import me.abolfazl.nmock.receiver.GPSBroadcastReceiver
-import me.abolfazl.nmock.utils.*
+import me.abolfazl.nmock.utils.Constant
+import me.abolfazl.nmock.utils.changeStringTo
+import me.abolfazl.nmock.utils.isServiceStillRunning
 import me.abolfazl.nmock.utils.logger.NMockLogger
 import me.abolfazl.nmock.utils.managers.*
 import me.abolfazl.nmock.utils.response.OneTimeEmitter
+import me.abolfazl.nmock.utils.showSnackBar
 import me.abolfazl.nmock.view.dialog.NMockDialog
 import me.abolfazl.nmock.view.home.HomeActivity
 import me.abolfazl.nmock.view.location.MockLocationService

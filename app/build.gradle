@@ -9,7 +9,7 @@ plugins {
 
 android {
     compileSdk 31
-
+    compileSdkVersion 31
     defaultConfig {
         applicationId "me.abolfazl.nmock"
         minSdk 21
@@ -69,7 +69,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.maps.android:android-maps-utils:2.4.0'
 
-    //Play Services (Don't change these versions, i will check this later...)
+    // Play Services (Don't change these versions, i will check this later...)
     implementation 'com.google.android.gms:play-services-gcm:16.1.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
 
@@ -77,20 +77,20 @@ dependencies {
     implementation 'io.sentry:sentry-android:5.7.4'
 
     // Navigation Component
-    implementation "androidx.navigation:navigation-fragment-ktx:2.4.2"
-    implementation "androidx.navigation:navigation-ui-ktx:2.4.2"
+    implementation "androidx.navigation:navigation-fragment-ktx:2.5.3"
+    implementation "androidx.navigation:navigation-ui-ktx:2.5.3"
 
     // Kotlin Coroutines
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
 
     // Dagger-Hilt
     implementation "com.google.dagger:hilt-android:2.38.1"
-    kapt "com.google.dagger:hilt-compiler:2.38.1"
+    kapt "com.google.dagger:hilt-compiler:2.40.5"
 
     // Room Wrapper
-    implementation "androidx.room:room-runtime:2.4.2"
-    implementation "androidx.room:room-ktx:2.4.2"
-    kapt "androidx.room:room-compiler:2.4.2"
+    implementation "androidx.room:room-runtime:2.4.3"
+    implementation "androidx.room:room-ktx:2.4.3"
+    kapt "androidx.room:room-compiler:2.4.3"
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
