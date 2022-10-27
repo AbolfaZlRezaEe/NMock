@@ -20,10 +20,29 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            def keyProperties = validateReleaseKey(
+                    'key.properties',
+                    'KEY_FILE_PATH',
+                    'KEY_FILE_ALIAS',
+                    'KEY_FILE_PASSWORD',
+                    'KEY_STORE_PASSWORD'
+            )
+            storeFile file(keyProperties.getProperty('KEY_FILE_PATH'))
+            keyAlias keyProperties.getProperty('KEY_FILE_ALIAS')
+            keyPassword keyProperties.getProperty('KEY_FILE_PASSWORD')
+            storePassword keyProperties.getProperty('KEY_STORE_PASSWORD')
+        }
+    }
+
+    checkMAP_API_KEYIsAvailable()
+
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -107,10 +126,46 @@ dependencies {
     // Lottie
     implementation "com.airbnb.android:lottie:3.6.1"
 }
+
 sentry {
     autoUpload = true
     includeProguardMapping = true
     autoUploadProguardMapping = true
     uploadNativeSymbols = true
     includeNativeSources = true
+}
+
+Properties validateReleaseKey(String fileName,
+                              String filePathKeyName,
+                              String fileAliasKeyName,
+                              String filePasswordKeyName,
+                              String fileStorePasswordKeyName) {
+    File keyFile = new File(fileName)
+    if (keyFile.exists()) {
+        Properties keyProperties = new Properties()
+        keyProperties.load(project.rootProject.file(fileName).newDataInputStream())
+        def keyFilePath = keyProperties.getProperty(filePathKeyName)
+        def keyAlias = keyProperties.getProperty(fileAliasKeyName)
+        def keyPassword = keyProperties.getProperty(filePasswordKeyName)
+        def keyStorePassword = keyProperties.getProperty(fileStorePasswordKeyName)
+        if (keyFilePath && keyAlias && keyPassword && keyStorePassword) {
+            return keyProperties
+        } else {
+            throw new IllegalAccessException("One of the key information is not entered" +
+                    " or not valid! Please check key information in " + fileName + " again!")
+        }
+    } else {
+        throw new IllegalAccessException(fileName + " doesn't exist! Please make sure" +
+                " that you have this file for containing Release key information!")
+    }
+}
+
+def checkMAP_API_KEYIsAvailable() {
+    Properties localProperties = new Properties()
+    localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+    if (!localProperties.getProperty('MAPS_API_KEY')) {
+        throw new IllegalArgumentException("For using application, You should specify " +
+                "(MAPS_API_KEY) for the project. for creating it, you can check " +
+                "https://developers.google.com/maps/documentation/places/android-sdk/cloud-setup")
+    }
 }
