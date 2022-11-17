@@ -94,7 +94,7 @@ class MockEditorActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         binding = ActivityMockEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.statusBarColor = ContextCompat.getColor(this, R.color.colorSecondary)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.color_secondary)
 
         logger.disableLogHeaderForThisClass()
         logger.setClassInformationForEveryLog(javaClass.simpleName)

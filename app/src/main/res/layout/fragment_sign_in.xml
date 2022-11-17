@@ -38,7 +38,7 @@
                 android:layout_gravity="center_vertical"
                 android:fontFamily="@font/roboto_bold"
                 android:text="@string/app_name"
-                android:textColor="@color/colorSecondary"
+                android:textColor="@color/color_secondary"
                 android:textSize="32sp" />
 
             <TextView
@@ -74,7 +74,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/email"
             android:textColorHint="@color/colorPrimaryDark"
-            app:hintTextColor="@color/colorPrimary">
+            app:hintTextColor="@color/color_primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/emailTextInputEditText"
@@ -97,7 +97,7 @@
             android:textColorHint="@color/colorPrimaryDark"
             app:endIconMode="password_toggle"
             app:endIconTint="@color/colorPrimaryDark"
-            app:hintTextColor="@color/colorPrimary">
+            app:hintTextColor="@color/color_primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/passwordTextInputEditText"

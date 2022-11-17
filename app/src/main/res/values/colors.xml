@@ -6,13 +6,16 @@
     <color name="transparent">#00FFFFFF</color>
 
     <!-- Theme Colors -->
-    <color name="colorPrimary">#ffd88f</color>
-    <color name="colorOnPrimary">@color/colorSecondary</color>
+    <color name="color_primary">#ffd88f</color>
+    <color name="color_on_primary">#927949</color>
 
-    <color name="colorSecondary">#ff7893</color>
-    <color name="colorOnSecondary">@color/colorPrimary</color>
+    <color name="color_secondary">#ffd88f</color>
+    <color name="color_on_secondary">#927949</color>
 
     <!-- Custom Colors -->
+    <color name="color_primary_70">#B3FFD88F</color>
+    <color name="edit_text_error_color">#d03333</color>
+
     <color name="color_primary10">#fff7e8</color>
     <color name="colorPrimary1050Alpha">#80FFF7E8</color>
     <color name="colorPrimaryDark50Alpha">#80A86E00</color>

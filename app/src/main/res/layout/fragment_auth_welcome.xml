@@ -33,7 +33,7 @@
                 android:layout_gravity="center_vertical"
                 android:fontFamily="@font/roboto_bold"
                 android:text="@string/app_name"
-                android:textColor="@color/colorSecondary"
+                android:textColor="@color/color_secondary"
                 android:textSize="32sp" />
 
             <TextView

@@ -107,9 +107,9 @@ object NotificationManager {
         return if (rawIconData != null) {
             val drawableRes =
                 context.resources.getIdentifier(rawIconData, DRAWABLE_DEF, context.packageName)
-            if (drawableRes == 0) R.drawable.nmock_logo_notifcation else drawableRes
+            if (drawableRes == 0) R.drawable.nmock_logo else drawableRes
         } else {
-            R.drawable.nmock_logo_notifcation
+            R.drawable.nmock_logo
         }
     }
 }

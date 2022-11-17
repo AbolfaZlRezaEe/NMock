@@ -16,7 +16,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:background="@color/colorPrimary">
+        android:background="@color/color_primary">
 
         <ImageView
             android:id="@+id/backImageView"

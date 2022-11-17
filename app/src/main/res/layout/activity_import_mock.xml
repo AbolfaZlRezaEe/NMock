@@ -34,7 +34,7 @@
             android:fontFamily="@font/roboto_bold"
             android:gravity="center"
             android:text="@string/importTitle"
-            android:textColor="@color/colorSecondary"
+            android:textColor="@color/color_secondary"
             android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
