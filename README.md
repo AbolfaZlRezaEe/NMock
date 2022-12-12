@@ -1,10 +1,16 @@
 ![NMock Banner](https://user-images.githubusercontent.com/73066290/198220049-159f1118-b181-415d-bc61-c9a0d7b1bf87.png)
-
-> Maybe you think about how map android developers test their features and functionalities? should every person that wanna test the map applications have a car and go to the streets to test? actually, the answer is No! in Android, we have some applications that we call them "Mock", and these applications help us to generate fake locations or fake trips to test our Map application and for other purposes.
-
 ## :collision: What is the NMock?
+Ever wondered how Android developers test their map features and functionalities? Do they ride their cars or bikes to do so, or do they walk in the streets? The answer is no. 
+There are application in Android called Mock applications. They help us generate fake locations and trips to test the features. 
 
-**NMock** is an Application that helps you to generate fake locations, share fake trips to your friends, test your Map product, and so on... we build this application with **[Google Map SDK](https://developers.google.com/maps/documentation)**, **[Kotlin Language](https://kotlinlang.org/)**, **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** and also **[Dagger-Hilt Dependency Injection](https://dagger.dev/hilt/)**. follow this document to know how this application developed and works!
+**NMock** is an Application that helps you generate fake locations, share fake trips with your friends or colleagues to test the map feature in your product. We've built this application with with the help of the following product and services:
+- **[Google Map SDK](https://developers.google.com/maps/documentation)**
+-  **[Kotlin Language](https://kotlinlang.org/)** 
+- **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** 
+- **[Dagger-Hilt Dependency Injection](https://dagger.dev/hilt/)**. 
+
+
+This document is a guide on how the application works. It also covers steps on how to use it.
 
 ## :v: Contribute
 
