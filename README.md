@@ -1,9 +1,9 @@
 ![NMock Banner](https://user-images.githubusercontent.com/73066290/198220049-159f1118-b181-415d-bc61-c9a0d7b1bf87.png)
-## :collision: What is the NMock?
-Ever wondered how Android developers test their map features and functionalities? Do they ride their cars or bikes to do so, or do they walk in the streets? The answer is no. 
-There are application in Android called Mock applications. They help us generate fake locations and trips to test the features. 
+## :collision: What is NMock?
+Ever wondered how Android developers test map features and functionalities in their projects? Do they ride their cars or bikes to do so, or do they walk in the streets? The answer is no. 
+There are applications in Android called Mock applications. They help us generate fake locations and trips to test the features. 
 
-**NMock** is an Application that helps you generate fake locations, share fake trips with your friends or colleagues to test the map feature in your product. We've built this application with with the help of the following product and services:
+**NMock** is a tool that helps you generate fake locations and trips to test the map feature in your product. It enables you to share them with others as well. We've built this application with the help of the following product and services:
 - **[Google Map SDK](https://developers.google.com/maps/documentation)**
 -  **[Kotlin Language](https://kotlinlang.org/)** 
 - **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** 
