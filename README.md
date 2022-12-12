@@ -3,22 +3,24 @@
 Ever wondered how Android developers test map features and functionalities in their projects? Do they ride their cars or bikes to do so, or do they walk in the streets? The answer is no. 
 There are applications in Android called Mock applications. They help us generate fake locations and trips to test the features. 
 
-**NMock** is a tool that helps you generate fake locations and trips to test the map feature in your product. It enables you to share them with others as well. We've built this application with the help of the following product and services:
+**NMock** is a tool that helps you generate fake locations and trips to test the map feature in your product. It enables you to share them with others as well. We've built this application with the help of the following products and services:
 - **[Google Map SDK](https://developers.google.com/maps/documentation)**
 -  **[Kotlin Language](https://kotlinlang.org/)** 
 - **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** 
 - **[Dagger-Hilt Dependency Injection](https://dagger.dev/hilt/)**. 
 
 
-This document is a guide on how the application works. It also covers steps on how to use it.
+This document is a guide on how the application works. It also covers the required steps on how to use it.
 
-## :v: Contribute
+## :v: Contribution
+Make me happy by contributing to this project:blush:! You can help me fix bugs, add features and resolve issues so NMock can grow.
+To start your contribution, submit new issues and create pull requests. You can also check out the list of problems in the **[Issues Section](https://github.com/AbolfaZlRezaEe/NMock/issues)**.
 
-If you want to make me happy, you can contribute to this project:blush:! all of the time, we have some bugs, issues, and tasks that we can do in this project and help NMock to grow. so, if you want to contribute to this project, you can see the **[Issues Section](https://github.com/AbolfaZlRezaEe/NMock/issues)** or you can create a new issue and then create your pull request for that.
-
-also, we have an opportunity for those people that don't have programming knowledge. if you haven't programming knowledge, you can ask, report, or do anything you want in **[Issues Section](https://github.com/AbolfaZlRezaEe/NMock/issues)**.
+No knowledge of programming? Don’t worry; you can contribute by asking questions and reporting issues in the **[Issues Section](https://github.com/AbolfaZlRezaEe/NMock/issues)**.
 
 ## :triangular_ruler: Architecture
+
+I started this project based on the experiences I gained in previous projects. Private and public projects like **[Niky](https://github.com/AbolfaZlRezaEe/NikY)**. I learned a lot of helpful tips and tricks that played essential roles in doing this project.
 
 after some experience that I've taken in some private or public projects like **[Niky](https://github.com/AbolfaZlRezaEe/NikY)**, I've learned some good things that help me to build this project.
 
