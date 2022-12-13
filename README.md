@@ -1,7 +1,8 @@
 ![NMock Banner](https://user-images.githubusercontent.com/73066290/198220049-159f1118-b181-415d-bc61-c9a0d7b1bf87.png)
 ## :collision: What is NMock?
 Ever wondered how Android developers test map features and functionalities in their projects? Do they ride their cars or bikes to do so, or do they walk in the streets? The answer is no. 
-There are applications in Android called Mock applications. They help us generate fake locations and trips to test the features. 
+
+There are applications in Android called Mock applications. They help us generate fake locations and trips to test map features. 
 
 **NMock** is a tool that helps you generate fake locations and trips to test the map feature in your product. It enables you to share them with others as well. We've built this application with the help of the following products and services:
 - **[Google Map SDK](https://developers.google.com/maps/documentation)**
@@ -22,7 +23,6 @@ No knowledge of programming? Don’t worry; you can contribute by asking questio
 
 I started this project based on the experiences I gained in previous projects. Private and public projects like **[Niky](https://github.com/AbolfaZlRezaEe/NikY)**. I learned a lot of helpful tips and tricks that played essential roles in doing this project.
 
-after some experience that I've taken in some private or public projects like **[Niky](https://github.com/AbolfaZlRezaEe/NikY)**, I've learned some good things that help me to build this project.
 
 at the first, I use MVVM and a piece of MVI architecture in this project. so, the application can be summarized in the chart below:
 
