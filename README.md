@@ -23,8 +23,7 @@ No knowledge of programming? Don’t worry; you can contribute by asking questio
 
 I started this project based on the experiences I gained in previous projects. Private and public projects like **[Niky](https://github.com/AbolfaZlRezaEe/NikY)**. I learned a lot of helpful tips and tricks that played essential roles in doing this project.
 
-
-at the first, I use MVVM and a piece of MVI architecture in this project. so, the application can be summarized in the chart below:
+To implement this project I used MVVM and MVI approach. The whole architecture can be summarized into the following image:
 
 ![architecture picture](https://user-images.githubusercontent.com/73066290/172200195-27916ce9-b467-42d3-b0f4-b650682bd1ea.png)
 
