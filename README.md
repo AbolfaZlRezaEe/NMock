@@ -1,3 +1,12 @@
+- [:collision: What is NMock?](#collision-what-is-nmock)
+- [:v: Contribution](#v-contribution)
+- [:triangular\_ruler: Architecture](#triangular_ruler-architecture)
+  - [Data source](#data-source)
+  - [Repositories](#repositories)
+- [:arrow\_left::arrow\_right: Mock Import/Export file structure](#arrow_leftarrow_right-mock-importexport-file-structure)
+  - [Export](#export)
+  - [Import](#import)
+- [:bookmark\_tabs: Helpful tips](#bookmark_tabs-helpful-tips)
 
 ## :collision: What is NMock?
 Ever wondered how Android developers test map features and functionalities in their projects? Do they ride their cars or bikes to do so, or do they walk in the streets? The answer is no. 
@@ -12,7 +21,7 @@ There are applications in Android called Mock applications. They help us generat
 
 ![NMock Banner](https://user-images.githubusercontent.com/73066290/198220049-159f1118-b181-415d-bc61-c9a0d7b1bf87.png)
 
-This document is a guide on how the application works. It also covers the required steps on how to use it.
+This document is a guide on how this application works.
 
 ## :v: Contribution
 Make me happy by contributing to this project:blush:! You can help me fix bugs, add features and resolve issues so NMock can grow.
