@@ -47,7 +47,8 @@ Then, we have three repositories that help us to manage these requests from **Vi
 
 ![architecture models](https://user-images.githubusercontent.com/73066290/172200304-0e7baeb1-7ae0-462c-97a8-cea06299aee0.png)
 
-> the left model represents the data that we receive from the server. and the right picture represents the data that we need for our view.
+> The code on the left represents the data structure we receive from the server, and the code on the right indicates the structure we need for our view.
+
 
 in ViewModels, we have a different approach for giving access to the Views. every ViewModel can have two outputs and Views can use those for managing their views and actions. at the first, we have a **Stateflow** that represents the state for the view. this flow contains all of the information that the view needs to show(like MVI approach).
 
