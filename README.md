@@ -97,7 +97,7 @@ One of the important actions that Sharedflows can do upon receiving an action fr
 
 Sometimes you need to share your trip data with your friends or colleagues. We have implemented a feature allowing you to easily share your mocked data in JSON format.
 
-### Exporting Structure
+### Export
 
 We store your mock trip data and its state in **JSON** format. We use the same format to export this data. The following JSON is how we structure this data to export:
 
@@ -151,11 +151,19 @@ We store your mock trip data and its state in **JSON** format. We use the same f
 |**route_information**|Object| Route information and line. **route_lines** is the most important field in this object. It is an array containing a list of positions (nodes) to draw lines on the map. Every array item has a **latitude** and **longitude** for its position.
 
 
-### Importing structure
+### Import
 
-as you can see in exporting section, you can share a `.json` file to your friends everywhere you want. for importing it, we can **Only** receive this `.json` file in the import section of the application(for the future, We have a plan for importing mocks in many ways!).
+As you see in the previous section, you can export and share your mock data with your friends and colleagues in JSON format. To import any data to your project, you can easily import this file using the import feature. ( We have plans in the near future to add other methods to import data )
 
-We save this `Json` file information like normal mocks but in a different table in the application database. We also save some extra information like: `fileCreatedAt`, `fileOwner` and `versionCode` in imported mock table. the reason that We split these mocks from normal mocks that you create in the application is, maybe the information of imported mocks can be less than normal mocks in the future. also, We have a plan for a new UI to show imported mocks in a different place in the application. so we create a new place for saving these mocks to managing them very easily in the future.
+We store this imported JSON data like standard mock data in a different database table. We add the following additional column to each row:
+- fileCreatedAt
+- fileOwner
+- versionCode
+
+We separated the imported data so we could manage them easily. These are the reasons that give us the ability to do so:
+
+- We may have less imported data in the future.
+- We have a plan to implement a separate UI to display imported data.
 
 The structure of **Mock** model section of application is now like this:
 
