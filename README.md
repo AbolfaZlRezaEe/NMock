@@ -89,13 +89,13 @@ private fun initObservers() {
     }
 ```
 
-an important thing that these Sharedflows can do is when an action receives from viewModel, it can be parsed and do an action to undo a thing in view. for example we call a function that requests receiving information from the server, and this request will be failed. for that, we send an action to view and cancel some stuff that we turned on before. you can see an example of that below:
+One of the important actions that Sharedflows can do upon receiving an action from the ViewModel is to parse the action and undo something in view. For example, imagine that you sent a request to the server to retrieve data, but the server did not respond; now, we should send an action and hide or disable something that was shown or enabled before. The following image shows the flow:
 
 ![error architecture](https://user-images.githubusercontent.com/73066290/172200355-c851739b-7dbd-4ce2-a419-22a66a0b2bf3.png)
 
 ## :arrow_left::arrow_right: Mock Import/Export file structure
 
-In some situations, you need to share your trip with your friends or your team workers. we have a feature that gives access you, to share your mock and send it everywhere you want. but what's the structure of this export file?
+Sometimes you need to share your trip data with your friends or colleagues. We have implemented a feature allowing you to easily share your mocked data in JSON format. The following JSON code is how we structure this data.
 
 ### Exporting Structure
 
