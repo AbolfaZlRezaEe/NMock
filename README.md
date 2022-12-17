@@ -51,7 +51,7 @@ Then, we have three repositories that help us to manage these requests from **Vi
 
 
 In ViewModels, we have two different approaches to accessing the views. Each ViewModel has two outputs that can be used by Views to manage their views and actions:
-- The first one is **Stateflow** which represents the state of the view. This flow contains all the information that the view needs to display (MVI approach)
+- The first one is a **Stateflow** which represents the state of the view. This flow contains all the information that the view needs to display (MVI approach)
 - The second one works with a **Sharedflow** and sends some actions that can either contain a message or be empty. View, then parse these actions and perform several actions, like displaying an error, for example. 
 
 ```kotlin
