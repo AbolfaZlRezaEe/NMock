@@ -43,11 +43,14 @@ Then you can store all this information in your local database.
 
 ### Repositories
 
-Then, we have three repositories that help us to manage these requests from **ViewModels**. This section is important because all of the processes make and control here. so, we receive data and convert that to a model that **ViewModels** can use and parse it for **Views**. in the picture below, you can see the difference between the two of them:
+We implemented three repositories that help us manage these requests from **ViewModels**. This section is essential because it makes and controlled all of the processes. 
+We receive data and convert them into a standard model so that **ViewModels** can use and parse them for **Views**. 
+
+The following image, shows the difference between the two of them:
 
 ![architecture models](https://user-images.githubusercontent.com/73066290/172200304-0e7baeb1-7ae0-462c-97a8-cea06299aee0.png)
 
-> The code on the left represents the data structure we receive from the server, and the code on the right indicates the structure we need for our view.
+> The code on the left represents the data structure we receive from the server, and the code on the right indicates the format we need for our view.
 
 
 In ViewModels, we have two different approaches to accessing the views. Each ViewModel has two outputs that can be used by Views to manage their views and actions:
@@ -95,7 +98,7 @@ One of the important actions that Sharedflows can do upon receiving an action fr
 
 ## :arrow_left::arrow_right: Mock Import/Export file structure
 
-Sometimes you need to share your trip data with your friends or colleagues. We have implemented a feature allowing you to easily share your mocked data in JSON format.
+Sometimes you need to share your trip data with your friends or colleagues. We have implemented a feature allowing you to share your mocked data in JSON format easily.
 
 ### Export
 
