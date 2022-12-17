@@ -50,9 +50,9 @@ Then, we have three repositories that help us to manage these requests from **Vi
 > The code on the left represents the data structure we receive from the server, and the code on the right indicates the structure we need for our view.
 
 
-in ViewModels, we have a different approach for giving access to the Views. every ViewModel can have two outputs and Views can use those for managing their views and actions. at the first, we have a **Stateflow** that represents the state for the view. this flow contains all of the information that the view needs to show(like MVI approach).
-
-and the second output that works with **Sharedflow** sends some actions that can have a message or not. Views parse these actions and then, do an action in view like showing an error and so on... for example:
+In ViewModels, we have two different approaches to accessing the views. Each ViewModel has two outputs that can be used by Views to manage their views and actions:
+- The first one is **Stateflow** which represents the state of the view. This flow contains all the information that the view needs to display (MVI approach)
+- The second one works with a **Sharedflow** and sends some actions that can either contain a message or be empty. View, then parse these actions and perform several actions, like displaying an error, for example. 
 
 ```kotlin
 private fun initObservers() {
