@@ -43,7 +43,7 @@ Then you can store all this information in your local database.
 
 ### Repositories
 
-We implemented three repositories that help us manage these requests from **ViewModels**. This section is essential because it makes and controlled all of the processes. 
+We implemented three repositories that help us manage the requests from **ViewModels**. This section is essential because it makes and controlled all of the processes. 
 We receive data and convert them into a standard model so that **ViewModels** can use and parse them for **Views**. 
 
 The following image, shows the difference between the two of them:
