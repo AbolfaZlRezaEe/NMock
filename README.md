@@ -23,15 +23,27 @@ No knowledge of programming? Don’t worry; you can contribute by asking questio
 
 I started this project based on the experiences I gained in previous projects. Private and public projects like **[Niky](https://github.com/AbolfaZlRezaEe/NikY)**. I learned a lot of helpful tips and tricks that played essential roles in doing this project.
 
-To implement this project I used MVVM and MVI approach. The whole architecture can be summarized into the following image:
+I used the MVVM, and the MVI approaches to implement this project. The whole architecture can be summarized in the following image:
 
 ![architecture picture](https://user-images.githubusercontent.com/73066290/172200195-27916ce9-b467-42d3-b0f4-b650682bd1ea.png)
 
-as you can see, we have two sources for our data in the application. remote API and Database. with remote API, we can request location information(reverse Geocoding) and also routing information for our trip. and if we want to save our trip, the database does that for us.
+### Data source
 
-> also, we use **[Neshan API](https://platform.neshan.org/)** to receive these informations. you can check the documentation as well.
+As you can see in the above image, there are two sources of data in this application:
+- Remote API
+- Local database
 
-after that, we have three repositories that help us to manage these requests from **ViewModels**. this section is important because all of the processes make and control here. so, we receive data and convert that to a model that **ViewModels** can use and parse it for **Views**. in the picture below, you can see the difference between the two of them:
+Using the remote API, you can 
+- Retrieve location information (reverse Geocoding)
+- Retrieve routing information for your trip.
+  
+Then you can store all this information in your local database. 
+
+> **[Neshan API](https://platform.neshan.org/)** is one of the APIs we use to retrieve information. Check out their documentation as well.
+
+### Repositories
+
+Then, we have three repositories that help us to manage these requests from **ViewModels**. This section is important because all of the processes make and control here. so, we receive data and convert that to a model that **ViewModels** can use and parse it for **Views**. in the picture below, you can see the difference between the two of them:
 
 ![architecture models](https://user-images.githubusercontent.com/73066290/172200304-0e7baeb1-7ae0-462c-97a8-cea06299aee0.png)
 
