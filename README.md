@@ -95,11 +95,11 @@ One of the important actions that Sharedflows can do upon receiving an action fr
 
 ## :arrow_left::arrow_right: Mock Import/Export file structure
 
-Sometimes you need to share your trip data with your friends or colleagues. We have implemented a feature allowing you to easily share your mocked data in JSON format. The following JSON code is how we structure this data.
+Sometimes you need to share your trip data with your friends or colleagues. We have implemented a feature allowing you to easily share your mocked data in JSON format.
 
 ### Exporting Structure
 
-as you maybe know, we save your mock trip and the state of that. for exporting the mock trip, we use **JSON** as a format of the file. the structure of this file is like this:
+We store your mock trip data and its state in **JSON** format. We use the same format to export this data. The following JSON is how we structure this data to export:
 
 ```json
 {
@@ -142,17 +142,14 @@ as you maybe know, we save your mock trip and the state of that. for exporting t
 }
 ```
 
-1. **file_created_at(String)**: We save the Date/Time of the export file created in this field.
+|Name| Type | Description |
+|--|--|--|
+| **file_created_at** | String | Creation Date/Time of the exported JSON file
+|**file_owner**|String|User UUID
+|**version_code**|Number| Application version code
+|**mock_information**|Object| Necessary mock data
+|**route_information**|Object| Route information and line. **route_lines** is the most important field in this object. It is an array containing a list of positions (nodes) to draw lines on the map. Every array item has a **latitude** and **longitude** for its position.
 
-2. **file_owner(String)**: We save the User UUID in this field.
-
-3. **version_code(Int)**: We save the application version code in this field.
-
-4. **mock_information(Object)**: For saving mock information, we use an object that we call **mock_information**. as you can see, we save necessary information in that.
-
-5. **route_information(Object)**: For saving route information and lines, we use this object for it. the important field of this object is **route_lines**. this object contains a list of positions that we should have for drawing lines on the map. every line has a **latitude** and **longitude** for its position.
-
-we save this file in the format of `.json`. you can share it everywhere you want. maybe you think how can we import it?
 
 ### Importing structure
 
