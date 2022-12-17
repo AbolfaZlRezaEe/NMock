@@ -165,14 +165,14 @@ We separated the imported data so we could manage them easily. These are the rea
 - We may have less imported data in the future.
 - We have a plan to implement a separate UI to display imported data.
 
-The structure of **Mock** model section of application is now like this:
+The following image indicates the current structure of the **Mock** model section of the application.
 
 ![mock model instruction](https://user-images.githubusercontent.com/73066290/183247981-327e3280-d966-4908-aa95-49f2ca74f5be.png)
 
-## :bookmark_tabs: Tips that help you...
+## :bookmark_tabs: Helpful tips
 
-for developing this application, we have some tips that maybe can help you:
+These are some helpful tips for developers:
 
-- If you want to Contribute, before starting that, please create an issue and describe your idea and assign that to me. I will check that as soon as possible.
-- We publish this application in GooglePlay as soon as possible. so for now, you can install application from [release section](https://github.com/AbolfaZlRezaEe/NMock/releases) in repository.
+- Before starting any contribution, please create an issue and describe your idea and then assign the issue to me. I will take a look as soon as possible.
+- Soon, we will publish this application in the Google play store. But for now, you can install it from the [release](https://github.com/AbolfaZlRezaEe/NMock/releases) section of this repository. 
 
