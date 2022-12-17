@@ -1,4 +1,4 @@
-![NMock Banner](https://user-images.githubusercontent.com/73066290/198220049-159f1118-b181-415d-bc61-c9a0d7b1bf87.png)
+
 ## :collision: What is NMock?
 Ever wondered how Android developers test map features and functionalities in their projects? Do they ride their cars or bikes to do so, or do they walk in the streets? The answer is no. 
 
@@ -10,6 +10,7 @@ There are applications in Android called Mock applications. They help us generat
 - **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** 
 - **[Dagger-Hilt Dependency Injection](https://dagger.dev/hilt/)**. 
 
+![NMock Banner](https://user-images.githubusercontent.com/73066290/198220049-159f1118-b181-415d-bc61-c9a0d7b1bf87.png)
 
 This document is a guide on how the application works. It also covers the required steps on how to use it.
 
@@ -43,8 +44,7 @@ Then you can store all this information in your local database.
 
 ### Repositories
 
-We implemented three repositories that help us manage the requests from **ViewModels**. This section is essential because it makes and controlled all of the processes. 
-We receive data and convert them into a standard model so that **ViewModels** can use and parse them for **Views**. 
+We created three repositories to help us manage **ViewModel** requests. This section is critical because it creates and controls all processes. We receive data and transform it into a standard model that ViewModels can use and parse for **Views**.
 
 The following image, shows the difference between the two of them:
 
