@@ -1,38 +1,70 @@
 ![NMock Banner](https://user-images.githubusercontent.com/73066290/198220049-159f1118-b181-415d-bc61-c9a0d7b1bf87.png)
 
-> Maybe you think about how map android developers test their features and functionalities? should every person that wanna test the map applications have a car and go to the streets to test? actually, the answer is No! in Android, we have some applications that we call them "Mock", and these applications help us to generate fake locations or fake trips to test our Map application and for other purposes.
+- [:collision: What is NMock?](#collision-what-is-nmock)
+- [:v: Contribution](#v-contribution)
+- [:triangular\_ruler: Architecture](#triangular_ruler-architecture)
+  - [Data source](#data-source)
+  - [Repositories](#repositories)
+- [:arrow\_left::arrow\_right: Mock Import/Export file structure](#arrow_leftarrow_right-mock-importexport-file-structure)
+  - [Export](#export)
+  - [Import](#import)
+- [:bookmark\_tabs: Helpful tips](#bookmark_tabs-helpful-tips)
 
-## :collision: What is the NMock?
+## :collision: What is NMock?
+Ever wondered how Android developers test map features and functionalities in their projects? Do they ride their cars or bikes to do so, or do they walk in the streets? The answer is no. 
 
-**NMock** is an Application that helps you to generate fake locations, share fake trips to your friends, test your Map product, and so on... we build this application with **[Google Map SDK](https://developers.google.com/maps/documentation)**, **[Kotlin Language](https://kotlinlang.org/)**, **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** and also **[Dagger-Hilt Dependency Injection](https://dagger.dev/hilt/)**. follow this document to know how this application developed and works!
+There are applications in Android called Mock applications. They help us generate fake locations and trips to test map features. 
 
-## :v: Contribute
+**NMock** is a tool that helps you generate fake locations and trips to test the map feature in your product. It enables you to share them with others as well. We've built this application with the help of the following products and services:
+- **[Google Map SDK](https://developers.google.com/maps/documentation)**
+-  **[Kotlin Language](https://kotlinlang.org/)** 
+- **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** 
+- **[Dagger-Hilt Dependency Injection](https://dagger.dev/hilt/)**. 
 
-If you want to make me happy, you can contribute to this project:blush:! all of the time, we have some bugs, issues, and tasks that we can do in this project and help NMock to grow. so, if you want to contribute to this project, you can see the **[Issues Section](https://github.com/AbolfaZlRezaEe/NMock/issues)** or you can create a new issue and then create your pull request for that.
 
-also, we have an opportunity for those people that don't have programming knowledge. if you haven't programming knowledge, you can ask, report, or do anything you want in **[Issues Section](https://github.com/AbolfaZlRezaEe/NMock/issues)**.
+
+## :v: Contribution
+Make me happy by contributing to this project:blush:! You can help me fix bugs, add features and resolve issues so NMock can grow.
+To start your contribution, submit new issues and create pull requests. You can also check out the list of problems in the **[Issues Section](https://github.com/AbolfaZlRezaEe/NMock/issues)**.
+
+No knowledge of programming? Don’t worry; you can contribute by asking questions and reporting issues in the **[Issues Section](https://github.com/AbolfaZlRezaEe/NMock/issues)**.
 
 ## :triangular_ruler: Architecture
 
-after some experience that I've taken in some private or public projects like **[Niky](https://github.com/AbolfaZlRezaEe/NikY)**, I've learned some good things that help me to build this project.
+I started this project based on the experiences I gained in previous projects. Private and public projects like **[Niky](https://github.com/AbolfaZlRezaEe/NikY)**. I learned a lot of helpful tips and tricks that played essential roles in doing this project.
 
-at the first, I use MVVM and a piece of MVI architecture in this project. so, the application can be summarized in the chart below:
+I used the MVVM, and the MVI approaches to implement this project. The whole architecture can be summarized in the following image:
 
 ![architecture picture](https://user-images.githubusercontent.com/73066290/172200195-27916ce9-b467-42d3-b0f4-b650682bd1ea.png)
 
-as you can see, we have two sources for our data in the application. remote API and Database. with remote API, we can request location information(reverse Geocoding) and also routing information for our trip. and if we want to save our trip, the database does that for us.
+### Data source
 
-> also, we use **[Neshan API](https://platform.neshan.org/)** to receive these informations. you can check the documentation as well.
+As you can see in the above image, there are two sources of data in this application:
+- Remote API
+- Local database
 
-after that, we have three repositories that help us to manage these requests from **ViewModels**. this section is important because all of the processes make and control here. so, we receive data and convert that to a model that **ViewModels** can use and parse it for **Views**. in the picture below, you can see the difference between the two of them:
+Using the remote API, you can 
+- Retrieve location information (reverse Geocoding)
+- Retrieve routing information for your trip.
+  
+Then you can store all this information in your local database. 
+
+> **[Neshan API](https://platform.neshan.org/)** is one of the APIs we use to retrieve information. Check out their documentation as well.
+
+### Repositories
+
+We created three repositories to help us manage **ViewModel** requests. This section is critical because it creates and controls all processes. We receive data and transform it into a standard model that ViewModels can use and parse for **Views**.
+
+The following image, shows the difference between the two of them:
 
 ![architecture models](https://user-images.githubusercontent.com/73066290/172200304-0e7baeb1-7ae0-462c-97a8-cea06299aee0.png)
 
-> the left model represents the data that we receive from the server. and the right picture represents the data that we need for our view.
+> The code on the left represents the data structure we receive from the server, and the code on the right indicates the format we need for our view.
 
-in ViewModels, we have a different approach for giving access to the Views. every ViewModel can have two outputs and Views can use those for managing their views and actions. at the first, we have a **Stateflow** that represents the state for the view. this flow contains all of the information that the view needs to show(like MVI approach).
 
-and the second output that works with **Sharedflow** sends some actions that can have a message or not. Views parse these actions and then, do an action in view like showing an error and so on... for example:
+In ViewModels, we have two different approaches to accessing the views. Each ViewModel has two outputs that can be used by Views to manage their views and actions:
+- The first one is a **Stateflow** which represents the state of the view. This flow contains all the information that the view needs to display (MVI approach)
+- The second one works with a **Sharedflow** and sends some actions that can either contain a message or be empty. View, then parse these actions and perform several works, like displaying an error, for example. 
 
 ```kotlin
 private fun initObservers() {
@@ -69,17 +101,17 @@ private fun initObservers() {
     }
 ```
 
-an important thing that these Sharedflows can do is when an action receives from viewModel, it can be parsed and do an action to undo a thing in view. for example we call a function that requests receiving information from the server, and this request will be failed. for that, we send an action to view and cancel some stuff that we turned on before. you can see an example of that below:
+One of the important actions that Sharedflows can do upon receiving an action from the ViewModel is to parse the action and undo something in view. For example, imagine that you sent a request to the server to retrieve data, but the server did not respond; now, we should send an action and hide or disable something that was shown or enabled before. The following image shows the flow:
 
 ![error architecture](https://user-images.githubusercontent.com/73066290/172200355-c851739b-7dbd-4ce2-a419-22a66a0b2bf3.png)
 
 ## :arrow_left::arrow_right: Mock Import/Export file structure
 
-In some situations, you need to share your trip with your friends or your team workers. we have a feature that gives access you, to share your mock and send it everywhere you want. but what's the structure of this export file?
+Sometimes you need to share your trip data with your friends or colleagues. We have implemented a feature allowing you to share your mocked data in JSON format easily.
 
-### Exporting Structure
+### Export
 
-as you maybe know, we save your mock trip and the state of that. for exporting the mock trip, we use **JSON** as a format of the file. the structure of this file is like this:
+We store your mock trip data and its state in the database. We use the same format to export this data. The following JSON is how we structure this data to export:
 
 ```json
 {
@@ -122,32 +154,37 @@ as you maybe know, we save your mock trip and the state of that. for exporting t
 }
 ```
 
-1. **file_created_at(String)**: We save the Date/Time of the export file created in this field.
+|Name| Type | Description |
+|--|--|--|
+| **file_created_at** | String | Creation Date/Time of the exported JSON file
+|**file_owner**|String|User UUID
+|**version_code**|Number| Application version code
+|**mock_information**|Object| Necessary mock data
+|**route_information**|Object| Route information and line. **route_lines** is the most important field in this object. It is an array containing a list of positions (nodes) to draw lines on the map. Every array item has a **latitude** and **longitude** for its position.
 
-2. **file_owner(String)**: We save the User UUID in this field.
 
-3. **version_code(Int)**: We save the application version code in this field.
+### Import
 
-4. **mock_information(Object)**: For saving mock information, we use an object that we call **mock_information**. as you can see, we save necessary information in that.
+As you see in the previous section, you can export and share your mock data with your friends and colleagues in JSON format. To import any data to your project, you can easily import this file using the import feature. ( We have plans in the near future to add other methods to import data )
 
-5. **route_information(Object)**: For saving route information and lines, we use this object for it. the important field of this object is **route_lines**. this object contains a list of positions that we should have for drawing lines on the map. every line has a **latitude** and **longitude** for its position.
+We store this imported JSON data like standard mock data in a different database table. We add the following additional column to each row:
+- fileCreatedAt
+- fileOwner
+- versionCode
 
-we save this file in the format of `.json`. you can share it everywhere you want. maybe you think how can we import it?
+We separated the imported data so we could manage them easily. These are the reasons that give us the ability to do so:
 
-### Importing structure
+- Maybe We have a different structure for the imported mocks in the future
+- In the future, We wanna implement a different flow for showing imported mocks in UI and Logic too.
 
-as you can see in exporting section, you can share a `.json` file to your friends everywhere you want. for importing it, we can **Only** receive this `.json` file in the import section of the application(for the future, We have a plan for importing mocks in many ways!).
-
-We save this `Json` file information like normal mocks but in a different table in the application database. We also save some extra information like: `fileCreatedAt`, `fileOwner` and `versionCode` in imported mock table. the reason that We split these mocks from normal mocks that you create in the application is, maybe the information of imported mocks can be less than normal mocks in the future. also, We have a plan for a new UI to show imported mocks in a different place in the application. so we create a new place for saving these mocks to managing them very easily in the future.
-
-The structure of **Mock** model section of application is now like this:
+The following image indicates the current structure of the **Mock** model section of the application.
 
 ![mock model instruction](https://user-images.githubusercontent.com/73066290/183247981-327e3280-d966-4908-aa95-49f2ca74f5be.png)
 
-## :bookmark_tabs: Tips that help you...
+## :bookmark_tabs: Helpful tips
 
-for developing this application, we have some tips that maybe can help you:
+These are some helpful tips for developers:
 
-- If you want to Contribute, before starting that, please create an issue and describe your idea and assign that to me. I will check that as soon as possible.
-- We publish this application in GooglePlay as soon as possible. so for now, you can install application from [release section](https://github.com/AbolfaZlRezaEe/NMock/releases) in repository.
+- Before starting any contribution, please create an issue and describe your idea and then assign the issue to me. I will take a look as soon as possible.
+- Soon, we will publish this application in the Google play store. But for now, you can install it from the [release](https://github.com/AbolfaZlRezaEe/NMock/releases) section of this repository. 
 
