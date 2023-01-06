@@ -1,3 +1,5 @@
+![NMock Banner](https://user-images.githubusercontent.com/73066290/198220049-159f1118-b181-415d-bc61-c9a0d7b1bf87.png)
+
 - [:collision: What is NMock?](#collision-what-is-nmock)
 - [:v: Contribution](#v-contribution)
 - [:triangular\_ruler: Architecture](#triangular_ruler-architecture)
@@ -19,9 +21,7 @@ There are applications in Android called Mock applications. They help us generat
 - **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** 
 - **[Dagger-Hilt Dependency Injection](https://dagger.dev/hilt/)**. 
 
-![NMock Banner](https://user-images.githubusercontent.com/73066290/198220049-159f1118-b181-415d-bc61-c9a0d7b1bf87.png)
 
-This document is a guide on how this application works.
 
 ## :v: Contribution
 Make me happy by contributing to this project:blush:! You can help me fix bugs, add features and resolve issues so NMock can grow.
@@ -64,7 +64,7 @@ The following image, shows the difference between the two of them:
 
 In ViewModels, we have two different approaches to accessing the views. Each ViewModel has two outputs that can be used by Views to manage their views and actions:
 - The first one is a **Stateflow** which represents the state of the view. This flow contains all the information that the view needs to display (MVI approach)
-- The second one works with a **Sharedflow** and sends some actions that can either contain a message or be empty. View, then parse these actions and perform several actions, like displaying an error, for example. 
+- The second one works with a **Sharedflow** and sends some actions that can either contain a message or be empty. View, then parse these actions and perform several works, like displaying an error, for example. 
 
 ```kotlin
 private fun initObservers() {
@@ -111,7 +111,7 @@ Sometimes you need to share your trip data with your friends or colleagues. We h
 
 ### Export
 
-We store your mock trip data and its state in **JSON** format. We use the same format to export this data. The following JSON is how we structure this data to export:
+We store your mock trip data and its state in the database. We use the same format to export this data. The following JSON is how we structure this data to export:
 
 ```json
 {
@@ -174,8 +174,8 @@ We store this imported JSON data like standard mock data in a different database
 
 We separated the imported data so we could manage them easily. These are the reasons that give us the ability to do so:
 
-- We may have less imported data in the future.
-- We have a plan to implement a separate UI to display imported data.
+- Maybe We have a different structure for the imported mocks in the future
+- In the future, We wanna implement a different flow for showing imported mocks in UI and Logic too.
 
 The following image indicates the current structure of the **Mock** model section of the application.
 
